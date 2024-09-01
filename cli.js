@@ -21,20 +21,28 @@ yargs(hideBin(process.argv))
   .help('help').alias('help', 'h')
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
   .option('verbose', { alias: 'v', count: true, default: 0 })
+  .option('include', { default: '**/.todo;**/*.tsx', type: 'string' })
+  .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('g', { describe: 'Assignee, if not defined git user email will be used', alias: 'assignee', default: null, type: 'string' })
+  .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
   // 
-  .command('ls [assignee]', 'Show list of tasks', (yargs) => {
-    return yargs;
+  .command('ls [what] [-g assignee]', 'Show list of tasks', (yargs) => {
+    return yargs
+      .positional('what', {
+        describe: 'Group to display: tasks, team, timeline or all',
+        default: 'tasks'
+      })
   }, async (argv) => {
     getApp(async (a) => {
+      //console.log('ls', argv);
       // find assignee
       let nonGit = false;
       let assignee = argv.assignee;
       const cwd = process.cwd();
       let home = cwd;
       try {
-        assignee = exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+        assignee = assignee || exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
       } catch (e) {
         nonGit = true;
       }
@@ -50,7 +58,15 @@ yargs(hideBin(process.argv))
       }
 
       if (assignee !== null) {
-        await a.ls(home, cwd, assignee);
+        await a.ls({
+          home,
+          cwd,
+          include: argv.include.split(';'),
+          ignore: argv.ignore.split(';'),
+          what: argv.what,
+          assignee,
+          search: argv.search || [],
+          all: argv.all});
       } else {
         console.error('Assignee is not defined, please use -g option');
       } 
