@@ -7,4 +7,13 @@
   [?] - <status:tbd>
   [!] - <status:blocked>
   
-  <tag> - assignee, relative path, url etc.
+
+  @user
+  #tag
+  <link>  
+  
+
+  /@[a-z,\.,-,_]+/gi
+  /#[a-z,\.,-,_]+/gi
+  /<[a-z,\.,-,_,/,:]+>/gi
+  

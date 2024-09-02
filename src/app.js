@@ -47,7 +47,7 @@ class App {
           if (config) {
             if (config.team) {
               Object.keys(config.team).forEach( m => {
-                if (config.team[m] === assignee) {
+                if (config.team[m].email === assignee) {
                   toSearch.push(m);
                 }
               });

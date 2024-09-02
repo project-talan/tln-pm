@@ -27,6 +27,7 @@
   "homepage": "https://github.com/project-talan/tln-pm#readme",
   "dependencies": {
     "fast-glob": "^3.3.2",
+    "find-up": "^4.1.0",
     "js-yaml": "^4.1.0",
     "yargs": "^17.7.2"
   }

@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const exec = require('child_process').execSync;
 
+const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -17,11 +18,13 @@ const getApp = async (fn) => {
   await fn(a);
 }
 
+const configPath = findUp.sync(['.tpmrc']);
 yargs(hideBin(process.argv))
   .help('help').alias('help', 'h')
+  .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
   .option('verbose', { alias: 'v', count: true, default: 0 })
-  .option('include', { default: '**/.todo;**/*.tsx', type: 'string' })
+  .option('include', { default: '**/.todo', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('g', { describe: 'Assignee, if not defined git user email will be used', alias: 'assignee', default: null, type: 'string' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
