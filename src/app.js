@@ -35,11 +35,11 @@ class App {
       
       const content = fs.readFileSync(path.join(home, e), {encoding: 'utf8'});
       //
-      const r = content.match(/\/\*\s{0,}(TALAN)[^*]*\*+([^\/][^*]*\*+)*\//g);
+      const r = content.match(/\/\*\s{0,}(TPM)[^*]*\*+([^\/][^*]*\*+)*\//g);
       if (!!r) {
         let first = true;
         r.forEach( c => {
-          const x = c.replace(/\/\*\s{0,}(TALAN)/,'');
+          const x = c.replace(/\/\*\s{0,}(TPM)/,'');
           const y = x.replace(/\*\//,'');
           //
           const config = yaml.load(y, 'utf8');
@@ -47,7 +47,7 @@ class App {
           if (config) {
             if (config.team) {
               Object.keys(config.team).forEach( m => {
-                if (config.team[m] === assignee) {
+                if (config.team[m].email === assignee) {
                   toSearch.push(m);
                 }
               });
@@ -55,6 +55,11 @@ class App {
             }
             if (config.timeline) {
             }
+            /*
+              /@[a-z,\.,-,_]+/gi
+              /#[a-z,\.,-,_]+/gi
+              /<[a-z,\.,-,_,/,:]+>/gi
+            */
             if (config.tasks) {
               config.tasks.split('\n').forEach( t => {
                 const found = toSearch.find( s => t.indexOf(s) !== -1);
