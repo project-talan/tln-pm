@@ -1,15 +1,14 @@
-/* TALAN
+/* TPM
 
 team:
   "vlad.k":
     email: vladislav.kurmaz@gmail.com
 
 tasks: |
-  [+:001] Read config with parameters (include, ignore etc.) @vlad.k
-  [:002] Update README.md @vlad.k
-  [:003] Create hierarchy of nodes with descriptions @vlad.k
-  [:004] Implement ls for team @vlad.k
-  [:005] Implement ls command for timeline @vlad.k
   [:006] Server command: express server + fs watch @vlad.k
-
+  [:005] Implement ls command for timeline @vlad.k
+  [:004] Implement ls for team @vlad.k
+  [:003] Create hierarchy of nodes with descriptions @vlad.k
+  [>:002] Update README.md @vlad.k
+  [+:001] Read config with parameters (include, ignore etc.) @vlad.k
 */
