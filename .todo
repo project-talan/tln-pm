@@ -8,14 +8,18 @@ timeline:
   "v0.2.0":
     date: "2024-09-04"
   "v0.3.0":
+    date: "2024-09-12"
+  "v0.4.0":
     date: "2024-09-xx"
 
 tasks: |
-  [:006] Server command: express server + fs watch @vlad.k
-  [:005] Implement ls command for timeline @vlad.k
-  [:004] Implement ls for team @vlad.k
-  [:003] Create hierarchy of nodes with descriptions @vlad.k
+  [:008] Merge multiple descriptions from one file @vlad.k
+  [:007] Server command: express server + fs watch @vlad.k
+  [:006:v0.4.0] Extract status, assingees, links, tags, timeline from task description @vlad.k
+  [:005:v0.4.0] Implement ls command for timeline @vlad.k
+  [:004:v0.4.0] Implement ls for team @vlad.k
+  [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:v0.2.0] Update README.md @vlad.k
-  [+:001:v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
+  [+::v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
 
 */

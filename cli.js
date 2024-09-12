@@ -10,11 +10,13 @@ const exec = require('child_process').execSync;
 
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
-const { hideBin } = require('yargs/helpers')
+const { hideBin } = require('yargs/helpers');
+const { option } = require('yargs');
 
-const getApp = async (fn) => {
+const getApp = async (options, fn) => {
+  const {assignees, include, ignore} = options;
   const a = require('./src/app').create();
-  await a.init();
+  await a.init(assignees, include, ignore);
   await fn(a);
 }
 
@@ -26,9 +28,12 @@ yargs(hideBin(process.argv))
   .option('verbose', { alias: 'v', count: true, default: 0 })
   .option('include', { default: '**/.todo', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
-  .option('g', { describe: 'Assignee, if not defined git user email will be used', alias: 'assignee', default: null, type: 'string' })
+  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'string' })
+  .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
+  .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
+  // TODO: separate mode - read information from the file
   // 
   .command('ls [what] [-g assignee]', 'Show list of tasks', (yargs) => {
     return yargs
@@ -37,46 +42,19 @@ yargs(hideBin(process.argv))
         default: 'tasks'
       })
   }, async (argv) => {
-    getApp(async (a) => {
-      //console.log('ls', argv);
-      // find assignee
-      let nonGit = false;
-      let assignee = argv.assignee;
-      const cwd = process.cwd();
-      let home = cwd;
-      try {
-        assignee = assignee || exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-      } catch (e) {
-        nonGit = true;
-      }
-      // find home: cwd or git home
-      try {
-        home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-      } catch (e) {
-        console.debug('tpm is executed outside of git repository');
-      }
-      // notify user
-      if (nonGit) {
-        nonGit = true;
-      }
-
-      if (assignee !== null) {
-        await a.ls({
-          home,
-          cwd,
-          include: argv.include.split(';'),
-          ignore: argv.ignore.split(';'),
-          what: argv.what,
-          assignee,
-          search: argv.search || [],
-          all: argv.all});
-      } else {
-        console.error('Assignee is not defined, please use -g option');
-      } 
+    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
+      //console.log(argv);
+      await a.ls({
+        depth: argv.depth,
+        what: argv.what,
+        search: argv.search || [],
+        all: argv.all,
+        hierarchy: argv.hierarchy
+      });
     });
   })
-  // 
-  .command('sync', 'Store current status in the file', (yargs) => {
+  //
+  .command('save', 'Store current status in the file', (yargs) => {
     return yargs
       .positional('file', {
         describe: 'File name to store status',

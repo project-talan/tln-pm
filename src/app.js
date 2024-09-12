@@ -1,11 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
+const exec = require('child_process').execSync;
 const fg = require('fast-glob');
-const yaml = require('js-yaml');
-
+const node = require('./node');
 
 class App {
 
@@ -14,69 +11,57 @@ class App {
   * params:
   */
   constructor() {
+    this.cwd = null;
+    this.home = null;
+    this.root = null;
+    this.assignees = [];
   }
 
   //
-  async init() {
+  async init(assignees, include, ignore) {
+    let notGit = false;
+    this.assignees = [...assignees];
+    try {
+      if (!this.assignees.length) {
+        this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
+      }
+    } catch (e) {
+      notGit = true;
+    }
     // find git top level directory
-    // find git user email
+    this.cwd = process.cwd();
+    this.home = this.cwd;
+    // find home: cwd or git home
+    try {
+      this.home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+    } catch (e) {
+      notGit = true;
+    }
+    if (notGit) {
+      console.debug('tpm is executed outside of git repository');
+    }
+    // load all tasks
+    this.root = node.create(this.home, null);
+    const entries = await fg(include, { cwd: this.home, dot: true, ignore });
+    for (const e of entries) {
+      //console.log('entry:', e);
+      await this.root.process(e);
+    }
 
   }
 
   //
   async ls(options) {
-    const {home, cwd, include, ignore, what, assignee, search, all} = options;
-    console.log('assignee:', assignee);
+    const {include, ignore, depth, what, search, all, hierarchy} = options;
+    console.log('home:', this.home);
+    console.log('cwd:', this.cwd);
+    console.log('assignees:', this.assignees);
     //
-    const toSearch = [assignee].concat(search);
-    //
-    const entries = await fg(include, { cwd: home, dot: true, ignore });
-    entries.forEach( e => {
-      
-      const content = fs.readFileSync(path.join(home, e), {encoding: 'utf8'});
-      //
-      const r = content.match(/\/\*\s{0,}(TPM)[^*]*\*+([^\/][^*]*\*+)*\//g);
-      if (!!r) {
-        let first = true;
-        r.forEach( c => {
-          const x = c.replace(/\/\*\s{0,}(TPM)/,'');
-          const y = x.replace(/\*\//,'');
-          //
-          const config = yaml.load(y, 'utf8');
-          // console.log(config);
-          if (config) {
-            if (config.team) {
-              Object.keys(config.team).forEach( m => {
-                if (config.team[m].email === assignee) {
-                  toSearch.push(m);
-                }
-              });
-              //console.log(toSearch);
-            }
-            if (config.timeline) {
-            }
-            /*
-              /@[a-z,\.,-,_]+/gi
-              /#[a-z,\.,-,_]+/gi
-              /<[a-z,\.,-,_,/,:]+>/gi
-            */
-            if (config.tasks) {
-              config.tasks.split('\n').forEach( t => {
-                const found = toSearch.find( s => t.indexOf(s) !== -1);
-                if (all || found) {
-                  if (first) {
-                    first = false;
-                    console.log();
-                    console.log('-', e);
-                  }
-                  console.log('  ', t);
-                }
-              });
-            }
-          }
-        });
-      }
-    });
+    if (this.assignees.length || all) {
+      await this.root.ls({what, all, assignees: this.assignees, search, indent: '', depth, last: true, hierarchy});
+    } else {
+      console.error('Couldn\'t identify git user, please use -g option all -a to show tasks for all assignees');
+    } 
   }
 
   //
