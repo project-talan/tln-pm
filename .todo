@@ -13,6 +13,7 @@ timeline:
     date: "2024-09-xx"
 
 tasks: |
+  [:009:v0.4.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [:008] Merge multiple descriptions from one file @vlad.k
   [:007] Server command: express server + fs watch @vlad.k
   [:006:v0.4.0] Extract status, assingees, links, tags, timeline from task description @vlad.k
