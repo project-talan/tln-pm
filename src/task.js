@@ -57,10 +57,7 @@ class Task {
   async filter(options) {
     const {all, done, assignees, search} = options;
     // check myself
-    let me = false;
-    if (this.title) {
-      me = assignees.find(a => this.title.indexOf(a) >= 0);
-    }
+    const me = assignees.some( r => this.assignees.includes(r));
     //console.log('status', this.status);
     const status = /^((?![+,x]).)*$/g.test(this.status);
     //console.log('result', status);

@@ -23,7 +23,12 @@ module.exports.parseTask = (desc) => {
     }
   }
   const next = desc.replace(/^\[([\-,>,+,?,!,+,x]):?(\d*)?:?([\w,\.]+)?\]/g, '').trim();
-  title = next;
+  const aees = next.matchAll(/@[a-z,\.,-,_]+/gi);
+  for (const aee of aees) {
+    assignees.push(aee[0].substring(1));
+  }
+  const next2 = next.replace(/@[a-z,\.,-,_]+/gi, '').trim();
+  title = next2;
 
             /*
     console.log(JSON.stringify(match));
@@ -31,7 +36,7 @@ module.exports.parseTask = (desc) => {
     console.log(match);
 
 
-              /@[a-z,\.,-,_]+/gi
+              
               /#[a-z,\.,-,_]+/gi
               /<[a-z,\.,-,_,/,:]+>/gi 
             */

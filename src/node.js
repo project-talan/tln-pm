@@ -122,7 +122,7 @@ class Node {
       }
       const out = (task, indent) => {
         if (task.title) {
-          console.log(`${indent}${task.status} ${task.title}`);
+          console.log(`${indent}${task.status} ${task.id}: ${task.title} (${task.assignees.join(',')})`);
         }
         for (const t of task.tasks) {
           out(t, `${indent}  `);
