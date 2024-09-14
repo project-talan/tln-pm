@@ -13,14 +13,14 @@ timeline:
     date: "2024-09-xx"
 
 tasks: |
-  [:009:v0.4.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
-  [:008] Merge multiple descriptions from one file @vlad.k
-  [:007] Server command: express server + fs watch @vlad.k
-  [:006:v0.4.0] Extract status, assingees, links, tags, timeline from task description @vlad.k
-  [:005:v0.4.0] Implement ls command for timeline @vlad.k
-  [:004:v0.4.0] Implement ls for team @vlad.k
+  [-:009:v0.4.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
+  [-:008] Merge multiple descriptions from one file @vlad.k
+  [-:007] Server command: express server + fs watch @vlad.k
+  [>:006:v0.4.0] Extract status, assingees, links, tags, timeline from task description @vlad.k
+  [-:005:v0.4.0] Implement ls command for timeline @vlad.k
+  [-:004:v0.4.0] Implement ls for team @vlad.k
   [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:v0.2.0] Update README.md @vlad.k
-  [+::v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
+  [+:001:v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
 
 */
