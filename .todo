@@ -10,13 +10,17 @@ timeline:
   "v0.3.0":
     date: "2024-09-12"
   "v0.4.0":
+    date: "2024-09-15"
+  "v0.5.0":
     date: "2024-09-xx"
 
 tasks: |
-  [-:009:v0.4.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
+  [-:011:v0.5.0] Add unit test framework @vlad.k
+  [-:010:v0.5.0] Extract tags, timeline from task description @vlad.k
+  [-:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [-:008] Merge multiple descriptions from one file @vlad.k
   [-:007] Server command: express server + fs watch @vlad.k
-  [>:006:v0.4.0] Extract status, assingees, links, tags, timeline from task description @vlad.k
+  [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k
   [-:005:v0.4.0] Implement ls command for timeline @vlad.k
   [-:004:v0.4.0] Implement ls for team @vlad.k
   [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
