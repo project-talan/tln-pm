@@ -18,11 +18,12 @@ class Task {
   constructor(parent, indent) {
     this.parent = parent;
     this.indent = indent;
-    this.status = '';
+    this.status = '-';
+    this.id = null;
     this.title = null;
+    this.deadline = '';
     this.assignees = [];
     this.links = [];
-    this.deadline = '';
     this.tasks = [];
   }
 
@@ -33,7 +34,7 @@ class Task {
       const indent = s.length - s.trimLeft().length;
       if (indent > this.indent) {
         const task = new Task(this, indent);
-        task.title = s.trim();
+        await task.extract(s.trim());
         this.tasks.push(task);
         i = await task.parse(descs, i + 1);
       } else {
@@ -43,28 +44,39 @@ class Task {
     return i;
   }
 
+  async extract(desc) {
+    const {status, id, title, deadline, assignees, links} = utils.parseTask(desc);
+    this.status = status;
+    this.id = id;
+    this.title = title;
+    this.deadline = deadline;
+    this.assignees = assignees;
+    this.links = links;
+  }
+
   async filter(options) {
-    const {all, assignees, search} = options;
+    const {all, done, assignees, search} = options;
     // check myself
-    let me = false;
-    if (this,this.title) {
-      me = assignees.find(a => this.title.indexOf(a) >= 0);
-    }
+    const me = assignees.some( r => this.assignees.includes(r));
+    //console.log('status', this.status);
+    const status = /^((?![+,x]).)*$/g.test(this.status);
+    //console.log('result', status);
+    //
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
-    if (all || me || tasks.length) {
+    if ((all || me || tasks.length) && (status || done)) {
       return {
         status: this.status,
+        id: this.id,
         title: this.title,
+        deadline: this.deadline,
         assignees: this.assignees,
         links: this.links,
-        deadline: this.deadline,
         tasks
       };
     }
   }
  
 }
-
 
 module.exports.create = () => {
   return new Task(null, -1);

@@ -36,12 +36,12 @@ Typically `.todo` files are used to define PM artifacts, but tasks' description 
   * First symbol in square brackets describes status of the task
     | Symbol | Meaning         |
     | ---    | ---             |
-    |        | todo            |
+    | -      | todo            |
     | >      | in progress     |
-    | +      | done            |
-    | -      | dropped         |
     | ?      | to be discussed |
     | !      | blocked         |
+    | +      | done            |
+    | x      | dropped         |
   * Optionally, after colon, task can have identifier (may be used to reference this task from other components)
   * Plus, optionally, deadline can be specified after second colon 
 
@@ -58,6 +58,7 @@ tpm [ls] [parameters] [optios]
 | Command (parameters & options)  | Description |
 | ------------- | ------------- |
 | tpm ls | Display list of tasks for current git user |
+| tpm ls --done | Display list of tasks for current git user including completed |
 | tpm ls tasks | The same as previous command |
 | tpm ls team | Display team structure |
 | tpm ls timeline | Display project timeline |

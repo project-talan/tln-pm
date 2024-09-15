@@ -52,13 +52,13 @@ class App {
 
   //
   async ls(options) {
-    const {include, ignore, depth, what, search, all, hierarchy} = options;
-    console.log('home:', this.home);
-    console.log('cwd:', this.cwd);
-    console.log('assignees:', this.assignees);
+    const {include, ignore, depth, what, search, all, done, hierarchy} = options;
+    //console.log('home:', this.home);
+    //console.log('cwd:', this.cwd);
+    //console.log('assignees:', this.assignees);
     //
     if (this.assignees.length || all) {
-      await this.root.ls({what, all, assignees: this.assignees, search, indent: '', depth, last: true, hierarchy});
+      await this.root.ls({what, all, done, hierarchy, assignees: this.assignees, search, indent: '', depth, last: true});
     } else {
       console.error('Couldn\'t identify git user, please use -g option all -a to show tasks for all assignees');
     } 

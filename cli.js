@@ -32,6 +32,7 @@ yargs(hideBin(process.argv))
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
+  .option('done', { describe: 'Show done tasks too', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // TODO: separate mode - read information from the file
   // 
@@ -49,6 +50,7 @@ yargs(hideBin(process.argv))
         what: argv.what,
         search: argv.search || [],
         all: argv.all,
+        done: argv.done,
         hierarchy: argv.hierarchy
       });
     });
