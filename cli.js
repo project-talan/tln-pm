@@ -36,11 +36,11 @@ yargs(hideBin(process.argv))
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
-  .option('srs', { describe: 'Include SRS section', default: true, false: 'boolean' })
-  .option('force', { describe: 'Force command execution', default: true, false: 'boolean' })
+  .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+  .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
-  .command('ls [--team] [--timeline] [--tasks] [--srs] [-g assignee]', 'Show list of tasks', (yargs) => {
+  .command('ls [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
     return yargs
   }, async (argv) => {
     getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
@@ -55,6 +55,21 @@ yargs(hideBin(process.argv))
         all: argv.all,
         done: argv.done,
         hierarchy: argv.hierarchy
+      });
+    });
+  })
+  .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
+    return yargs
+  }, async (argv) => {
+    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
+      //console.log(argv);
+      await a.config({
+        team: argv.team,
+        timeline: argv.timeline,
+        tasks: argv.tasks,
+        srs: argv.srs,
+        all: argv.all,
+        force: argv.force
       });
     });
   })

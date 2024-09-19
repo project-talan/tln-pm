@@ -24,7 +24,7 @@ tasks: |
   [-:012:v0.5.0] Add CI/CD @vlad.k
   [-:011:v0.5.0] Add unit test framework @vlad.k
   [-:010:v0.5.0] Extract tags, timeline from task description @vlad.k
-  [-:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
+  [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [-:008:v0.5.0] Merge multiple descriptions from one file @vlad.k
   [-:007:v0.5.0] Server command: express server + fs watch @vlad.k
   [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k

@@ -1,4 +1,6 @@
 'use strict';
+const path = require('path');
+const fs = require('fs');
 
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
@@ -26,6 +28,7 @@ class App {
         this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
       }
     } catch (e) {
+      console.info('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
       notGit = true;
     }
     // find git top level directory
@@ -35,10 +38,8 @@ class App {
     try {
       this.home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
+      console.info('Couldn\'t identify git repository home, tpm is executed outside of git repository');
       notGit = true;
-    }
-    if (notGit) {
-      console.debug('tpm is executed outside of git repository');
     }
     // load all tasks
     this.root = node.create(this.home, null);
@@ -59,8 +60,50 @@ class App {
     if (this.assignees.length || all) {
       await this.root.ls({depth, search, team, timeline, tasks, srs, all, done, hierarchy, assignees: this.assignees, indent: '', last: true});
     } else {
-      console.error('Couldn\'t identify git user, please use -g option all -a to show tasks for all assignees');
     } 
+  }
+
+  //
+  async config(options) {
+    const {team, timeline, tasks, srs, all, force} = options;
+    //console.log('home:', this.home);
+    //console.log('cwd:', this.cwd);
+    //console.log('assignees:', this.assignees);
+    //
+    const fn = '.todo';
+    const fp = path.join(this.cwd, fn);
+    if (!fs.existsSync(fp) || force) {
+      const data = {};
+      if (team || all) {
+        data.team = {"alice.d" : {"email": "alice.d@gmail.com"}};
+      }
+      if (timeline || all) {
+        data.timeline = {"v24.9.0" : {"date": "2024-09-30"}};
+      }
+      if (tasks || all) {
+        data.tasks = `[-:001:v24.9.0] Intergare auth library\n  [-] Add /auth endpoint @alice.d\n  [-] Configure auth callbacks @alice.d`;
+        if (srs || all) {
+          data.tasks = `[-:002] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
+        }
+      }
+      if (srs || all) {
+        data.srs = {"cicd": [
+          "Skeleton should implement four main scenarios: pr build, push build, nightly build, dispamch run.",
+          "All steps should be implemented in a single yaml file (base.yml).",
+          "Every scenario should be implemented as a separate yaml file and should use parameters to define which step needs to be run."
+          ].join('\n')
+        };
+      }
+      //      console.log('data:', data);
+      try {
+        fs.writeFileSync(fp, `/* TPM\n\n${(require('yaml')).stringify(data)}\n*/\n`);
+        console.log(`${fn} file was generated`, fp);
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      console.error(`${fn} file exists in current location, use --force option to override`);
+    }
   }
 
   //

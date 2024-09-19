@@ -125,7 +125,8 @@ class Node {
       }
       const out = (task, indent) => {
         if (task.title) {
-          console.log(`${indent}${task.status} ${task.id}: ${task.title} (${task.assignees.join(',')})`);
+          const a = task.assignees.length ? `(${task.assignees.join(',')})` : '';
+          console.log(`${indent}${task.status} ${task.id}: ${task.title} ${a}`);
         }
         for (const t of task.tasks) {
           out(t, `${indent}  `);
@@ -136,7 +137,6 @@ class Node {
     // SRS
     if (srs || all) {
     }
-
     // about children
     if (depth) {
       const lng = this.children.length;
