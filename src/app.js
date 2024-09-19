@@ -47,18 +47,17 @@ class App {
       //console.log('entry:', e);
       await this.root.process(e);
     }
-
   }
 
   //
   async ls(options) {
-    const {include, ignore, depth, what, search, all, done, hierarchy} = options;
+    const {depth, search, team, timeline, tasks, srs, all, done, hierarchy} = options;
     //console.log('home:', this.home);
     //console.log('cwd:', this.cwd);
     //console.log('assignees:', this.assignees);
     //
     if (this.assignees.length || all) {
-      await this.root.ls({what, all, done, hierarchy, assignees: this.assignees, search, indent: '', depth, last: true});
+      await this.root.ls({depth, search, team, timeline, tasks, srs, all, done, hierarchy, assignees: this.assignees, indent: '', last: true});
     } else {
       console.error('Couldn\'t identify git user, please use -g option all -a to show tasks for all assignees');
     } 

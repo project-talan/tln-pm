@@ -33,22 +33,25 @@ yargs(hideBin(process.argv))
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
   .option('done', { describe: 'Show done tasks too', default: false, type: 'boolean' })
+  .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
+  .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
+  .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
+  .option('srs', { describe: 'Include SRS section', default: true, false: 'boolean' })
+  .option('force', { describe: 'Force command execution', default: true, false: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
-  // TODO: separate mode - read information from the file
   // 
-  .command('ls [what] [-g assignee]', 'Show list of tasks', (yargs) => {
+  .command('ls [--team] [--timeline] [--tasks] [--srs] [-g assignee]', 'Show list of tasks', (yargs) => {
     return yargs
-      .positional('what', {
-        describe: 'Group to display: tasks, team, timeline or all',
-        default: 'tasks'
-      })
   }, async (argv) => {
     getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
       //console.log(argv);
       await a.ls({
         depth: argv.depth,
-        what: argv.what,
         search: argv.search || [],
+        team: argv.team,
+        timeline: argv.timeline,
+        tasks: argv.tasks,
+        srs: argv.srs,
         all: argv.all,
         done: argv.done,
         hierarchy: argv.hierarchy

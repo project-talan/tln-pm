@@ -90,15 +90,18 @@ class Node {
   }
 
   async ls(options) {
-    const {what, all, done, hierarchy, assignees, search, indent, depth, last} = options;
+    const {depth, search, team, timeline, tasks, srs, all, done, hierarchy, assignees, indent, last} = options;
     let aees = [...assignees];
-    let tasks = null;
+    let ts = null;
     // about me
-    if (what === 'team') {
+    // team
+    if (team || all) {
     }
-    if (what === 'timeline') {
+    // timeline
+    if (timeline || all) {
     }
-    if (what === 'tasks') {
+    // tasks
+    if (tasks || all) {
       // add aliaces for assignees
       Object.keys(this.team).forEach( m => {
         if (assignees.indexOf(this.team[m].email) >= 0) {
@@ -106,10 +109,10 @@ class Node {
         }
       });
       //
-      tasks = await this.task.filter({all, done, assignees: aees, search});
+      ts = await this.task.filter({all, done, assignees: aees, search});
     }
     //
-    if (tasks && tasks.tasks.length) {
+    if (ts && ts.tasks.length) {
       let ti = '  ';
       if (hierarchy) {
         ti = `${indent}${ti}`;
@@ -128,20 +131,23 @@ class Node {
           out(t, `${indent}  `);
         }
       }
-      out(tasks, '');
+      out(ts, '');
     }
+    // SRS
+    if (srs || all) {
+    }
+
     // about children
     if (depth) {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({what, all, done, hierarchy, assignees: aees, search, indent: indent + (last? '  ' : '│ '), depth: depth - 1, last: lc});
+        await this.children[i].ls({depth: depth - 1, search, team, timeline, tasks, srs, all, done, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }
   
 }
-
 
 module.exports.create = (home, id) => {
   return new Node(null, home, id);
