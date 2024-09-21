@@ -52,13 +52,27 @@ class App {
 
   //
   async ls(options) {
-    const {depth, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
-    //console.log('home:', this.home);
-    //console.log('cwd:', this.cwd);
-    //console.log('assignees:', this.assignees);
+    const {component, depth, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
+    // console.log('home:', this.home);
+    // console.log('cwd:', this.cwd);
+    // console.log('assignees:', this.assignees);
+    // console.log('component:', component);
     //
     if (this.assignees.length || all) {
-      await this.root.ls({depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
+      let node = this.root;
+      let components = [];
+      const h = this.home;
+      const c = component ? path.join(this.cwd, component) : this.cwd;
+      if (h !== c) {
+        components = path.relative(h, c).split(path.sep);
+      }
+      if (components.length) {
+        node = await node.find(components);
+      }
+      if (node) {
+        // console.log('node:', node.id);
+        await node.ls({depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
+      }
     } 
   }
 

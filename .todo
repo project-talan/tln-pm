@@ -16,7 +16,7 @@ timeline:
 
 tasks: |
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
-  [>:019:v0.5.0] Add component as optional parameter for ls command @vlad.k
+  [+:019:v0.5.0] Add component as optional parameter for ls command @vlad.k
   [-:018:v0.5.0] Generate snapshot @vlad.k
   [-:017:v0.5.0] Add SRS section @vlad.k
   [-:016:v0.5.0] Add describe command with resolved links @vlad.k

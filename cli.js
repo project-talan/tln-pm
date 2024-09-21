@@ -28,7 +28,7 @@ yargs(hideBin(process.argv))
   .option('verbose', { alias: 'v', count: true, default: 0 })
   .option('include', { default: '**/.todo', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
-  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'string' })
+  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
@@ -42,12 +42,18 @@ yargs(hideBin(process.argv))
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
-  .command('ls [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
+  .command('ls [component] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
     return yargs
+    .positional('component', {
+      describe: 'Nested component to show',
+      default: null
+    });
+
   }, async (argv) => {
     getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
       //console.log(argv);
       await a.ls({
+        component: argv.component,
         depth: argv.depth,
         search: argv.search || [],
         team: argv.team,

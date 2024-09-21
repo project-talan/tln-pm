@@ -43,6 +43,21 @@ class Node {
     return path.relative(this.getRoot().getHome(), this.getHome());
   }
 
+  async find(components) {
+    if (components && components.length) {
+      const cpy = [...components];
+      // console.log('cpy:', cpy);
+      //
+      const component = cpy.shift();
+      // console.log('cpy:', cpy);`
+      const n = this.children.find( c => c.isItMe(component));
+      if (n && cpy.length) {
+        return await n.find(cpy);
+      }
+      return n;
+    }
+  }
+
   async process(pathTo) {
     const items = pathTo.split(path.sep);
     if (items.length > 1) {
@@ -89,9 +104,23 @@ class Node {
     return false;
   }
 
+  async getAssignees(assignees) {
+    const aees = [...assignees];
+    // add aliaces for assignees
+    Object.keys(this.team).forEach( m => {
+      if (assignees.indexOf(this.team[m].email) >= 0) {
+        aees.push(m);
+      }
+    });
+    if (this.parent) {
+      return await this.parent.getAssignees(aees);
+    }
+    return aees;
+  }
+
   async ls(options) {
     const {depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
-    let aees = [...assignees];
+    const aees = await this.getAssignees(assignees);
     let ts = null;
     // about me
     // team
@@ -102,13 +131,6 @@ class Node {
     }
     // tasks
     if (tasks || all) {
-      // add aliaces for assignees
-      Object.keys(this.team).forEach( m => {
-        if (assignees.indexOf(this.team[m].email) >= 0) {
-          aees.push(m);
-        }
-      });
-      //
       ts = await this.task.filter({all, status, assignees: aees, search});
     }
     //
