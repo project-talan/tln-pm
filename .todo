@@ -20,7 +20,7 @@ tasks: |
   [-:018:v0.5.0] Generate snapshot @vlad.k
   [-:017:v0.5.0] Add SRS section @vlad.k
   [-:016:v0.5.0] Add describe command with resolved links @vlad.k
-  [-:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
+  [x:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
   [-:014:v0.5.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-pm-demo> repository @vlad.k
   [-:013:v0.5.0] Add search @vlad.k
   [-:012:v0.5.0] Add CI/CD @vlad.k
@@ -30,8 +30,8 @@ tasks: |
   [-:008:v0.5.0] Merge multiple descriptions from one file @vlad.k
   [-:007:v0.5.0] Server command: express server + fs watch @vlad.k
   [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k
-  [-:005:v0.4.0] Implement ls command for timeline @vlad.k
-  [-:004:v0.4.0] Implement ls for team @vlad.k
+  [+:005:v0.4.0] Implement ls command for timeline @vlad.k
+  [+:004:v0.4.0] Implement ls for team @vlad.k
   [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:v0.2.0] Update README.md @vlad.k
   [+:001:v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k

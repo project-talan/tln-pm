@@ -121,44 +121,52 @@ class Node {
   async ls(options) {
     const {depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
     const aees = await this.getAssignees(assignees);
-    let ts = null;
     // about me
     // team
-    if (team || all) {
+    if (team) {
+      if (this.team && Object.keys(this.team).length) {
+        console.log((require('yaml')).stringify(this.team));
+      }
     }
     // timeline
-    if (timeline || all) {
+    if (timeline) {
+      if (this.timeline && Object.keys(this.timeline).length) {
+        console.log((require('yaml')).stringify(this.timeline));
+      }
     }
     // tasks
-    if (tasks || all) {
-      ts = await this.task.filter({all, status, assignees: aees, search});
+    if (tasks) {
+      const ts = await this.task.filter({all, status, assignees: aees, search});
+      if (ts && ts.tasks.length) {
+        let ti = '  ';
+        if (hierarchy) {
+          ti = `${indent}${ti}`;
+          const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
+          const summary = '45%';
+          console.log(`${title} ${summary}`);
+        } else {
+          console.log();
+          console.log(`- ${this.getRelativePath()}`);
+        }
+        const out = (task, indent) => {
+          if (task.title) {
+            const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
+            const id = task.id ? ` ${task.id}:` : '';
+            console.log(`${indent}${task.status}${id} ${task.title}${a}`);
+          }
+          for (const t of task.tasks) {
+            out(t, `${indent}  `);
+          }
+        }
+        out(ts, '');
+      }
     }
     //
-    if (ts && ts.tasks.length) {
-      let ti = '  ';
-      if (hierarchy) {
-        ti = `${indent}${ti}`;
-        const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
-        const summary = '45%';
-        console.log(`${title} ${summary}`);
-      } else {
-        console.log();
-        console.log(`- ${this.getRelativePath()}`);
-      }
-      const out = (task, indent) => {
-        if (task.title) {
-          const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
-          const id = task.id ? ` ${task.id}:` : '';
-          console.log(`${indent}${task.status}${id} ${task.title}${a}`);
-        }
-        for (const t of task.tasks) {
-          out(t, `${indent}  `);
-        }
-      }
-      out(ts, '');
-    }
     // SRS
-    if (srs || all) {
+    if (srs) {
+      if (this.srs && Object.keys(this.srs).length) {
+        console.log((require('yaml')).stringify(this.srs));
+      }
     }
     // about children
     if (depth) {
