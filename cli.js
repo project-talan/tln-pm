@@ -32,7 +32,9 @@ yargs(hideBin(process.argv))
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
-  .option('done', { describe: 'Show done tasks too', default: false, type: 'boolean' })
+  .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
+  .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
+  .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
@@ -53,7 +55,7 @@ yargs(hideBin(process.argv))
         tasks: argv.tasks,
         srs: argv.srs,
         all: argv.all,
-        done: argv.done,
+        status: {backlog: argv.backlog, indev: argv.indev, done: argv.done},
         hierarchy: argv.hierarchy
       });
     });

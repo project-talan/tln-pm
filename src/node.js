@@ -90,7 +90,7 @@ class Node {
   }
 
   async ls(options) {
-    const {depth, search, team, timeline, tasks, srs, all, done, hierarchy, assignees, indent, last} = options;
+    const {depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
     let aees = [...assignees];
     let ts = null;
     // about me
@@ -109,7 +109,7 @@ class Node {
         }
       });
       //
-      ts = await this.task.filter({all, done, assignees: aees, search});
+      ts = await this.task.filter({all, status, assignees: aees, search});
     }
     //
     if (ts && ts.tasks.length) {
@@ -125,8 +125,9 @@ class Node {
       }
       const out = (task, indent) => {
         if (task.title) {
-          const a = task.assignees.length ? `(${task.assignees.join(',')})` : '';
-          console.log(`${indent}${task.status} ${task.id}: ${task.title} ${a}`);
+          const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
+          const id = task.id ? ` ${task.id}:` : '';
+          console.log(`${indent}${task.status}${id} ${task.title}${a}`);
         }
         for (const t of task.tasks) {
           out(t, `${indent}  `);
@@ -142,7 +143,7 @@ class Node {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({depth: depth - 1, search, team, timeline, tasks, srs, all, done, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.children[i].ls({depth: depth - 1, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }

@@ -52,14 +52,13 @@ class App {
 
   //
   async ls(options) {
-    const {depth, search, team, timeline, tasks, srs, all, done, hierarchy} = options;
+    const {depth, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
     //console.log('home:', this.home);
     //console.log('cwd:', this.cwd);
     //console.log('assignees:', this.assignees);
     //
     if (this.assignees.length || all) {
-      await this.root.ls({depth, search, team, timeline, tasks, srs, all, done, hierarchy, assignees: this.assignees, indent: '', last: true});
-    } else {
+      await this.root.ls({depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
     } 
   }
 
