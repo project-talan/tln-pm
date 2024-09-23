@@ -25,6 +25,7 @@ class Task {
     this.assignees = [];
     this.links = [];
     this.tasks = [];
+    this.audit = {};
   }
 
   async parse(descs, index) {
@@ -58,16 +59,14 @@ class Task {
     const {all, status, assignees, search} = options;
     // check myself
     const me = assignees.some( r => this.assignees.includes(r));
-    //console.log('status', this.status);
     const st = [
       { statuses: ['-', '?', '!'], flag: status.backlog },
       { statuses: ['>'], flag: status.indev },
       { statuses: ['+', 'x'], flag: status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
-    //console.log('result', status);
     //
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
-    if (all || (me && st)|| tasks.length) {
+    if (((all || me) && st) || tasks.length) {
       return {
         status: this.status,
         id: this.id,

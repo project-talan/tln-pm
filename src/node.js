@@ -24,6 +24,7 @@ class Node {
     this.team = {};
     this.timeline = {};
     this.task = task.create();
+    this.srs = {};
     this.children = [];
   }
 
@@ -46,10 +47,7 @@ class Node {
   async find(components) {
     if (components && components.length) {
       const cpy = [...components];
-      // console.log('cpy:', cpy);
-      //
       const component = cpy.shift();
-      // console.log('cpy:', cpy);`
       const n = this.children.find( c => c.isItMe(component));
       if (n && cpy.length) {
         return await n.find(cpy);
@@ -95,6 +93,9 @@ class Node {
             }
             if (config.tasks) {
               await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
+            }
+            if (config.srs) {
+              assign(this.srs, config.srs);
             }
           }
         }
@@ -151,8 +152,9 @@ class Node {
         const out = (task, indent) => {
           if (task.title) {
             const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
+            const dl = task.deadline ? ` (${task.deadline})` : '';
             const id = task.id ? ` ${task.id}:` : '';
-            console.log(`${indent}${task.status}${id} ${task.title}${a}`);
+            console.log(`${indent}${task.status}${id} ${task.title}${a}${dl}`);
           }
           for (const t of task.tasks) {
             out(t, `${indent}  `);
@@ -162,10 +164,10 @@ class Node {
       }
     }
     //
-    // SRS
+    // srs
     if (srs) {
       if (this.srs && Object.keys(this.srs).length) {
-        console.log((require('yaml')).stringify(this.srs));
+        console.log((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
     }
     // about children
