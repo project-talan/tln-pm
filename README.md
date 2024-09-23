@@ -55,14 +55,17 @@ General format
 ```
 tpm [ls] [parameters] [optios]
 ```
-| Command (parameters & options)  | Description |
-| ------------- | ------------- |
-| tpm ls | Display list of tasks for current git user |
-| tpm ls --done | Display list of tasks for current git user including completed |
-| tpm ls tasks | The same as previous command |
-| tpm ls team | Display team structure |
-| tpm ls timeline | Display project timeline |
-| tpm ls -g vlad.k | Display tasks assigned to specific user |
-| tpm ls -a | Display all tasks |
+| Command (parameters & options)  | Default | Description |
+| ------------- | ------------- | ------------- |
+| tpm ls | | Display list of tasks for current git user |
+| tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
+| tpm ls --indev | true | Display list of tasks for current git user in development |
+| tpm ls --done | true | Display list of tasks for current git user which were aleady completed |
+| tpm ls --tasks | true | Display tasks |
+| tpm ls --team | false | Display team structure |
+| tpm ls --timeline | false | Display project timeline |
+| tpm ls --srs | false | Display project timeline |
+| tpm ls -g vlad.k | git user |  Display tasks assigned to specific user |
+| tpm ls -a | false | Display tasks for all users |
 
   

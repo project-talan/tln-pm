@@ -24,6 +24,7 @@ class Node {
     this.team = {};
     this.timeline = {};
     this.task = task.create();
+    this.srs = {};
     this.children = [];
   }
 
@@ -41,6 +42,18 @@ class Node {
 
   getRelativePath() {
     return path.relative(this.getRoot().getHome(), this.getHome());
+  }
+
+  async find(components) {
+    if (components && components.length) {
+      const cpy = [...components];
+      const component = cpy.shift();
+      const n = this.children.find( c => c.isItMe(component));
+      if (n && cpy.length) {
+        return await n.find(cpy);
+      }
+      return n;
+    }
   }
 
   async process(pathTo) {
@@ -81,6 +94,9 @@ class Node {
             if (config.tasks) {
               await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
             }
+            if (config.srs) {
+              assign(this.srs, config.srs);
+            }
           }
         }
         return Object.keys(this.team).length || Object.keys(this.timeline).length || this.task.tasks.length;
@@ -89,59 +105,82 @@ class Node {
     return false;
   }
 
+  async getAssignees(assignees) {
+    const aees = [...assignees];
+    // add aliaces for assignees
+    Object.keys(this.team).forEach( m => {
+      if (assignees.indexOf(this.team[m].email) >= 0) {
+        aees.push(m);
+      }
+    });
+    if (this.parent) {
+      return await this.parent.getAssignees(aees);
+    }
+    return aees;
+  }
+
   async ls(options) {
-    const {what, all, done, hierarchy, assignees, search, indent, depth, last} = options;
-    let aees = [...assignees];
-    let tasks = null;
+    const {depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
+    const aees = await this.getAssignees(assignees);
     // about me
-    if (what === 'team') {
+    // team
+    if (team) {
+      if (this.team && Object.keys(this.team).length) {
+        console.log((require('yaml')).stringify(this.team));
+      }
     }
-    if (what === 'timeline') {
+    // timeline
+    if (timeline) {
+      if (this.timeline && Object.keys(this.timeline).length) {
+        console.log((require('yaml')).stringify(this.timeline));
+      }
     }
-    if (what === 'tasks') {
-      // add aliaces for assignees
-      Object.keys(this.team).forEach( m => {
-        if (assignees.indexOf(this.team[m].email) >= 0) {
-          aees.push(m);
+    // tasks
+    if (tasks) {
+      const ts = await this.task.filter({all, status, assignees: aees, search});
+      if (ts && ts.tasks.length) {
+        let ti = '  ';
+        if (hierarchy) {
+          ti = `${indent}${ti}`;
+          const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
+          const summary = '45%';
+          console.log(`${title} ${summary}`);
+        } else {
+          console.log();
+          console.log(`- ${this.getRelativePath()}`);
         }
-      });
-      //
-      tasks = await this.task.filter({all, done, assignees: aees, search});
+        const out = (task, indent) => {
+          if (task.title) {
+            const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
+            const dl = task.deadline ? ` (${task.deadline})` : '';
+            const id = task.id ? ` ${task.id}:` : '';
+            console.log(`${indent}${task.status}${id} ${task.title}${a}${dl}`);
+          }
+          for (const t of task.tasks) {
+            out(t, `${indent}  `);
+          }
+        }
+        out(ts, '');
+      }
     }
     //
-    if (tasks && tasks.tasks.length) {
-      let ti = '  ';
-      if (hierarchy) {
-        ti = `${indent}${ti}`;
-        const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
-        const summary = '45%';
-        console.log(`${title} ${summary}`);
-      } else {
-        console.log();
-        console.log(`- ${this.getRelativePath()}`);
+    // srs
+    if (srs) {
+      if (this.srs && Object.keys(this.srs).length) {
+        console.log((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
-      const out = (task, indent) => {
-        if (task.title) {
-          console.log(`${indent}${task.status} ${task.id}: ${task.title} (${task.assignees.join(',')})`);
-        }
-        for (const t of task.tasks) {
-          out(t, `${indent}  `);
-        }
-      }
-      out(tasks, '');
     }
     // about children
     if (depth) {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({what, all, done, hierarchy, assignees: aees, search, indent: indent + (last? '  ' : '│ '), depth: depth - 1, last: lc});
+        await this.children[i].ls({depth: depth - 1, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }
   
 }
-
 
 module.exports.create = (home, id) => {
   return new Node(null, home, id);

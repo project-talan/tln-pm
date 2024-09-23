@@ -28,30 +28,56 @@ yargs(hideBin(process.argv))
   .option('verbose', { alias: 'v', count: true, default: 0 })
   .option('include', { default: '**/.todo', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
-  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'string' })
+  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
-  .option('done', { describe: 'Show done tasks too', default: false, type: 'boolean' })
+  .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
+  .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
+  .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
+  .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
+  .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
+  .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
+  .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+  .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
-  // TODO: separate mode - read information from the file
   // 
-  .command('ls [what] [-g assignee]', 'Show list of tasks', (yargs) => {
+  .command('ls [component] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
     return yargs
-      .positional('what', {
-        describe: 'Group to display: tasks, team, timeline or all',
-        default: 'tasks'
-      })
+    .positional('component', {
+      describe: 'Nested component to show',
+      default: null
+    });
+
   }, async (argv) => {
     getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
       //console.log(argv);
       await a.ls({
+        component: argv.component,
         depth: argv.depth,
-        what: argv.what,
         search: argv.search || [],
+        team: argv.team,
+        timeline: argv.timeline,
+        tasks: argv.tasks,
+        srs: argv.srs,
         all: argv.all,
-        done: argv.done,
+        status: {backlog: argv.backlog, indev: argv.indev, done: argv.done},
         hierarchy: argv.hierarchy
+      });
+    });
+  })
+  .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
+    return yargs
+  }, async (argv) => {
+    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
+      //console.log(argv);
+      await a.config({
+        team: argv.team,
+        timeline: argv.timeline,
+        tasks: argv.tasks,
+        srs: argv.srs,
+        all: argv.all,
+        force: argv.force
       });
     });
   })
