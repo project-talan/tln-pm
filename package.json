@@ -4,7 +4,16 @@
   "description": "Project Management as Code",
   "main": "cli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc --reporter=text --reporter=lcov mocha src/**/*.spec.js"
+  },
+  "nyc": {
+    "all": true,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "src/**/*.spec.js"
+    ]
   },
   "bin": {
     "tpm": "cli.js"
@@ -32,5 +41,11 @@
     "js-yaml": "^4.1.0",
     "yaml": "^2.5.1",
     "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.7.3",
+    "nyc": "^17.1.0",
+    "sinon": "^19.0.2"
   }
 }

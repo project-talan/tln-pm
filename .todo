@@ -28,7 +28,7 @@ tasks: |
   [-:014:v0.6.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-pm-demo> repository @vlad.k
   [-:013:v0.6.0] Add search @vlad.k
   [-:012:v0.6.0] Add CI/CD @vlad.k
-  [-:011:v0.6.0] Add unit test framework @vlad.k
+  [+:011:v0.6.0] Add unit test framework @vlad.k
   [-:010:v0.6.0] Extract tags, timeline from task description @vlad.k
   [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [-:008:v0.6.0] Merge multiple descriptions from one file @vlad.k
