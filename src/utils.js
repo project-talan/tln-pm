@@ -2,33 +2,40 @@
 
 module.exports.parseTask = (desc) => {
   let status = '-';
-  let id = null;
-  let title = null;
+  let id = ''
+  let title = '';
   let deadline = '';
   let assignees = [];
   let links = [];
 
+  let foundHeader = false;
   const matches = desc.matchAll(/^\[([\-,>,+,?,!,+,x]):?(\d*)?:?([\w,\.]+)?\]/g);
-  //console.log(task.match(/^\s*\[([>+\-?!])?(:\d+)?(:[\w,\.]+)?\]/));
-
   for (const match of matches) {
     if (match[1]) {
       status = match[1];
+      foundHeader = true;
     }
     if (match[2]) {
       id = match[2];
+      foundHeader = true;
     }
     if (match[3]) {
       deadline = match[3];
+      foundHeader = true;
     }
   }
-  const next = desc.replace(/^\[([\-,>,+,?,!,+,x]):?(\d*)?:?([\w,\.]+)?\]/g, '').trim();
-  const aees = next.matchAll(/@[a-z,\.,-,_]+/gi);
-  for (const aee of aees) {
-    assignees.push(aee[0].substring(1));
+  if (foundHeader) {
+    const next = desc.replace(/^\[([\-,>,+,?,!,+,x]):?(\d*)?:?([\w,\.]+)?\]/g, '').trim();
+    const aees = next.matchAll(/@[a-z,\.,-,_]+/gi);
+    for (const aee of aees) {
+      assignees.push(aee[0].substring(1));
+    }
+    const next2 = next.replace(/@[a-z,\.,-,_]+/gi, '').trim();
+    title = next2;
   }
-  const next2 = next.replace(/@[a-z,\.,-,_]+/gi, '').trim();
-  title = next2;
+  return { status, id, title, deadline, assignees, links };
+}
+
 
             /*
     console.log(JSON.stringify(match));
@@ -40,7 +47,3 @@ module.exports.parseTask = (desc) => {
               /#[a-z,\.,-,_]+/gi
               /<[a-z,\.,-,_,/,:]+>/gi 
             */
-
-
-  return { status, id, title, deadline, assignees, links };
-}
