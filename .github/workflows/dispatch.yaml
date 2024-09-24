@@ -1,0 +1,48 @@
+name: "Dispatch"
+
+on:
+  workflow_dispatch:
+    inputs:
+      group:
+        type: string
+        description: Group
+        default: dev
+      environment:
+        type: string
+        description: Environment
+        default: dev01
+      tests:
+        type: string
+        description: Tests unit, spec, static, blind, api, ui, load
+      build:
+        type: boolean
+        description: Build
+      package-n-upload:
+        type: boolean
+        description: Package & Upload
+      construct-n-deploy:
+        type: boolean
+        description: Construct Infrastructure & Deploy App
+      undeploy-n-deconstruct:
+        type: boolean
+        description: Undeploy App & Deconstruct Infrastruture
+
+jobs:
+  pipeline:
+    permissions:
+      deployments: write
+      contents: read
+    uses: ./.github/workflows/base.yaml
+    with:
+      cleanup: false
+      group: ${{ inputs.group }}
+      environment: ${{ inputs.environment }}
+      tests: ${{ inputs.tests }}
+      build: ${{ inputs.build }}
+      package-n-upload: ${{ inputs.package-n-upload }}
+      construct-n-deploy: ${{ inputs.construct-n-deploy }}
+      undeploy-n-deconstruct: ${{ inputs.undeploy-n-deconstruct }}
+    secrets:
+      ENVIRONMENT_GROUP: ${{ secrets[format('ENVIRONMENT_GROUP_{0}', github.event.inputs.group)] }}
+      SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
