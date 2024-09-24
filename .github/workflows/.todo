@@ -1,0 +1,18 @@
+/* TPM
+
+team:
+  vlad.k:
+    email: vladislav.kurmaz@gmail.com
+
+timeline:
+  v24.9.0:
+    date: 2024-09-24
+  v24.10.0:
+    date: 2024-10-xx
+
+tasks: |-
+  [-:003:v24.10.0] @vlad.k Create repository to test CI/CD skeleton
+  [-:002:v24.10.0] @vlad.k Split prereq & login command
+  [+:001:v24.9.0] @vlad.k Set default env in base.yml - '', dispatch/push - dev01
+
+*/
