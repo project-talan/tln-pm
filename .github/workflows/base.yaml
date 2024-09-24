@@ -30,21 +30,13 @@ on:
         type: boolean
         description: Package & Upload
         default: false
-      construct-n-deploy:
-        type: boolean
-        description: Construct Infrastructure & Deploy App
-        default: false
-      undeploy-n-deconstruct:
-        type: boolean
-        description: Undeploy App & Deconstruct Infrastruture
-        default: false
     secrets:
       ENVIRONMENT_GROUP:
         required: true
       SONAR_GITHUB_TOKEN:
         required: true
-#      SONAR_TOKEN:
-#        required: true
+     SONAR_TOKEN:
+       required: true
 
 jobs:
   build:
