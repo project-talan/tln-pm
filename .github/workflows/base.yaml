@@ -6,22 +6,10 @@ on:
       ref:
         type: string
         description: Ref to compare changes
-      cleanup:
-        type: boolean
-        description: Cleanup disk space
-        default: false
-      group:
-        type: string
-        description: Group
-        default: "dev"
-      environment:
-        type: string
-        description: Environment
-        default: ""
       tests:
         type: string
         description: Tests
-        default: "unit, spec, static"
+        default: "unit, static"
       build:
         type: boolean
         description: build
@@ -31,145 +19,47 @@ on:
         description: Package & Upload
         default: false
     secrets:
-      ENVIRONMENT_GROUP:
-        required: true
       SONAR_GITHUB_TOKEN:
         required: true
-     SONAR_TOKEN:
-       required: true
+      SONAR_TOKEN:
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install sshuttle
-        run: |
-          sudo apt-get update && sudo apt-get install -y sshuttle ansible sshpass
-          sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install k6
-
       - uses: actions/setup-node@v4
         with:
           node-version: "22.6.0"
 
-      - run: npm i -g tln-cli@1.104.0 tln-pm@0.2.0
+      - run: npm i -g tln-cli@1.104.0 tln-pm@0.5.0
 
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Free Disk Space (Ubuntu)
-        if: ${{ inputs.cleanup }}
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: false
-          swap-storage: true
-
-      - name: Configure environment
-        env:
-          ENVIRONMENT_GROUP: ${{ secrets.ENVIRONMENT_GROUP }}
-        run: |
-          df -h
-          npm i
-          echo '{"detach": true}' > '.tlnrc'
-          echo '${{ inputs.group }}:${{ inputs.environment }}' > .context
-
-          mkdir secrets
-          echo "$ENVIRONMENT_GROUP" > secrets/.env.${{ inputs.group }}
-          tln configure-ci:get-secrets:prereq
-          ls -la secrets
-
       - name: Init
         run: |
-          tln init-all -- --repo-ref ${{ inputs.ref }}
+          npm i
 
       - name: Format & Unit test
         if: ${{ contains(inputs.tests, 'unit') }}
         run: |
-          tln format-all:unit-test-all -- --repo-ref ${{ inputs.ref }}
+          npm test
 
-      - name: Spec test
-        if: ${{ contains(inputs.tests, 'spec') }}
-        run: |
-          #tln up platform
-          #docker ps -a
-          #tln spec-test-all -- --repo-ref ${{ inputs.ref }}
-
-    #  - name: SonarCloud Scan
-    #    uses: SonarSource/sonarcloud-github-action@master
-    #    if: ${{ contains(inputs.tests, 'static') }}
-    #    env:
-    #      GITHUB_TOKEN: ${{ secrets.SONAR_GITHUB_TOKEN }}
-    #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        if: ${{ contains(inputs.tests, 'static') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SONAR_GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Build
         if: ${{ inputs.build }}
         run: |
-          tln build-all -- --repo-ref ${{ inputs.ref }}
+          #npm build
 
       - name: Package and Upload
         if: ${{ inputs.package-n-upload }}
         run: |
-          tln package-all:publish-all -- --repo-ref ${{ inputs.ref }}
-
-      - name: Construct & Deploy
-        if: ${{ inputs.construct-n-deploy }}
-        run: |
-          #tln configure-provider:configure-group:construct-env:construct-app -- --init
-
-          #tln configure-provider:configure-group:construct-env -- --apply --auto-approve
-
-          #tln sshuttle platform/env/aws -- --bastion $(tln get-bastion platform/env/aws) --deamon --ci
-          #tln construct-app -- --apply --auto-approve
-          #tln deploy-app
-          ## Configure tenant(s) is needed
-          ## ...
-          #sudo pkill -f sshuttle
-
-          #echo "Waiting for platform to come up for 1 minutes ..."
-          #sleep 60
-
-      - name: Run API tests
-        if: ${{ contains(inputs.tests, 'api') }}
-        run: |
-          #tln run-api tests -- --prune --quiet
-
-      - name: Run Blind tests
-        if: ${{ contains(inputs.tests, 'blind') }}
-        run: |
-          #tln run-blind tests -- --prune --quiet
-
-      - name: Run UI tests
-        if: ${{ contains(inputs.tests, 'ui') }}
-        run: |
-          #tln run-ui tests -- --prune --quiet
-
-      - name: Run Load tests
-        if: ${{ contains(inputs.tests, 'load') }}
-        run: |
-          #tln run-load tests -- --prune --quiet
-
-      - name: Undeploy & Deconstruct
-        if: ${{ inputs.undeploy-n-deconstruct }}
-        run: |
-          #tln configure-provider:configure-group:construct-env:construct-app -- --init
-
-          #tln sshuttle platform/env/aws -- --bastion $(tln get-bastion platform/env/aws) --deamon --ci
-          #tln undeploy-app
-          #tln deconstruct-app -- --apply --auto-approve
-          #sudo pkill -f sshuttle
-
-          #tln deconstruct-env:configure-group:configure-provider -- --init --apply --auto-approve
-
+          tln package:publish
