@@ -1,0 +1,24 @@
+name: "Push"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pipeline:
+    permissions:
+      deployments: write
+      contents: read
+    uses: ./.github/workflows/base.yaml
+    with:
+      cleanup: false
+      group: dev
+      environment: dev01
+      tests: static, api, ui, load
+      package-n-upload: true
+      construct-n-deploy: true
+    secrets:
+      ENVIRONMENT_GROUP: ${{ secrets.ENVIRONMENT_GROUP_DEV }}
+      SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

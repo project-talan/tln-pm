@@ -1,0 +1,411 @@
+const path = require('path');
+const fs = require('fs');
+const exec = require('child_process').execSync;
+const yaml = require('js-yaml');
+const assign = require('assign-deep');
+
+const domains = {
+  docker: 'myproject.docker',
+  dev: 'myproject.xyz',
+  prod: 'myproject.io'
+};
+
+const config = {
+  params: (groupId, envId, params = {}) => ({
+    domain: '',
+    account: '',
+    registry: '',
+    records: [],
+    vars: {
+      //TF_VAR_aws_region: '',
+      //TF_VAR_image_tag_mutability: '',
+      TF_VAR_aws_k8s_version: '1.30',
+      //TF_VAR_aws_k8s_nodes_min: '',
+      //TF_VAR_aws_k8s_nodes_desired: '',
+      //TF_VAR_aws_k8s_nodes_max: '',
+      //TF_VAR_aws_k8s_nodes_size: '',
+      //TF_VAR_aws_k8s_nodes_disk: '',
+      //TF_VAR_use_primary_domain: '',
+      //TF_VAR_rds_pg_db_size: '',
+      //TF_VAR_rds_pg_db_allocated_storage: '',
+      //TF_VAR_rds_pg_max_allocated_storage: ''
+    },
+  }),
+  next: {
+    dev: {
+      params: (groupId, envId, params) => ({
+        domain: domains.dev,
+        account: '<account-id>',
+        registry: '<account-id>.dkr.ecr.eu-central-1.amazonaws.com',
+        records: [`${envId}.${domains.dev}`, 'api'],
+        vars: {
+          TF_VAR_aws_region: 'eu-central-1',
+          TF_VAR_image_tag_mutability: 'MUTABLE',
+          //TF_VAR_aws_k8s_version: '',
+          TF_VAR_aws_k8s_nodes_min: '1',
+          TF_VAR_aws_k8s_nodes_desired: '2',
+          TF_VAR_aws_k8s_nodes_max: '2',
+          TF_VAR_aws_k8s_nodes_size: 't3.small',
+          TF_VAR_aws_k8s_nodes_disk: '50',
+          TF_VAR_use_primary_domain: 'false',
+          TF_VAR_rds_pg_db_size: 'db.t3.small',
+          TF_VAR_rds_pg_db_allocated_storage: '20',
+          TF_VAR_rds_pg_max_allocated_storage: '30'
+        }
+      }),
+      next: {
+        ci: {
+          params: (group, env, params) => ({
+            records: [domains.docker, `api.${domains.docker}`],
+            vars: {
+            }
+          })
+        },
+        uat01: {
+          params: (group, env, params) => ({
+            records: [params.domain, 'api'],
+            vars: {
+              TF_VAR_use_primary_domain: 'true',
+              TF_VAR_rds_pg_db_size: 'db.t3.small',
+              TF_VAR_rds_pg_db_allocated_storage: '20',
+              TF_VAR_rds_pg_max_allocated_storage: '40'
+            }
+          })
+        }
+      },
+    },
+    prod: {
+      params: (groupId, envId, params) => ({
+        domain: domains.prod,
+        account: '<account-id>',
+        registry: '<account-id>.dkr.ecr.eu-central-1.amazonaws.com',
+        records: [domains.prod, 'api'],
+        vars: {
+          TF_VAR_aws_region: 'eu-central-1',
+          TF_VAR_image_tag_mutability: 'IMMUTABLE', 
+          TF_VAR_aws_k8s_version: '1.30',
+          TF_VAR_aws_k8s_nodes_min: '1',
+          TF_VAR_aws_k8s_nodes_desired: '2',
+          TF_VAR_aws_k8s_nodes_max: '3',
+          TF_VAR_aws_k8s_nodes_size: 't3.small',
+          TF_VAR_aws_k8s_nodes_disk: '50',
+          TF_VAR_use_primary_domain: 'true',
+          TF_VAR_rds_pg_db_size: 'db.t3.small',
+          TF_VAR_rds_pg_db_allocated_storage: '20',
+          TF_VAR_rds_pg_max_allocated_storage: '60'
+        }
+      }),
+    }
+  }
+};
+
+const getEnvParams = (groupId, envId) => {
+  let params = config.params(groupId, envId);
+  if (config.next[groupId]) {
+    assign(params, config.next[groupId].params(groupId, envId, params));
+    if (config.next[groupId].next && config.next[groupId].next[envId]) {
+      assign(params, config.next[groupId].next[envId].params(groupId, envId, params));
+    }
+  }
+  //console.log('getEnvParams', groupId, envId, params);
+  return params;
+}
+
+const envs = {
+  'dev:ci':     {},
+  'dev:dev01':  {},
+  'dev:uat01':  {},
+  'prod:ga':    {},
+};
+
+const components = [
+  { id: 'web/landing',                proxy: false, ecr: 'web.landing',                   image: true,    migrations: false },
+//  { id: 'backend/services/',          proxy: false, ecr: 'backend.services.core',         image: true,    migrations: true },
+];
+
+const getComponents = (env, filter = (v) => !v.proxy, log = false ) => {
+  const ref = env.MYPROJECT_REPO_REF;
+  const include = env.MYPROJECT_INCLUDE;
+  const exclude = env.MYPROJECT_EXCLUDE
+  //
+  let c = components.filter( filter );
+  if (ref) {
+    // selective build
+    const diff = exec(`git diff ${ref} --name-only`).toString();
+    c = components.filter( v => diff.search(v.id) != -1 );
+  }
+  const r = c.filter( v => (!include || v.id.search(include) != -1 ) && (!exclude || v.id.search(exclude) == -1 ));
+  if (log) {
+    console.log('Processing components', r.map(v => v.id));
+  }
+  return r;
+}
+
+const parseContext = (context) => {
+  const prts = context.split(':');
+  if (prts.length !== 2) {
+    console.error('Invalid context, it should be in form "group:env" (i.e. dev:dev01)', context);
+  }
+  return ({groupId: prts[0], envId: prts[1]});
+}
+
+const getContext = () => {
+  const cf = path.join(__dirname, '.context');
+  let context = 'dev:ci';
+  if (fs.existsSync(cf)) {
+    const {groupId, envId} = parseContext(fs.readFileSync(cf, 'utf8').trim());
+    context = [groupId, envId].join(':');
+  }
+  const cp = context.split(':');
+  return { context, groupId: cp[0], envId: cp[1]};
+}
+
+const getTerraformOpts = (env) => {
+  return `${env.MYPROJECT_INIT?'--init ':''} ${env.MYPROJECT_PLAN?'--plan ':''}${env.MYPROJECT_APPLY?'--apply ':''}${env.MYPROJECT_AUTO_APPROVE?'--auto-approve ':''}`;
+}
+
+module.exports = {
+  options: async (tln, args) => {
+    const { context } = getContext();
+    args
+      .prefix('MYPROJECT')
+      .option('context',        { describe: 'Environment Id, (dev:dev01)', default: context, type: 'string' })
+      .option('tenant',         { describe: 'Tenant Id', default: '', type: 'string' })
+      .option('repo-ref',       { describe: 'Repository reference to the branch, tag, SHA1 for selective build', default: null, type: 'string' })
+      .option('include',        { describe: 'Regexp to include components into processing', default: '.*', type: 'string' })
+      .option('exclude',        { describe: 'Regexp to exclude components from processing', default: null, type: 'string' })
+      .option('init',           { describe: 'Run Terraform init', default: false, type: 'boolean' })
+      .option('plan',           { describe: 'Run Terraform plan', default: false, type: 'boolean' })
+      .option('apply',          { describe: 'Run Terraform apply', default: false, type: 'boolean' })
+      .option('auto-approve',   { describe: 'Tun on auto approve for apply & destroy', default: false, type: 'boolean' })
+      .option('ci',             { describe: 'Add CI specfic commands, like sshuttle', default: false, type: 'boolean' })
+    ;
+  },
+  env: async (tln, env) => {
+    const context = env.MYPROJECT_CONTEXT;
+    const { groupId, envId } = parseContext(context);
+    env.MYPROJECT_CONTEXT_GROUP_ID = groupId;
+    env.MYPROJECT_CONTEXT_ENV_ID = envId;
+
+    const {domain, account, registry, records, vars} = getEnvParams(groupId, envId);
+
+    env.TLN_UID = domains.prod.split('.').reverse().join('.');
+    env.TLN_VERSION = fs.readFileSync(path.join(__dirname, 'version'), 'utf8').trim();
+
+    env.MYPROJECT_SHA1 = exec("git log -1 --format='format:%h %s'").toString().trim().substring(0, 30);
+
+    env.MYPROJECT_CLOUD_PROVIDER = 'aws';
+    env.MYPROJECT_CLOUD_PROVIDER_ACCOUNT = account;
+    env.MYPROJECT_K8S_NAMESPACE = context.replace(':', '-');
+
+    env.MYPROJECT_TOKEN = '';
+    const tf = path.join(__dirname, 'token');
+    if (fs.existsSync(tf)) {
+      env.MYPROJECT_TOKEN = fs.readFileSync(tf, 'utf8').trim();
+    }
+
+    env.TLN_DOCKER_REGISTRY = registry;
+    env.TLN_DOCKER_REGISTRY_PREFIX = env.TLN_UID;
+    env.KUBECONFIG = path.join(__dirname, 'platform', 'env', 'aws', 'managed', `.kube.config.${envId}`);
+
+    env.TF_VAR_access_key = env.AWS_ACCESS_KEY_ID;
+    env.TF_VAR_secret_key = env.AWS_SECRET_ACCESS_KEY;
+
+    env.TF_VAR_org_id = 'myorg';
+    env.TF_VAR_project_id = 'myproject';
+    env.TF_VAR_group_id = groupId;
+    env.TF_VAR_env_id = envId;
+    env.TF_VAR_product_version = env.TLN_VERSION;
+
+    env.TF_VAR_tenant_id = env.MYPROJECT_TENANT;
+    env.TF_VAR_region = vars.TF_VAR_aws_region;
+
+    env.TF_VAR_domain_name = domain;
+    env.TF_VAR_dns_records = records;
+    env.TF_VAR_api_base_url =  env.MYPROJECT_API_BASE_URL;
+    env.TF_VAR_repositories = components.map(item => {
+      if (item.ecr) {
+        const r = [];
+        const prefix = domains.prod.split('.').reverse().join('.');
+        // let id = item.id.replace(/\//g, '.');
+        r.push([prefix, item.ecr].join('.'));
+        if (item.migrations) {
+          r.push([prefix, `${id}-migrations`].join('.'));
+        }
+        return r;
+      }
+    }).filter(item => !!item).join(',');
+
+    // Extract db, user, passsword from env vars and prepare input for Terraform
+    const connStrParcer = (conn) => {
+      if (conn) {
+        const dbu = conn.match(/\?user=(.*)\&/)[1];
+        const p = conn.match(/\&password=(.*)/)[1];
+        const p1 = dbu.split('-');
+        return { db: p1[0], user: p1[1], password: p };
+      }
+    }
+    const databases = [
+      //'MYPROJECT_PG_CONNECTION_STRING',
+    ].map( v => {
+      const conn = env[v];
+      if (conn) {
+        const {db, user, password} = connStrParcer(conn);
+        return `"${db}" = { owner = "${user}", password = "${password}" }`;
+      }
+    }).join(', ');
+    env.TF_VAR_databases = `{ ${databases} }`;
+    //console.log(env.TF_VAR_databases);
+    //env.TF_VAR_databases = `{ "user" = { owner = "admin", password = "admin" }, "balance" = { owner = "admin", password = "admin" } }`;
+
+    Object.keys(vars).forEach( v => {
+      if (typeof vars[v] === "function" ) {
+        env[v] = vars[v](envId);
+      } else {
+        env[v] = vars[v];
+      }
+    });
+  },
+  dotenvs: async (tln) => {
+    const { context, groupId, envId } = getContext();
+    return [
+      path.join('secrets', `.env.${groupId}`),
+//      path.join('secrets', `.env.${groupId}.${envId}`)
+    ];
+  },
+  inherits: async (tln) => [],
+  depends: async (tln) => ['aws-cli-2.17.9'],
+  steps: async (tln) =>
+    [
+      ['init',      'init:link',  '', ''],
+      ['format',    'format',     '', ''],
+      ['unit-test', 'unit-test',  '', ''],
+      ['spec-test', 'spec-test',  '', ''],
+      ['build',     'build',      '', ''],
+      ['package',   'package',    '', '&& docker builder prune -f', (v) => !v.proxy && v.image],
+      //['publish',   'publish',    '', '', (v) => !v.proxy && v.image],
+    ].map( v => 
+      ({
+        id: `${v[0]}-all`,
+        builder: async (tln, script) => {
+          script.set(getComponents(script.env, v[4], true).map( c => `${v[2]} tln ${v[1]} ${c.id} ${v[3]}`));
+        }
+      })
+    ).concat([    
+    { id: 'configure-ci', builder: async (tln, script) => {
+        const groupId = script.env.MYPROJECT_CONTEXT_GROUP_ID;
+        const envId = script.env.MYPROJECT_CONTEXT_ENV_ID;
+        const records = script.env.TF_VAR_dns_records;
+        const dt = [
+//          ['platform', 'env'],
+//          ['platform', 'env', 'aws'],
+        ].map( v => `touch ${(v.concat(['.env'])).join(path.sep)}`);
+        script.set(dt.concat([
+          (envId === 'ci') ? `sudo echo "127.0.0.1 ${records.join(' ')}" | sudo tee -a /etc/hosts && cat /etc/hosts` : ''
+        ]));
+      }
+    },
+    { id: 'prereq', builder: async (tln, script) => {
+        script.set(
+          components.map(c => `tln install ${c.id} --depends`).concat([
+          //`tln install ${['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/')} --depends`,
+          //`tln install ${['platform', 'app'].join('/')} --depends`,
+          //`tln install ${['platform', 'tenant'].join('/')} --depends`,
+          //`tln exec -c 'aws --version'`,
+          //`tln exec platform/env/aws -c 'aws ecr get-login-password | docker login --username AWS --password-stdin ${script.env.TLN_DOCKER_REGISTRY}'`
+        ]));
+      }
+    },
+    { id: 'get-secrets', builder: async (tln, script) => {
+      const domainReverse = script.env.TF_VAR_domain_name.split('.').reverse().join('.');
+      script.set(
+        [
+          //[`${domainReverse}.env.${script.env.TF_VAR_group_id}.${script.env.TF_VAR_env_id}`, `.env.${script.env.TF_VAR_group_id}.${script.env.TF_VAR_env_id}`],
+        ].map(s => {
+            const src = s[0];
+            const dst = s[1] || src;
+            return `aws secretsmanager get-secret-value --secret-id ${src} | jq -r '.SecretString' > secrets.aws/${dst}`
+          })
+        );
+      }
+    },
+    { id: 'configure-provider', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln construct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers provider --state project,provider,${script.env.MYPROJECT_CLOUD_PROVIDER_ACCOUNT}`
+      ]);
+    }},
+    { id: 'configure-group', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln construct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers group --state project,provider,group`
+      ]);
+    }},
+    { id: 'construct-env', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln construct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers network,managed --state project,provider,group,env,layer`
+      ]);
+    }},
+    { id: 'construct-app', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln construct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers app --state project,provider,group,env,layer`
+      ]);
+    }},
+    { id: 'deploy-app', builder: async (tln, script) => {
+      script.set([`tln deploy platform/app`]);
+    }},
+    /* ---------------------------------- TENANT --------------------------- */
+    { id: 'onboard-tenant', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      const tenant = script.env.MYPROJECT_TENANT;
+      const dryRun = script.env.MYPROJECT_PLAN?'--dry-run':'';
+      const runHelm = script.env.MYPROJECT_PLAN || script.env.MYPROJECT_APPLY;
+      script.set([
+        `tln construct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers tenant --state project,provider,group,env,tenant --tenant ${tenant}`,
+        (script.env.MYPROJECT_CONTEXT_ENV_ID !== 'ci' && runHelm) ? `tln deploy platform/tenant -- --tenant ${tenant} ${dryRun}` : ''
+      ]);
+    }},
+    { id: 'offboard-tenant', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      const tenant = script.env.MYPROJECT_TENANT;
+      const dryRun = script.env.MYPROJECT_PLAN?'--dry-run':'';
+      const runHelm = script.env.MYPROJECT_PLAN || script.env.MYPROJECT_APPLY;
+      script.set([
+        (script.env.MYPROJECT_CONTEXT_ENV_ID !== 'ci' && runHelm) ? `tln undeploy platform/tenant -- --tenant ${tenant} ${dryRun}` : '',
+        `tln deconstruct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers tenant --state project,provider,group,env,tenant --tenant ${tenant}`
+      ]);
+    }},
+    /* ------------------------ TENANT/LOCATION ---------------------------- */
+    { id: 'undeploy-app', builder: async (tln, script) => {
+      script.set([`tln undeploy platform/app`]);
+    }},
+    { id: 'deconstruct-app', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln deconstruct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers app --state project,provider,group,env,layer`
+      ]);
+    }},
+    { id: 'deconstruct-env', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln deconstruct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers network,managed --state project,provider,group,env,layer`
+      ]);
+    }},
+    { id: 'deconfigure-group', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln deconstruct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers group --state project,provider,group`
+      ]);
+
+    }},
+    { id: 'deconfigure-provider', builder: async (tln, script) => {
+      const provider = ['platform', 'env', script.env.MYPROJECT_CLOUD_PROVIDER].join('/');
+      script.set([
+        `tln deconstruct ${provider} -- --backend cloud ${getTerraformOpts(script.env)}--layers provider --state project,provider,${script.env.MYPROJECT_CLOUD_PROVIDER_ACCOUNT}`
+      ]);
+    }},
+  ]),
+  components: async (tln) => []
+}
