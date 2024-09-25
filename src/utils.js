@@ -6,6 +6,7 @@ module.exports.parseTask = (desc) => {
   let title = '';
   let deadline = '';
   let assignees = [];
+  let tags = [];
   let links = [];
 
   let foundHeader = false;
@@ -26,14 +27,22 @@ module.exports.parseTask = (desc) => {
   }
   if (foundHeader) {
     const next = desc.replace(/^\[([\-,>,+,?,!,+,x]):?(\d*)?:?([\w,\.]+)?\]/g, '').trim();
+    // extract assignees(s)
     const aees = next.matchAll(/@[a-z,\.,-,_]+/gi);
     for (const aee of aees) {
       assignees.push(aee[0].substring(1));
     }
     const next2 = next.replace(/@[a-z,\.,-,_]+/gi, '').trim();
-    title = next2;
+    // extract tag(s)
+    const ts = next2.matchAll(/#[a-z,\.,-,_]+/gi);
+    for (const t of ts) {
+      tags.push(t[0].substring(1));
+    }
+    const next3 = next2.replace(/#[a-z,\.,-,_]+/gi, '').trim();
+    // ectratc link(s)
+    title = next3;
   }
-  return { status, id, title, deadline, assignees, links };
+  return { status, id, title, deadline, assignees, tags, links };
 }
 
 

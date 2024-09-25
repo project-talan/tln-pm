@@ -52,7 +52,7 @@ class App {
 
   //
   async ls(options) {
-    const {component, depth, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
+    const {component, depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
     // console.log('home:', this.home);
     // console.log('cwd:', this.cwd);
     // console.log('assignees:', this.assignees);
@@ -71,7 +71,7 @@ class App {
       }
       if (node) {
         // console.log('node:', node.id);
-        await node.ls({depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
+        await node.ls({depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
       }
     } 
   }

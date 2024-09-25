@@ -20,9 +20,10 @@ class Task {
     this.indent = indent;
     this.status = '-';
     this.id = null;
-    this.title = null;
+    this.title = '';
     this.deadline = '';
     this.assignees = [];
+    this.tags = [];
     this.links = [];
     this.tasks = [];
     this.audit = {};
@@ -46,17 +47,18 @@ class Task {
   }
 
   async extract(desc) {
-    const {status, id, title, deadline, assignees, links} = utils.parseTask(desc);
+    const {status, id, title, deadline, assignees, tags, links} = utils.parseTask(desc);
     this.status = status;
     this.id = id;
     this.title = title;
     this.deadline = deadline;
     this.assignees = assignees;
+    this.tags = tags;
     this.links = links;
   }
 
   async filter(options) {
-    const {all, status, assignees, search} = options;
+    const {all, status, assignees, tag, search} = options;
     // check myself
     const me = assignees.some( r => this.assignees.includes(r));
     const st = [
@@ -64,15 +66,18 @@ class Task {
       { statuses: ['>'], flag: status.indev },
       { statuses: ['+', 'x'], flag: status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
+    const tg = tag.length ? tag.find( t => this.tags.includes(t) ) : true;
+    const sr = search.length ? search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
-    if (((all || me) && st) || tasks.length) {
+    if (((all || me) && st && tg && sr) || tasks.length) {
       return {
         status: this.status,
         id: this.id,
         title: this.title,
         deadline: this.deadline,
         assignees: this.assignees,
+        tags: this.tags,
         links: this.links,
         tasks
       };
