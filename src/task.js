@@ -46,12 +46,13 @@ class Task {
   }
 
   async extract(desc) {
-    const {status, id, title, deadline, assignees, links} = utils.parseTask(desc);
+    const {status, id, title, deadline, assignees, tags, links} = utils.parseTask(desc);
     this.status = status;
     this.id = id;
     this.title = title;
     this.deadline = deadline;
     this.assignees = assignees;
+    this.tags = tags;
     this.links = links;
   }
 
@@ -73,6 +74,7 @@ class Task {
         title: this.title,
         deadline: this.deadline,
         assignees: this.assignees,
+        tags: this.tags,
         links: this.links,
         tasks
       };

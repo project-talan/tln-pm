@@ -151,10 +151,11 @@ class Node {
         }
         const out = (task, indent) => {
           if (task.title) {
-            const a = task.assignees.length ? ` (${task.assignees.join(',')})` : '';
+            const a = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
+            const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
             const dl = task.deadline ? ` (${task.deadline})` : '';
             const id = task.id ? ` ${task.id}:` : '';
-            console.log(`${indent}${task.status}${id} ${task.title}${a}${dl}`);
+            console.log(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
           }
           for (const t of task.tasks) {
             out(t, `${indent}  `);
