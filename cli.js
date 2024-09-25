@@ -30,7 +30,8 @@ yargs(hideBin(process.argv))
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
-  .option('s', { describe: 'String to search', alias: 'search', default: null, type: 'string' })
+  .option('t', { describe: 'Filter output using tag value', alias: 'tag', default: [], type: 'array' })
+  .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
@@ -55,7 +56,8 @@ yargs(hideBin(process.argv))
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        search: argv.search || [],
+        tag: argv.tag,
+        search: argv.search,
         team: argv.team,
         timeline: argv.timeline,
         tasks: argv.tasks,

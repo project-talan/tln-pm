@@ -120,7 +120,7 @@ class Node {
   }
 
   async ls(options) {
-    const {depth, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
+    const {depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
     const aees = await this.getAssignees(assignees);
     // about me
     // team
@@ -137,7 +137,7 @@ class Node {
     }
     // tasks
     if (tasks) {
-      const ts = await this.task.filter({all, status, assignees: aees, search});
+      const ts = await this.task.filter({all, status, assignees: aees, tag, search});
       if (ts && ts.tasks.length) {
         let ti = '  ';
         if (hierarchy) {
@@ -176,7 +176,7 @@ class Node {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({depth: depth - 1, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.children[i].ls({depth: depth - 1, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }

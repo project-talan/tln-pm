@@ -23,6 +23,7 @@ class Task {
     this.title = null;
     this.deadline = '';
     this.assignees = [];
+    this.tags = [];
     this.links = [];
     this.tasks = [];
     this.audit = {};
@@ -57,7 +58,7 @@ class Task {
   }
 
   async filter(options) {
-    const {all, status, assignees, search} = options;
+    const {all, status, assignees, tag, search} = options;
     // check myself
     const me = assignees.some( r => this.assignees.includes(r));
     const st = [
@@ -65,9 +66,11 @@ class Task {
       { statuses: ['>'], flag: status.indev },
       { statuses: ['+', 'x'], flag: status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
+    const tg = tag.length ? tag.find( t => this.tags.includes(t) ) : true;
+    const sr = true;
     //
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
-    if (((all || me) && st) || tasks.length) {
+    if (((all || me) && st && tg && sr) || tasks.length) {
       return {
         status: this.status,
         id: this.id,
