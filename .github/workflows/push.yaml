@@ -12,7 +12,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/base.yaml
     with:
-      tests: static
+      tests: unit, static
       package-n-upload: false
     secrets:
       SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
