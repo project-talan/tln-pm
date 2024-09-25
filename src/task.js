@@ -20,7 +20,7 @@ class Task {
     this.indent = indent;
     this.status = '-';
     this.id = null;
-    this.title = null;
+    this.title = '';
     this.deadline = '';
     this.assignees = [];
     this.tags = [];
@@ -67,7 +67,7 @@ class Task {
       { statuses: ['+', 'x'], flag: status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
     const tg = tag.length ? tag.find( t => this.tags.includes(t) ) : true;
-    const sr = true;
+    const sr = search.length ? search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
     if (((all || me) && st && tg && sr) || tasks.length) {
