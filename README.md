@@ -1,10 +1,11 @@
 # Project Management as Code
-The utility aims to make the git repository the single source of truth for project planning, minimize the day-to-day routine and divide PM activities between team members.
-It will scan your repository for specific files and marked comment sections to get task hierarchy and other information.
+The goal of the utility is to make the git repository the single source of truth for project planning and execution, minimize daily routine, and extend project management activities beyond one person.
+It will scan your repository for specific files and marked comment sections to get task hierarchy of tasks, statuses, assigmnebts & timeline.
+Based of commits history, 
 Typically `.todo` files are used to define PM artifacts, but tasks' description can be placed in any file in the repository.
 
 ## DSL
-  Comments section can have three top level elements in Yaml format: team, timeline & tasks.
+  TPM uses market comments section. Every comments section can have four top level elements in Yaml format: team, timeline, tasks & srs.
   Here is example for `.todo` file at repository root
   ```
   /* TPM
@@ -67,5 +68,7 @@ tpm [ls] [parameters] [optios]
 | tpm ls --srs | false | Display project timeline |
 | tpm ls -g vlad.k | git user |  Display tasks assigned to specific user |
 | tpm ls -a | false | Display tasks for all users |
+| tpm ls -t backend | | Display tasks with 'backend' tag |
+| tpm ls -s cognito | | Display tasks with 'cognito' strung in title |
 
   
