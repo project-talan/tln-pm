@@ -131,7 +131,11 @@ class App {
   }
 
   //
-  async serve() {
+  async serve(options) {
+    const {port} = options;
+    this.logger.info(`start server on http://localhost:${port}`);
+    //
+    
   }
 
 }

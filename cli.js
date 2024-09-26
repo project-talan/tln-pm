@@ -21,6 +21,7 @@ const getApp = async (argv, fn) => {
   const all = argv.all;
   //
   const a = require('./src/app').create(require('./src/logger').create(verbose));
+  //a.logger.con(argv);
   await a.init(assignees, include, ignore, all);
   await fn(a);
 }
@@ -57,7 +58,6 @@ yargs(hideBin(process.argv))
 
   }, async (argv) => {
     getApp(argv, async (a) => {
-      //a.logger.con(argv);
       await a.ls({
         component: argv.component,
         depth: argv.depth,
@@ -77,7 +77,6 @@ yargs(hideBin(process.argv))
     return yargs
   }, async (argv) => {
     getApp(argv, async (a) => {
-      //console.log(argv);
       await a.config({
         team: argv.team,
         timeline: argv.timeline,
@@ -114,10 +113,11 @@ yargs(hideBin(process.argv))
         default: defaultPort
       });
   }, (argv) => {
-    if (argv.verbose) {
-      console.info(`start server on http://localhost:${argv.port}`);
-    }
-    //serve(argv.port);
+    getApp(argv, async (a) => {
+      a.serve({
+        port: argv.port
+      });
+    });
   })
   //
   .command(

@@ -127,13 +127,13 @@ class Node {
     // team
     if (team) {
       if (this.team && Object.keys(this.team).length) {
-        console.log((require('yaml')).stringify(this.team));
+        this.logger.con((require('yaml')).stringify(this.team));
       }
     }
     // timeline
     if (timeline) {
       if (this.timeline && Object.keys(this.timeline).length) {
-        console.log((require('yaml')).stringify(this.timeline));
+        this.logger.con((require('yaml')).stringify(this.timeline));
       }
     }
     // tasks
@@ -145,10 +145,10 @@ class Node {
           ti = `${indent}${ti}`;
           const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
           const summary = '45%';
-          console.log(`${title} ${summary}`);
+          this.logger.con(`${title} ${summary}`);
         } else {
-          console.log();
-          console.log(`- ${this.getRelativePath()}`);
+          this.logger.con();
+          this.logger.con(`- ${this.getRelativePath()}`);
         }
         const out = (task, indent) => {
           if (task.title) {
@@ -156,7 +156,7 @@ class Node {
             const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
             const dl = task.deadline ? ` (${task.deadline})` : '';
             const id = task.id ? ` ${task.id}:` : '';
-            console.log(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
+            this.logger.con(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
           }
           for (const t of task.tasks) {
             out(t, `${indent}  `);
@@ -169,7 +169,7 @@ class Node {
     // srs
     if (srs) {
       if (this.srs && Object.keys(this.srs).length) {
-        console.log((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
+        this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
     }
     // about children
@@ -187,15 +187,3 @@ class Node {
 module.exports.create = (logger, home, id) => {
   return new Node(logger, null, home, id);
 }
-/*
-    const {home, cwd, include, ignore, what, assignee, search, all} = options;
-    console.log('assignee:', assignee);
-    //
-    const toSearch = [assignee].concat(search);
-    //
-    const entries = await fg(include, { cwd: home, dot: true, ignore });
-    entries.forEach( e => {
-      
-    });
-
-*/
