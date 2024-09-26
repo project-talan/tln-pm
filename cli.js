@@ -13,8 +13,13 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const { option } = require('yargs');
 
-const getApp = async (options, fn) => {
-  const {verbose, assignees, include, ignore, all} = options;
+const getApp = async (argv, fn) => {
+  const verbose = argv.verbose;
+  const assignees = argv.assignee;
+  const include = argv.include.split(';');
+  const ignore = argv.ignore.split(';');
+  const all = argv.all;
+  //
   const a = require('./src/app').create(require('./src/logger').create(verbose));
   await a.init(assignees, include, ignore, all);
   await fn(a);
@@ -51,7 +56,7 @@ yargs(hideBin(process.argv))
     });
 
   }, async (argv) => {
-    getApp({verbose: argv.verbose, assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';'), all: argv.all}, async (a) => {
+    getApp(argv, async (a) => {
       //a.logger.con(argv);
       await a.ls({
         component: argv.component,
@@ -71,7 +76,7 @@ yargs(hideBin(process.argv))
   .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
     return yargs
   }, async (argv) => {
-    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
+    getApp(argv, async (a) => {
       //console.log(argv);
       await a.config({
         team: argv.team,

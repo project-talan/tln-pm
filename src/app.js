@@ -46,6 +46,10 @@ class App {
     if (warnMsg) {
       this.logger.warn(`${warnMsg}, please use -g <userid> option or --all option to define assignee(s)`);
     }
+    //
+    this.logger.info('home:', this.home);
+    this.logger.info('cwd:', this.cwd);
+    this.logger.info('assignees:', this.assignees);
     // load all tasks
     this.root = node.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
@@ -57,9 +61,6 @@ class App {
   //
   async ls(options) {
     const {component, depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
-    this.logger.info('home:', this.home);
-    this.logger.info('cwd:', this.cwd);
-    this.logger.info('assignees:', this.assignees);
     this.logger.info('component:', component);
     //
     if (this.assignees.length || all) {
@@ -72,9 +73,11 @@ class App {
       }
       if (components.length) {
         node = await node.find(components);
+        if (!node) {
+          this.logger.warn('Component not found:', component);
+        }
       }
       if (node) {
-        // console.log('node:', node.id);
         await node.ls({depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
       }
     } 
@@ -83,9 +86,6 @@ class App {
   //
   async config(options) {
     const {team, timeline, tasks, srs, all, force} = options;
-    //console.log('home:', this.home);
-    //console.log('cwd:', this.cwd);
-    //console.log('assignees:', this.assignees);
     //
     const fn = '.todo';
     const fp = path.join(this.cwd, fn);
@@ -111,15 +111,14 @@ class App {
           ].join('\n')
         };
       }
-      //      console.log('data:', data);
       try {
         fs.writeFileSync(fp, `/* TPM\n\n${(require('yaml')).stringify(data)}\n*/\n`);
-        console.log(`${fn} file was generated`, fp);
+        this.logger.con(`${fn} file was generated`, fp);
       } catch (err) {
-        console.error(err);
+        this.logger.err(err);
       }
     } else {
-      console.error(`${fn} file exists in current location, use --force option to override`);
+      this.logger.warn(`${fn} file exists in current location, use --force option to override`);
     }
   }
 
