@@ -14,9 +14,9 @@ const { hideBin } = require('yargs/helpers');
 const { option } = require('yargs');
 
 const getApp = async (options, fn) => {
-  const {assignees, include, ignore} = options;
-  const a = require('./src/app').create();
-  await a.init(assignees, include, ignore);
+  const {verbose, assignees, include, ignore, all} = options;
+  const a = require('./src/app').create(require('./src/logger').create(verbose));
+  await a.init(assignees, include, ignore, all);
   await fn(a);
 }
 
@@ -51,8 +51,8 @@ yargs(hideBin(process.argv))
     });
 
   }, async (argv) => {
-    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
-      //console.log(argv);
+    getApp({verbose: argv.verbose, assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';'), all: argv.all}, async (a) => {
+      //a.logger.con(argv);
       await a.ls({
         component: argv.component,
         depth: argv.depth,

@@ -17,7 +17,8 @@ class Node {
   *
   * params:
   */
-  constructor(parent, home, id) {
+  constructor(logger, parent, home, id) {
+    this.logger = logger;
     this.parent = parent;
     this.home = home;
     this.id = id;
@@ -65,7 +66,7 @@ class Node {
       let needToAdd = false;
       if (!n) {
         needToAdd = true;
-        n = new Node(this, path.join(this.home, id), id);
+        n = new Node(this.logger, this, path.join(this.home, id), id);
       }
       if (await n.process(items.join(path.sep))) {
         if (needToAdd) {
@@ -183,8 +184,8 @@ class Node {
   
 }
 
-module.exports.create = (home, id) => {
-  return new Node(null, home, id);
+module.exports.create = (logger, home, id) => {
+  return new Node(logger, null, home, id);
 }
 /*
     const {home, cwd, include, ignore, what, assignee, search, all} = options;

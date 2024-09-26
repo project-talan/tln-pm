@@ -12,7 +12,8 @@ class App {
   *
   * params:
   */
-  constructor() {
+  constructor(logger) {
+    this.logger = logger;
     this.cwd = null;
     this.home = null;
     this.root = null;
@@ -20,32 +21,35 @@ class App {
   }
 
   //
-  async init(assignees, include, ignore) {
-    let notGit = false;
+  async init(assignees, include, ignore, all) {
     this.assignees = [...assignees];
-    try {
-      if (!this.assignees.length) {
-        this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
-      }
-    } catch (e) {
-      console.info('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
-      notGit = true;
-    }
+    const explicit = all || this.assignees.length;
     // find git top level directory
     this.cwd = process.cwd();
     this.home = this.cwd;
+    let warnMsg = null
     // find home: cwd or git home
     try {
       this.home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      try {
+        if (!explicit) {
+          this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
+        }
+      } catch (e) {
+        warnMsg = 'Couldn\'t identify git user';
+      }
     } catch (e) {
-      console.info('Couldn\'t identify git repository home, tpm is executed outside of git repository');
-      notGit = true;
+      if (!explicit) {
+        warnMsg = 'tpm is executed outside of git repository';
+      }
+    }
+    if (warnMsg) {
+      this.logger.warn(`${warnMsg}, please use -g <userid> option or --all option to define assignee(s)`);
     }
     // load all tasks
-    this.root = node.create(this.home, null);
+    this.root = node.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
     for (const e of entries) {
-      //console.log('entry:', e);
       await this.root.process(e);
     }
   }
@@ -53,10 +57,10 @@ class App {
   //
   async ls(options) {
     const {component, depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
-    // console.log('home:', this.home);
-    // console.log('cwd:', this.cwd);
-    // console.log('assignees:', this.assignees);
-    // console.log('component:', component);
+    this.logger.info('home:', this.home);
+    this.logger.info('cwd:', this.cwd);
+    this.logger.info('assignees:', this.assignees);
+    this.logger.info('component:', component);
     //
     if (this.assignees.length || all) {
       let node = this.root;
@@ -133,6 +137,6 @@ class App {
 
 }
 
-module.exports.create = () => {
-  return new App();
+module.exports.create = (logger) => {
+  return new App(logger);
 }
