@@ -18,39 +18,22 @@ class App {
     this.cwd = null;
     this.home = null;
     this.root = null;
-    this.assignees = [];
   }
 
   //
-  async init(assignees, include, ignore, all) {
-    this.assignees = [...assignees];
-    const explicit = all || this.assignees.length;
+  async init(include, ignore) {
     // find git top level directory
     this.cwd = process.cwd();
     this.home = this.cwd;
-    let warnMsg = null
     // find home: cwd or git home
     try {
-      this.home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-      try {
-        if (!explicit) {
-          this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
-        }
-      } catch (e) {
-        warnMsg = 'Couldn\'t identify git user';
-      }
+      this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
-      if (!explicit) {
-        warnMsg = 'tpm is executed outside of git repository';
-      }
-    }
-    if (warnMsg) {
-      this.logger.warn(`${warnMsg}, please use -g <userid> option or --all option to define assignee(s)`);
+      this.logger.warn('tpm is executed outside of git repository, please use -g <userid> option or --all option to define assignee(s)');
     }
     //
     this.logger.info('home:', this.home);
     this.logger.info('cwd:', this.cwd);
-    this.logger.info('assignees:', this.assignees);
     // load all tasks
     this.root = node.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
@@ -61,10 +44,21 @@ class App {
 
   //
   async ls(options) {
-    const {component, depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
+    const {component, depth, what, who, filter, hierarchy} = options;
+    let aees = [...who.assignees];
+    //
+    try {
+      if (!(who.all || aees.length)) {
+        aees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
+      }
+    } catch (e) {
+      this.logger.warn('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
+    }
+    //
+    this.logger.info('assignees:', aees);
     this.logger.info('component:', component);
     //
-    if (this.assignees.length || all) {
+    if (who.all || aees.length) {
       let node = this.root;
       let components = [];
       const h = this.home;
@@ -79,7 +73,7 @@ class App {
         }
       }
       if (node) {
-        await node.ls({depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
+        await node.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }

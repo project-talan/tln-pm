@@ -121,24 +121,24 @@ class Node {
   }
 
   async ls(options) {
-    const {depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
-    const aees = await this.getAssignees(assignees);
+    const {depth, what, who, filter, hierarchy, indent, last} = options;
+    const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
     // about me
     // team
-    if (team) {
+    if (what.team) {
       if (this.team && Object.keys(this.team).length) {
         this.logger.con((require('yaml')).stringify(this.team));
       }
     }
     // timeline
-    if (timeline) {
+    if (what.timeline) {
       if (this.timeline && Object.keys(this.timeline).length) {
         this.logger.con((require('yaml')).stringify(this.timeline));
       }
     }
     // tasks
-    if (tasks) {
-      const ts = await this.task.filter({all, status, assignees: aees, tag, search});
+    if (what.tasks) {
+      const ts = await this.task.filter({who: who2, filter});
       if (ts && ts.tasks.length) {
         let ti = '  ';
         if (hierarchy) {
@@ -167,7 +167,7 @@ class Node {
     }
     //
     // srs
-    if (srs) {
+    if (what.srs) {
       if (this.srs && Object.keys(this.srs).length) {
         this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
@@ -177,7 +177,7 @@ class Node {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({depth: depth - 1, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.children[i].ls({depth: depth - 1, what, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }

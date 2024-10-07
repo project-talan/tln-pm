@@ -15,14 +15,12 @@ const { option } = require('yargs');
 
 const getApp = async (argv, fn) => {
   const verbose = argv.verbose;
-  const assignees = argv.assignee;
   const include = argv.include.split(';');
   const ignore = argv.ignore.split(';');
-  const all = argv.all;
   //
   const a = require('./src/app').create(require('./src/logger').create(verbose));
   //a.logger.con(argv);
-  await a.init(assignees, include, ignore, all);
+  await a.init(include, ignore);
   await fn(a);
 }
 
@@ -61,14 +59,9 @@ yargs(hideBin(process.argv))
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        tag: argv.tag,
-        search: argv.search,
-        team: argv.team,
-        timeline: argv.timeline,
-        tasks: argv.tasks,
-        srs: argv.srs,
-        all: argv.all,
-        status: {backlog: argv.backlog, indev: argv.indev, done: argv.done},
+        what: { team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        who: { assignees: argv.assignee, all: argv.all },
+        filter: { tag: argv.tag, search: argv.search, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
         hierarchy: argv.hierarchy
       });
     });
