@@ -36,9 +36,11 @@
   "homepage": "https://github.com/project-talan/tln-pm#readme",
   "dependencies": {
     "assign-deep": "^1.0.1",
+    "express": "^4.21.0",
     "fast-glob": "^3.3.2",
     "find-up": "^4.1.0",
     "js-yaml": "^4.1.0",
+    "log4js": "^6.9.1",
     "yaml": "^2.5.1",
     "yargs": "^17.7.2"
   },

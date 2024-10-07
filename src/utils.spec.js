@@ -34,7 +34,7 @@ describe('Test utils', function () {
 
   it('should capture id', function () {
     expect(utils.parseTask('[-:001] Task')).to.be.eql({...emptyTask, status: '-', id: '001', title: 'Task'});
-    //expect(utils.parseTask('[-:abc] Task')).to.be.eql({...emptyTask, status: '-', id: '', title: 'Task'});
+   // expect(utils.parseTask('[:001:v24.9.0] Task')).to.be.eql({...emptyTask, status: '-', id: '001', deadline: 'v24.9.0'});
   });
 
   it('should capture deadline', function () {
