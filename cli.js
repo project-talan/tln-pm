@@ -101,14 +101,14 @@ yargs(hideBin(process.argv))
   //
   .command('serve [port]', 'Start the server', (yargs) => {
     return yargs
-      .positional('port', {
-        describe: 'Port to bind on',
-        default: defaultPort
-      });
+      .positional('port',   { describe: 'Port to bind on', default: defaultPort })
+      .option('read-only',  { describe: 'Readonly serve mode, no modifications are allowed', default: true, type: 'boolean' })
+      ;
   }, (argv) => {
     getApp(argv, async (a) => {
       a.serve({
-        port: argv.port
+        port: argv.port,
+        readOnly: argv.readOnly
       });
     });
   })

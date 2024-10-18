@@ -2,10 +2,10 @@
 const path = require('path');
 const fs = require('fs');
 
-const express = require('express');
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
 const node = require('./node');
+const server = require('./server');
 
 class App {
 
@@ -127,36 +127,8 @@ class App {
 
   //
   async serve(options) {
-    const {port} = options;
-    //
-    const getLocalContent = (file) => {
-      return fs.readFileSync(path.join(__dirname, '..', 'web', file), {encoding: 'utf8'});
-    }
-    //
-    const app = express();
-    app.get('/', (req, res) => {
-      res.send(getLocalContent('index.html'));
-    })
-    app.get('/styles.css', (req, res) => {
-      res.send(getLocalContent('styles.css'));
-    })
-    app.get('/main.js', (req, res) => {
-      res.send(getLocalContent('main.js'));
-    })
-    app.get('/raw', (req, res) => {
-      const arr = [];
-      const dump = (node, indent) => {
-        arr.push(`${indent}${node.id?node.id:'/'}`);
-        node.children.map(c => dump(c, `${indent}&nbsp;&nbsp;`));
-      }
-      dump(this.root, '');
-      //this.logger.con(arr);
-      res.send(arr.join('<br/>'));
-    })
-    
-    app.listen(port, () => {
-      this.logger.con(`start server on http://localhost:${port}`);
-    })
+    const s = server.create(this.logger);
+    await s.serve(this.root, options);
   }
 
 }

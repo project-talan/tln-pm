@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Project Management as Code</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+      google.charts.load("current", { packages: ["gantt"] });
+    </script>
+
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -21,10 +28,10 @@
               <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Dashboard</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Timeline</button>
+              <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Timeline</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Team</button>
+              <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Team</button>
             </li>
             <!--li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -49,7 +56,7 @@
       </div>
     </nav>
 
-    <div class="container my-2">
+    <div class="container my-2 bg-secondary1">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -71,28 +78,67 @@
         </li>
         </ol>
       </nav>
-
-
-
-
-      <!--ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Home</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Profile</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Contact</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-tab-pane" type="button" role="tab" aria-controls="disabled-tab-pane" aria-selected="false" disabled>Disabled</button>
-        </li>
-      </ul-->
       <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">Dashboard</div>
-        <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">Timeline</div>
-        <div class="tab-pane fade show active" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+        <div class="tab-pane fade" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+
+          <div class="album">
+            <div class="container">
+        
+              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-3">
+                <div class="col">
+                  <div class="card border-success rounded-0">
+                    <div class="card-header text-bg-success rounded-0">
+                      Featured
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">Special title treatment</h5>
+                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                    <div class="card-footer text-body-secondary">
+                      Last updated 1 min ago
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="card border-warning">
+                    <div class="card-header text-bg-warning">
+                      Featured
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">Special title treatment</h5>
+                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                    <div class="card-footer text-body-secondary">
+                      Last updated 2 mins ago
+                    </div>
+                  </div>                  
+                </div>
+                <div class="col">
+                  <div class="card border-danger">
+                    <div class="card-header text-bg-danger">
+                      Featured
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">Special title treatment</h5>
+                      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                      <a href="#" class="btn btn-primary">Go somewhere</a>
+                    </div>
+                    <div class="card-footer text-body-secondary">
+                      Last updated 3 mins ago
+                    </div>
+                  </div>                  
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+          <div id="chart_div"></div>
+        </div>
+        <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
           <table class="table">
             <thead>
               <tr role="row">
@@ -101,13 +147,13 @@
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">Indev / Blocked / Backlog</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
+            <tbody id="dashboard_team_list">
+              <!--tr>
                 <th scope="row">vlad.k</th>
                 <td>Vladyslav Kurmaz</td>
                 <td class="align-middle">
                   <div class="progress-stacked">
-                    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" style="width: 15%">
+                    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
                       <div class="progress-bar bg-success">15</div>
                     </div>
                     <div class="progress" role="progressbar" aria-label="Segment two" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%">
@@ -116,17 +162,9 @@
                     <div class="progress" role="progressbar" aria-label="Segment three" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
                       <div class="progress-bar bg-warning">50</div>
                     </div>
-                    <div class="progress" role="progressbar" aria-label="Segment four" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100" style="width: 5%">
-                      <div class="progress-bar bg-secondary">5</div>
-                    </div>
                   </div>
                 </td>
-              </tr>
-              <tr>
-                <th scope="row">artem.y</th>
-                <td>Artem Yakunenko</td>
-                <td>...</td>
-              </tr>
+              </tr-->
             </tbody>            
           </table>
         </div>

@@ -182,6 +182,18 @@ class Node {
     }
   }
   
+  getTeam( team, up, down) {
+    let t = assign({}, team, this.team);
+    if (up && this.parent) {
+      t = this.parent.getTeam(t, up, false);
+    }
+    if (down) {
+      for (const c of this.children) {
+        t = c.getTeam(t, false, down);
+      }
+    }
+    return t;
+  }
 }
 
 module.exports.create = (logger, home, id) => {
