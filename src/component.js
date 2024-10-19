@@ -6,7 +6,7 @@ const yaml = require('js-yaml');
 const assign = require('assign-deep');
 
 
-const task = require('./task');
+const taskFactory = require('./task');
 
 class Component {
 
@@ -19,6 +19,7 @@ class Component {
     this.parent = parent;
     this.home = home;
     this.id = id;
+    this.project = null;
     this.team = null;
     this.timeline = null;
     this.task = null;
@@ -55,62 +56,69 @@ class Component {
   }
 
   async process(pathTo) {
+    let result = false;
     const items = pathTo.split(path.sep);
     if (items.length > 1) {
       // dive into subdirectories
       const id = items.shift();
-      let n = this.componsnts.find( c => c.isItMe(id));
+      let cmpn = this.components.find( c => c.isItMe(id));
       let needToAdd = false;
-      if (!n) {
+      if (!cmpn) {
         needToAdd = true;
-        n = new Node(this.logger, this, path.join(this.home, id), id);
+        cmpn = new Component(this.logger, this, path.join(this.home, id), id);
       }
-      if (await n.process(items.join(path.sep))) {
+      if (await cmpn.process(items.join(path.sep))) {
         if (needToAdd) {
-          this.componsnts.push(n);
+          this.components.push(cmpn);
         }
-        return true;
+        result = true;
       }
     } else {
       // process file
-      const content = fs.readFileSync(path.join(this.getHome(), items[0]), {encoding: 'utf8'});
-      //
-      const r = content.match(/\/\*\s{0,}(TPM)[^*]*\*+([^\/][^*]*\*+)*\//g);
-      if (!!r) {
-        for( const c of r) {
-          const x = c.replace(/\/\*\s{0,}(TPM)/,'');
-          const y = x.replace(/\*\//,'');
-          //
-          const config = yaml.load(y, 'utf8');
-          if (config) {
-            if (config.team) {
-              assign(this.team, config.team);
-            }
-            if (config.timeline) {
-              assign(this.timeline, config.timeline);
-            }
-            if (config.tasks) {
-              await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
-            }
-            if (config.srs) {
-              assign(this.srs, config.srs);
-            }
+      const fp = path.join(this.home, items[0]);
+      const content = fs.readFileSync(fp, {encoding: 'utf8'});
+      if (content) {
+        const config = yaml.load(content, 'utf8');
+        if (config) {
+          if (config.project) {
+            this.project = assign({}, config.project);
+            result |= true;
+          }
+          if (config.team) {
+            this.team = assign({}, config.team);
+            result |= true;
+          }
+          if (config.timeline) {
+            this.timeline = assign({}, config.timeline);
+            result |= true;
+          }
+          if (config.tasks) {
+            this.task = taskFactory.create();
+            await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
+            result |= this.task.tasks.length > 0;
+          }
+          if (config.srs) {
+            this.srs = assign({}, config.srs);
+            result |= true;
           }
         }
-        return Object.keys(this.team).length || Object.keys(this.timeline).length || this.task.tasks.length;
+      } else {
+        this.logger.error('Couldn\'t read yaml file:', fp);
       }
     }
-    return false;
+    return result;
   }
 
   async getAssignees(assignees) {
     const aees = [...assignees];
     // add aliaces for assignees
-    Object.keys(this.team).forEach( m => {
-      if (assignees.indexOf(this.team[m].email) >= 0) {
-        aees.push(m);
-      }
-    });
+    if (this.team) {
+      Object.keys(this.team).forEach( m => {
+        if (assignees.indexOf(this.team[m].email) >= 0) {
+          aees.push(m);
+        }
+      });
+    }
     if (this.parent) {
       return await this.parent.getAssignees(aees);
     }
@@ -122,19 +130,23 @@ class Component {
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
     // about me
     // team
-    if (what.team) {
-      if (this.team && Object.keys(this.team).length) {
-        this.logger.con((require('yaml')).stringify(this.team));
+    if (what.project && this.project) {
+      this.logger.con((require('yaml')).stringify({ project: this.project }));
+    }
+    // team
+    if (what.team && this.team) {
+      if (Object.keys(this.team).length) {
+        this.logger.con((require('yaml')).stringify({ team: this.team }));
       }
     }
     // timeline
-    if (what.timeline) {
-      if (this.timeline && Object.keys(this.timeline).length) {
-        this.logger.con((require('yaml')).stringify(this.timeline));
+    if (what.timeline && this.timeline) {
+      if (Object.keys(this.timeline).length) {
+        this.logger.con((require('yaml')).stringify({ timeline: this.timeline }));
       }
     }
     // tasks
-    if (what.tasks) {
+    if (what.tasks && this.task) {
       const ts = await this.task.filter({who: who2, filter});
       if (ts && ts.tasks.length) {
         let ti = '  ';
@@ -145,7 +157,7 @@ class Component {
           this.logger.con(`${title} ${summary}`);
         } else {
           this.logger.con();
-          this.logger.con(`- ${this.getRelativePath()}`);
+          this.logger.con(`~ ${this.getRelativePath()}`);
         }
         const out = (task, indent) => {
           if (task.title) {
@@ -164,12 +176,12 @@ class Component {
     }
     //
     // srs
-    if (what.srs) {
-      if (this.srs && Object.keys(this.srs).length) {
+    if (what.srs && this.srs) {
+      if (Object.keys(this.srs).length) {
         this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
     }
-    // about componsnts
+    // about components
     if (depth) {
       const lng = this.components.length;
       for (let i = 0; i < lng; i++) {

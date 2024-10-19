@@ -65,7 +65,7 @@ yargs(hideBin(process.argv))
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        what: { team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         who: { assignees: argv.assignee, all: argv.all },
         filter: { tag: argv.tag, search: argv.search, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
         hierarchy: argv.hierarchy

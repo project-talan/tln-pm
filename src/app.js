@@ -62,7 +62,7 @@ class App {
     this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
-      let rtCmpnnt = this.rootComponent;
+      let cmpt = this.rootComponent;
       let components = [];
       const h = this.home;
       const c = component ? path.join(this.cwd, component) : this.cwd;
@@ -70,13 +70,13 @@ class App {
         components = path.relative(h, c).split(path.sep);
       }
       if (components.length) {
-        rtCmpnnt = await node.find(components);
-        if (!rtCmpnnt) {
+        cmpt = await cmpt.find(components);
+        if (!cmpt) {
           this.logger.warn('Component not found:', component);
         }
       }
-      if (rtCmpnnt) {
-        await rtCmpnnt.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
+      if (cmpt) {
+        await cmpt.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }
@@ -99,7 +99,7 @@ class App {
       const dl = `v${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
       const source = sourceFactory.create(this.logger, fp);
       if (all || addProject) {
-        data.project = {"key": "myproject", "name" : "My Project", "description": "My project description"};
+        data.project = {"id": "myproject", "name" : "My Project", "description": "My project description"};
       }
       if (all || addTeam) {
         data.team = {
