@@ -10,14 +10,17 @@ const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 
-const getApp = async (argv, fn) => {
+const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
   const include = argv.include.split(';');
   const ignore = argv.ignore.split(';');
   //
   const a = require('./src/app').create(require('./src/logger').create(verbose));
   //a.logger.con(argv);
-  await a.init(include, ignore);
+  await a.init();
+  if (load) {
+    await a.load(include, ignore);
+  }
   await fn(a);
 }
 
@@ -58,7 +61,7 @@ yargs(hideBin(process.argv))
     });
 
   }, async (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, true, async (a) => {
       await a.ls({
         component: argv.component,
         depth: argv.depth,
@@ -77,7 +80,7 @@ yargs(hideBin(process.argv))
       type: 'array'
     });
   }, async (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, false, async (a) => {
       // console.log(argv);
       await a.config({
         sections: argv.section,
@@ -112,7 +115,7 @@ yargs(hideBin(process.argv))
       .option('read-only',  { describe: 'Readonly serve mode, no modifications are allowed', default: true, type: 'boolean' })
       ;
   }, (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, true, async (a) => {
       a.serve({
         port: argv.port,
         readOnly: argv.readOnly

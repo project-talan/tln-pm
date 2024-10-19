@@ -1,6 +1,6 @@
 const chai = require('chai');
 
-const sourceFactory = require('./source');
+const appFactory = require('./app');
 
 const { expect } = chai;
 
@@ -9,7 +9,7 @@ const logger = require('./logger').create(0);
 describe('Source entity', function () {
 
   it('can be created', function () {
-    expect(sourceFactory.create(logger)).not.to.be.null;
+    expect(appFactory.create(logger)).not.to.be.null;
   });
 
 });

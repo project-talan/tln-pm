@@ -35,7 +35,9 @@ class App {
     //
     this.logger.info('home:', this.home);
     this.logger.info('cwd:', this.cwd);
-    // load all tasks
+  }
+
+  async load(include, ignore) {
     this.rootComponent = componentFactory.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
     for (const e of entries) {
@@ -100,7 +102,10 @@ class App {
         data.project = {"key": "myproject", "name" : "My Project", "description": "My project description"};
       }
       if (all || addTeam) {
-        data.team = {"alice.d" : {"email": "alice.d@gmail.com"}};
+        data.team = {
+          "alice.d" : {"email": "alice.d@gmail.com"},
+          "bob.w" : {"email": "bob.w@gmail.com"},
+        };
       }
       if (all || addTimeline) {
         data.timeline = {};
