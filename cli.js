@@ -4,14 +4,11 @@
 const defaultFileName = '.tpm.yml';
 const defaultPort = 5445;
 
-const path = require('path');
 const fs = require('fs');
-const exec = require('child_process').execSync;
 
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
-const { option } = require('yargs');
 
 const getApp = async (argv, fn) => {
   const verbose = argv.verbose;

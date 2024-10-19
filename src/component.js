@@ -2,16 +2,13 @@
 
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
-const fg = require('fast-glob');
 const yaml = require('js-yaml');
 const assign = require('assign-deep');
 
 
 const task = require('./task');
-const utils = require('./utils');
 
-class Node {
+class Component {
 
   /*
   *
@@ -22,11 +19,11 @@ class Node {
     this.parent = parent;
     this.home = home;
     this.id = id;
-    this.team = {};
-    this.timeline = {};
-    this.task = task.create();
-    this.srs = {};
-    this.children = [];
+    this.team = null;
+    this.timeline = null;
+    this.task = null;
+    this.srs = null;
+    this.components = [];
   }
 
   isItMe(id) {
@@ -49,7 +46,7 @@ class Node {
     if (components && components.length) {
       const cpy = [...components];
       const component = cpy.shift();
-      const n = this.children.find( c => c.isItMe(component));
+      const n = this.components.find( c => c.isItMe(component));
       if (n && cpy.length) {
         return await n.find(cpy);
       }
@@ -62,7 +59,7 @@ class Node {
     if (items.length > 1) {
       // dive into subdirectories
       const id = items.shift();
-      let n = this.children.find( c => c.isItMe(id));
+      let n = this.componsnts.find( c => c.isItMe(id));
       let needToAdd = false;
       if (!n) {
         needToAdd = true;
@@ -70,7 +67,7 @@ class Node {
       }
       if (await n.process(items.join(path.sep))) {
         if (needToAdd) {
-          this.children.push(n);
+          this.componsnts.push(n);
         }
         return true;
       }
@@ -172,12 +169,12 @@ class Node {
         this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
     }
-    // about children
+    // about componsnts
     if (depth) {
-      const lng = this.children.length;
+      const lng = this.components.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({depth: depth - 1, what, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.components[i].ls({depth: depth - 1, what, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }
@@ -188,7 +185,7 @@ class Node {
       t = this.parent.getTeam(t, up, false);
     }
     if (down) {
-      for (const c of this.children) {
+      for (const c of this.components) {
         t = c.getTeam(t, false, down);
       }
     }
@@ -197,5 +194,5 @@ class Node {
 }
 
 module.exports.create = (logger, home, id) => {
-  return new Node(logger, null, home, id);
+  return new Component(logger, null, home, id);
 }

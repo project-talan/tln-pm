@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
-const node = require('./node');
+const componentFactory = require('./component');
 const server = require('./server');
 
 class App {
@@ -17,7 +17,7 @@ class App {
     this.logger = logger;
     this.cwd = null;
     this.home = null;
-    this.root = null;
+    this.rootComponent = null;
   }
 
   //
@@ -35,10 +35,10 @@ class App {
     this.logger.info('home:', this.home);
     this.logger.info('cwd:', this.cwd);
     // load all tasks
-    this.root = node.create(this.logger, this.home, null);
+    this.rootComponent = componentFactory.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
     for (const e of entries) {
-      await this.root.process(e);
+      await this.rootComponent.process(e);
     }
   }
 
@@ -59,7 +59,7 @@ class App {
     this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
-      let node = this.root;
+      let rtCmpnnt = this.rootComponent;
       let components = [];
       const h = this.home;
       const c = component ? path.join(this.cwd, component) : this.cwd;
@@ -67,13 +67,13 @@ class App {
         components = path.relative(h, c).split(path.sep);
       }
       if (components.length) {
-        node = await node.find(components);
-        if (!node) {
+        rtCmpnnt = await node.find(components);
+        if (!rtCmpnnt) {
           this.logger.warn('Component not found:', component);
         }
       }
-      if (node) {
-        await node.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
+      if (rtCmpnnt) {
+        await rtCmpnnt.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }
@@ -128,7 +128,7 @@ class App {
   //
   async serve(options) {
     const s = server.create(this.logger);
-    await s.serve(this.root, options);
+    await s.serve(this.rootComponent, options);
   }
 
 }
