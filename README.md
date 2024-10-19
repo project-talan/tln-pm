@@ -11,11 +11,8 @@ One of the main USP is to provide estimates based on development speed captures 
   
 Typically `.todo` files are used to define PM artifacts, but description of tasks can be placed into any file in the repository.
 
-TPM uses market comments section. Every comments section can have four top level elements in Yaml format: team, timeline, tasks & srs.
 Here is example for `.todo` file at repository root
   ```
-  /* TPM
-
   team:
     "vlad.k":
       email: "vk@moonnoon.net"
@@ -35,8 +32,6 @@ Here is example for `.todo` file at repository root
     [+:001:v24.9.0] Restore CI/CD @vlad.k
       [+] Attach tln-cicd-git subtree
       [+] Configure envariment variables, tweak root .tln.conf
-
-  */
   ```
 
 ## Statuses & attributes
