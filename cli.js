@@ -34,17 +34,23 @@ yargs(hideBin(process.argv))
   .option('t', { describe: 'Filter output using tag value', alias: 'tag', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
+
+  .option('file', { describe: 'File name', default: '.todo', type: 'string' })
+
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
   .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
+
+  .option('project', { describe: 'Include project section', default: false, type: 'boolean' })
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
-  .command('ls [component] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
+  .command('ls [component] [--project] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks and other entities', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',
@@ -63,15 +69,19 @@ yargs(hideBin(process.argv))
       });
     });
   })
-  .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
+  .command('config [section...]', 'Show list of tasks', (yargs) => {
     return yargs
+    .positional('section', {
+      describe: 'Section to add',
+      default: ['tasks'],
+      type: 'array'
+    });
   }, async (argv) => {
     getApp(argv, async (a) => {
+      // console.log(argv);
       await a.config({
-        team: argv.team,
-        timeline: argv.timeline,
-        tasks: argv.tasks,
-        srs: argv.srs,
+        sections: argv.section,
+        file: argv.file,
         all: argv.all,
         force: argv.force
       });
