@@ -13,10 +13,14 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const { option } = require('yargs');
 
-const getApp = async (options, fn) => {
-  const {assignees, include, ignore} = options;
-  const a = require('./src/app').create();
-  await a.init(assignees, include, ignore);
+const getApp = async (argv, fn) => {
+  const verbose = argv.verbose;
+  const include = argv.include.split(';');
+  const ignore = argv.ignore.split(';');
+  //
+  const a = require('./src/app').create(require('./src/logger').create(verbose));
+  //a.logger.con(argv);
+  await a.init(include, ignore);
   await fn(a);
 }
 
@@ -51,19 +55,13 @@ yargs(hideBin(process.argv))
     });
 
   }, async (argv) => {
-    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
-      //console.log(argv);
+    getApp(argv, async (a) => {
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        tag: argv.tag,
-        search: argv.search,
-        team: argv.team,
-        timeline: argv.timeline,
-        tasks: argv.tasks,
-        srs: argv.srs,
-        all: argv.all,
-        status: {backlog: argv.backlog, indev: argv.indev, done: argv.done},
+        what: { team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        who: { assignees: argv.assignee, all: argv.all },
+        filter: { tag: argv.tag, search: argv.search, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
         hierarchy: argv.hierarchy
       });
     });
@@ -71,8 +69,7 @@ yargs(hideBin(process.argv))
   .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
     return yargs
   }, async (argv) => {
-    getApp({assignees: argv.assignee, include: argv.include.split(';'), ignore: argv.ignore.split(';')}, async (a) => {
-      //console.log(argv);
+    getApp(argv, async (a) => {
       await a.config({
         team: argv.team,
         timeline: argv.timeline,
@@ -104,15 +101,16 @@ yargs(hideBin(process.argv))
   //
   .command('serve [port]', 'Start the server', (yargs) => {
     return yargs
-      .positional('port', {
-        describe: 'Port to bind on',
-        default: defaultPort
-      });
+      .positional('port',   { describe: 'Port to bind on', default: defaultPort })
+      .option('read-only',  { describe: 'Readonly serve mode, no modifications are allowed', default: true, type: 'boolean' })
+      ;
   }, (argv) => {
-    if (argv.verbose) {
-      console.info(`start server on http://localhost:${argv.port}`);
-    }
-    //serve(argv.port);
+    getApp(argv, async (a) => {
+      a.serve({
+        port: argv.port,
+        readOnly: argv.readOnly
+      });
+    });
   })
   //
   .command(

@@ -5,6 +5,7 @@ const fs = require('fs');
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
 const node = require('./node');
+const server = require('./server');
 
 class App {
 
@@ -12,53 +13,52 @@ class App {
   *
   * params:
   */
-  constructor() {
+  constructor(logger) {
+    this.logger = logger;
     this.cwd = null;
     this.home = null;
     this.root = null;
-    this.assignees = [];
   }
 
   //
-  async init(assignees, include, ignore) {
-    let notGit = false;
-    this.assignees = [...assignees];
-    try {
-      if (!this.assignees.length) {
-        this.assignees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
-      }
-    } catch (e) {
-      console.info('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
-      notGit = true;
-    }
+  async init(include, ignore) {
     // find git top level directory
     this.cwd = process.cwd();
     this.home = this.cwd;
     // find home: cwd or git home
     try {
-      this.home = exec(`git rev-parse --show-toplevel`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
-      console.info('Couldn\'t identify git repository home, tpm is executed outside of git repository');
-      notGit = true;
+      this.logger.warn('tpm is executed outside of git repository, please use -g <userid> option or --all option to define assignee(s)');
     }
+    //
+    this.logger.info('home:', this.home);
+    this.logger.info('cwd:', this.cwd);
     // load all tasks
-    this.root = node.create(this.home, null);
+    this.root = node.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
     for (const e of entries) {
-      //console.log('entry:', e);
       await this.root.process(e);
     }
   }
 
   //
   async ls(options) {
-    const {component, depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy} = options;
-    // console.log('home:', this.home);
-    // console.log('cwd:', this.cwd);
-    // console.log('assignees:', this.assignees);
-    // console.log('component:', component);
+    const {component, depth, what, who, filter, hierarchy} = options;
+    let aees = [...who.assignees];
     //
-    if (this.assignees.length || all) {
+    try {
+      if (!(who.all || aees.length)) {
+        aees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
+      }
+    } catch (e) {
+      this.logger.warn('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
+    }
+    //
+    this.logger.info('assignees:', aees);
+    this.logger.info('component:', component);
+    //
+    if (who.all || aees.length) {
       let node = this.root;
       let components = [];
       const h = this.home;
@@ -68,10 +68,12 @@ class App {
       }
       if (components.length) {
         node = await node.find(components);
+        if (!node) {
+          this.logger.warn('Component not found:', component);
+        }
       }
       if (node) {
-        // console.log('node:', node.id);
-        await node.ls({depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: this.assignees, indent: '', last: true});
+        await node.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }
@@ -79,9 +81,6 @@ class App {
   //
   async config(options) {
     const {team, timeline, tasks, srs, all, force} = options;
-    //console.log('home:', this.home);
-    //console.log('cwd:', this.cwd);
-    //console.log('assignees:', this.assignees);
     //
     const fn = '.todo';
     const fp = path.join(this.cwd, fn);
@@ -107,15 +106,14 @@ class App {
           ].join('\n')
         };
       }
-      //      console.log('data:', data);
       try {
         fs.writeFileSync(fp, `/* TPM\n\n${(require('yaml')).stringify(data)}\n*/\n`);
-        console.log(`${fn} file was generated`, fp);
+        this.logger.con(`${fn} file was generated`, fp);
       } catch (err) {
-        console.error(err);
+        this.logger.err(err);
       }
     } else {
-      console.error(`${fn} file exists in current location, use --force option to override`);
+      this.logger.warn(`${fn} file exists in current location, use --force option to override`);
     }
   }
 
@@ -128,11 +126,14 @@ class App {
   }
 
   //
-  async serve() {
+  async serve(options) {
+    const s = server.create(this.logger);
+    await s.serve(this.root, options);
   }
 
 }
 
-module.exports.create = () => {
-  return new App();
+module.exports.create = (logger) => {
+  return new App(logger);
 }
+

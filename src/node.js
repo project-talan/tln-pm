@@ -17,7 +17,8 @@ class Node {
   *
   * params:
   */
-  constructor(parent, home, id) {
+  constructor(logger, parent, home, id) {
+    this.logger = logger;
     this.parent = parent;
     this.home = home;
     this.id = id;
@@ -65,7 +66,7 @@ class Node {
       let needToAdd = false;
       if (!n) {
         needToAdd = true;
-        n = new Node(this, path.join(this.home, id), id);
+        n = new Node(this.logger, this, path.join(this.home, id), id);
       }
       if (await n.process(items.join(path.sep))) {
         if (needToAdd) {
@@ -120,34 +121,34 @@ class Node {
   }
 
   async ls(options) {
-    const {depth, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees, indent, last} = options;
-    const aees = await this.getAssignees(assignees);
+    const {depth, what, who, filter, hierarchy, indent, last} = options;
+    const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
     // about me
     // team
-    if (team) {
+    if (what.team) {
       if (this.team && Object.keys(this.team).length) {
-        console.log((require('yaml')).stringify(this.team));
+        this.logger.con((require('yaml')).stringify(this.team));
       }
     }
     // timeline
-    if (timeline) {
+    if (what.timeline) {
       if (this.timeline && Object.keys(this.timeline).length) {
-        console.log((require('yaml')).stringify(this.timeline));
+        this.logger.con((require('yaml')).stringify(this.timeline));
       }
     }
     // tasks
-    if (tasks) {
-      const ts = await this.task.filter({all, status, assignees: aees, tag, search});
+    if (what.tasks) {
+      const ts = await this.task.filter({who: who2, filter});
       if (ts && ts.tasks.length) {
         let ti = '  ';
         if (hierarchy) {
           ti = `${indent}${ti}`;
           const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
           const summary = '45%';
-          console.log(`${title} ${summary}`);
+          this.logger.con(`${title} ${summary}`);
         } else {
-          console.log();
-          console.log(`- ${this.getRelativePath()}`);
+          this.logger.con();
+          this.logger.con(`- ${this.getRelativePath()}`);
         }
         const out = (task, indent) => {
           if (task.title) {
@@ -155,7 +156,7 @@ class Node {
             const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
             const dl = task.deadline ? ` (${task.deadline})` : '';
             const id = task.id ? ` ${task.id}:` : '';
-            console.log(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
+            this.logger.con(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
           }
           for (const t of task.tasks) {
             out(t, `${indent}  `);
@@ -166,9 +167,9 @@ class Node {
     }
     //
     // srs
-    if (srs) {
+    if (what.srs) {
       if (this.srs && Object.keys(this.srs).length) {
-        console.log((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
+        this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
       }
     }
     // about children
@@ -176,25 +177,25 @@ class Node {
       const lng = this.children.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.children[i].ls({depth: depth - 1, tag, search, team, timeline, tasks, srs, all, status, hierarchy, assignees: aees, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.children[i].ls({depth: depth - 1, what, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }
   
+  getTeam( team, up, down) {
+    let t = assign({}, team, this.team);
+    if (up && this.parent) {
+      t = this.parent.getTeam(t, up, false);
+    }
+    if (down) {
+      for (const c of this.children) {
+        t = c.getTeam(t, false, down);
+      }
+    }
+    return t;
+  }
 }
 
-module.exports.create = (home, id) => {
-  return new Node(null, home, id);
+module.exports.create = (logger, home, id) => {
+  return new Node(logger, null, home, id);
 }
-/*
-    const {home, cwd, include, ignore, what, assignee, search, all} = options;
-    console.log('assignee:', assignee);
-    //
-    const toSearch = [assignee].concat(search);
-    //
-    const entries = await fg(include, { cwd: home, dot: true, ignore });
-    entries.forEach( e => {
-      
-    });
-
-*/

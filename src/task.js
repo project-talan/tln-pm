@@ -58,19 +58,20 @@ class Task {
   }
 
   async filter(options) {
-    const {all, status, assignees, tag, search} = options;
+    const {who, filter} = options;
     // check myself
-    const me = assignees.some( r => this.assignees.includes(r));
+    const me = who.assignees.some( r => this.assignees.includes(r));
     const st = [
-      { statuses: ['-', '?', '!'], flag: status.backlog },
-      { statuses: ['>'], flag: status.indev },
-      { statuses: ['+', 'x'], flag: status.done },
+      { statuses: ['-', '?', '!'], flag: filter.status.backlog },
+      { statuses: ['>'], flag: filter.status.indev },
+      { statuses: ['+', 'x'], flag: filter.status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
-    const tg = tag.length ? tag.find( t => this.tags.includes(t) ) : true;
-    const sr = search.length ? search.find( s => this.title.indexOf(s) >= 0 ) : true;
+    const tg = filter.tag.length ? filter.tag.find( t => this.tags.includes(t) ) : true;
+    const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
+    //console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
-    if (((all || me) && st && tg && sr) || tasks.length) {
+    if (((who.all || me) && st && tg && sr) || tasks.length) {
       return {
         status: this.status,
         id: this.id,
