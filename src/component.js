@@ -6,7 +6,12 @@ const yaml = require('js-yaml');
 const assign = require('assign-deep');
 
 
+const sourceFactory = require('./source');
+const projectFactory = require('./project');
+const teamFactory = require('./team');
+const timelineFactory = require('./timeline');
 const taskFactory = require('./task');
+const srsFactory = require('./srs');
 
 class Component {
 
@@ -78,29 +83,37 @@ class Component {
       const fp = path.join(this.home, items[0]);
       const content = fs.readFileSync(fp, {encoding: 'utf8'});
       if (content) {
-        const config = yaml.load(content, 'utf8');
-        if (config) {
-          if (config.project) {
-            this.project = assign({}, config.project);
-            result |= true;
+        try {
+          const config = yaml.load(content, 'utf8');
+          if (config) {
+            if (config.project) {
+              this.project = assign({}, config.project);
+              result |= true;
+            }
+            if (config.team) {
+              this.team = assign({}, config.team);
+              result |= true;
+            }
+            if (config.timeline) {
+              this.timeline = assign({}, config.timeline);
+              result |= true;
+            }
+            if (config.tasks) {
+              this.task = taskFactory.create();
+              await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
+              result |= this.task.tasks.length > 0;
+            }
+            if (config.srs) {
+              this.srs = assign({}, config.srs);
+              result |= true;
+            }
+            if (config.components) {
+              this.srs = assign({}, config.srs);
+              result |= true;
+            }
           }
-          if (config.team) {
-            this.team = assign({}, config.team);
-            result |= true;
-          }
-          if (config.timeline) {
-            this.timeline = assign({}, config.timeline);
-            result |= true;
-          }
-          if (config.tasks) {
-            this.task = taskFactory.create();
-            await this.task.parse(config.tasks.split('\n').filter(t => t.trim().length), 0);
-            result |= this.task.tasks.length > 0;
-          }
-          if (config.srs) {
-            this.srs = assign({}, config.srs);
-            result |= true;
-          }
+        } catch (e) {
+          this.logger.error('Yaml file has incorrect format:', fp);
         }
       } else {
         this.logger.error('Couldn\'t read yaml file:', fp);
