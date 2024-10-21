@@ -4,7 +4,8 @@ const fs = require('fs');
 
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
-const node = require('./node');
+const componentFactory = require('./component');
+const sourceFactory = require('./source');
 const server = require('./server');
 
 class App {
@@ -17,7 +18,7 @@ class App {
     this.logger = logger;
     this.cwd = null;
     this.home = null;
-    this.root = null;
+    this.rootComponent = null;
   }
 
   //
@@ -34,11 +35,13 @@ class App {
     //
     this.logger.info('home:', this.home);
     this.logger.info('cwd:', this.cwd);
-    // load all tasks
-    this.root = node.create(this.logger, this.home, null);
+  }
+
+  async load(include, ignore) {
+    this.rootComponent = componentFactory.create(this.logger, this.home, null);
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
     for (const e of entries) {
-      await this.root.process(e);
+      await this.rootComponent.process(e);
     }
   }
 
@@ -59,7 +62,7 @@ class App {
     this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
-      let node = this.root;
+      let cmpt = this.rootComponent;
       let components = [];
       const h = this.home;
       const c = component ? path.join(this.cwd, component) : this.cwd;
@@ -67,38 +70,54 @@ class App {
         components = path.relative(h, c).split(path.sep);
       }
       if (components.length) {
-        node = await node.find(components);
-        if (!node) {
+        cmpt = await cmpt.find(components);
+        if (!cmpt) {
           this.logger.warn('Component not found:', component);
         }
       }
-      if (node) {
-        await node.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
+      if (cmpt) {
+        await cmpt.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }
 
   //
   async config(options) {
-    const {team, timeline, tasks, srs, all, force} = options;
+    const { sections, file, all, force } = options;
     //
-    const fn = '.todo';
-    const fp = path.join(this.cwd, fn);
+    const fp = path.join(this.cwd, file);
     if (!fs.existsSync(fp) || force) {
+      const addProject = sections.includes('project');
+      const addTeam = sections.includes('team');
+      const addTimeline = sections.includes('timeline');
+      const addTasks = sections.includes('tasks');
+      const addSrs = sections.includes('srs');
+      const addComponents = sections.includes('components');
+      //
       const data = {};
-      if (team || all) {
-        data.team = {"alice.d" : {"email": "alice.d@gmail.com"}};
+      const dt = new Date();
+      const dl = `v${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
+      const source = sourceFactory.create(this.logger, fp);
+      if (all || addProject) {
+        data.project = {"id": "myproject", "name" : "My Project", "description": "My project description"};
       }
-      if (timeline || all) {
-        data.timeline = {"v24.9.0" : {"date": "2024-09-30"}};
+      if (all || addTeam) {
+        data.team = {
+          "alice.d" : {"email": "alice.d@gmail.com"},
+          "bob.w" : {"email": "bob.w@gmail.com"},
+        };
       }
-      if (tasks || all) {
-        data.tasks = `[-:001:v24.9.0] Intergare auth library\n  [-] Add /auth endpoint @alice.d\n  [-] Configure auth callbacks @alice.d`;
-        if (srs || all) {
+      if (all || addTimeline) {
+        data.timeline = {};
+        data.timeline[dl] = `${dt.getFullYear()}-${dt.getMonth()+1}-x`;
+      }
+      if (all || addTasks) {
+        data.tasks = `[-:001:${dl}] Integrate auth library\n  [-] Add /iam/auth endpoint @alice.d\n  [-] Configure auth callbacks @alice.d\n`;
+        if (all || addSrs) {
           data.tasks = `[-:002] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }
       }
-      if (srs || all) {
+      if (all ||addSrs) {
         data.srs = {"cicd": [
           "Skeleton should implement four main scenarios: pr build, push build, nightly build, dispamch run.",
           "All steps should be implemented in a single yaml file (base.yml).",
@@ -106,14 +125,20 @@ class App {
           ].join('\n')
         };
       }
-      try {
-        fs.writeFileSync(fp, `/* TPM\n\n${(require('yaml')).stringify(data)}\n*/\n`);
-        this.logger.con(`${fn} file was generated`, fp);
-      } catch (err) {
-        this.logger.err(err);
+      if (all || addComponents) {
+        data.components = {
+          backend: {
+            tasks: "[-:002] Integrate Sonarcloud\n[-:001] Add service skeleton + unit tests\n"
+          },
+          web: {
+            tasks: "[-:002] Integrate Sonarcloud\n[-:001] Add landing skeleton using Next.js\n"
+          }
+        };
+
       }
+      await source.flush(data);
     } else {
-      this.logger.warn(`${fn} file exists in current location, use --force option to override`);
+      this.logger.warn(`${fp} file already exists, use --force option to override`);
     }
   }
 
@@ -128,7 +153,7 @@ class App {
   //
   async serve(options) {
     const s = server.create(this.logger);
-    await s.serve(this.root, options);
+    await s.serve(this.rootComponent, options);
   }
 
 }

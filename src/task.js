@@ -11,11 +11,9 @@ const utils = require('./utils');
 
 class Task {
 
-  /*
-  *
-  * params:
-  */
-  constructor(parent, indent) {
+  constructor(logger, source, parent, indent) {
+    this.logger = logger;
+    this.source = source;
     this.parent = parent;
     this.indent = indent;
     this.status = '-';
@@ -35,7 +33,7 @@ class Task {
       const s = descs[i];
       const indent = s.length - s.trimLeft().length;
       if (indent > this.indent) {
-        const task = new Task(this, indent);
+        const task = new Task(this.logger, this.source, this, indent);
         await task.extract(s.trim());
         this.tasks.push(task);
         i = await task.parse(descs, i + 1);
@@ -87,6 +85,6 @@ class Task {
  
 }
 
-module.exports.create = () => {
-  return new Task(null, -1);
+module.exports.create = (logger, source) => {
+  return new Task(logger, source, null, -1);
 }
