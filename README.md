@@ -7,6 +7,8 @@ Based on history of commits, TPM can provide up to date project's statistic like
 
 One of the main USP is to provide estimates based on development speed captures in repository commits.
 
+## Quick start
+
 ## DSL
   
 Typically `.todo` files are used to define PM artifacts, but description of tasks can be placed into any file in the repository.

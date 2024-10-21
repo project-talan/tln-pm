@@ -1,6 +1,6 @@
 'use strict';
 
-class Srs {
+class SRS {
 
   /*
   *
@@ -13,5 +13,5 @@ class Srs {
 }
 
 module.exports.create = (logger) => {
-  return new Srs(logger);
+  return new SRS(logger);
 }
