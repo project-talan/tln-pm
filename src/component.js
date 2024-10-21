@@ -8,7 +8,7 @@ const assign = require('assign-deep');
 const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
-const timelineFactory = require('./timeline');
+const deadlineFactory = require('./deadline');
 const taskFactory = require('./task');
 const srsFactory = require('./srs');
 
@@ -27,7 +27,7 @@ class Component {
     this.project = [];
     this.team = null;
     this.timeline = null;
-    this.task = null;
+    this.tasks = [];
     this.srs = null;
     this.components = [];
   }
@@ -66,46 +66,69 @@ class Component {
     if (items.length > 1) {
       // dive into subdirectories
       const id = items.shift();
-      let cmpn = this.components.find( c => c.isItMe(id));
+      let component = this.components.find( c => c.isItMe(id));
       let needToAdd = false;
-      if (!cmpn) {
+      if (!component) {
         needToAdd = true;
-        cmpn = new Component(this.logger, this, path.join(this.home, id), id);
+        component = new Component(this.logger, this, path.join(this.home, id), id);
       }
-      if (await cmpn.process(items.join(path.sep))) {
+      if (await component.process(items.join(path.sep))) {
         if (needToAdd) {
-          this.components.push(cmpn);
+          this.components.push(component);
         }
         result = true;
       }
     } else {
       // process file
       const source = sourceFactory.create(this.logger, path.join(this.home, items[0]));
+      //
       const data = await source.load();
       if (data) {
-        if (data.project) {
-          this.project = assign({}, data.project);
-          result |= true;
+        this.sources.push(source);
+        result = await this.processData(data, source);
+      }
+    }
+    return result;
+  }
+
+  async processData(data, source) {
+    let result = false;
+    if (data.project) {
+      this.project.push(assign({}, data.project));
+      result |= true;
+    }
+    if (data.team) {
+      this.team = assign({}, data.team);
+      result |= true;
+    }
+    if (data.timeline) {
+      this.timeline = assign({}, data.timeline);
+      result |= true;
+    }
+    if (data.tasks) {
+      const task = taskFactory.create(this.logger, source);
+      await task.parse(data.tasks.split('\n').filter(t => t.trim().length), 0);
+      if (task.tasks.length) {
+        this.tasks.push(task);
+        result |= true;
+      }
+    }
+    if (data.srs) {
+      this.srs = assign({}, data.srs);
+      result |= true;
+    }
+    if (data.components) {
+      for (const id of Object.keys(data.components)) {
+        let component = this.components.find( c => c.isItMe(id));
+        let needToAdd = false;
+        if (!component) {
+          needToAdd = true;
+          component = new Component(this.logger, this, path.join(this.home, id), id);
         }
-        if (data.team) {
-          this.team = assign({}, data.team);
-          result |= true;
-        }
-        if (data.timeline) {
-          this.timeline = assign({}, data.timeline);
-          result |= true;
-        }
-        if (data.tasks) {
-          this.task = taskFactory.create();
-          await this.task.parse(data.tasks.split('\n').filter(t => t.trim().length), 0);
-          result |= this.task.tasks.length > 0;
-        }
-        if (data.srs) {
-          this.srs = assign({}, data.srs);
-          result |= true;
-        }
-        if (data.components) {
-          this.srs = assign({}, data.srs);
+        if (await component.processData(data.components[id], source)) {
+          if (needToAdd) {
+            this.components.push(component);
+          }
           result |= true;
         }
       }
@@ -135,7 +158,11 @@ class Component {
     // about me
     // team
     if (what.project && this.project) {
-      this.logger.con((require('yaml')).stringify({ project: this.project }));
+      let project = {};
+      this.project.forEach( p => {
+        project = assign(project, p);
+      });
+      this.logger.con((require('yaml')).stringify({ project: project }));
     }
     // team
     if (what.team && this.team) {
@@ -150,8 +177,16 @@ class Component {
       }
     }
     // tasks
-    if (what.tasks && this.task) {
-      const ts = await this.task.filter({who: who2, filter});
+    if (what.tasks && this.tasks.length > 0) {
+      //
+      const ts = { tasks: [] };
+      for (const task of this.tasks) {
+        const t = await task.filter({who: who2, filter});
+        if (t && t.tasks.length) {
+          ts.tasks.push(...t.tasks);
+        }
+      };
+      //
       if (ts && ts.tasks.length) {
         let ti = '  ';
         if (hierarchy) {
