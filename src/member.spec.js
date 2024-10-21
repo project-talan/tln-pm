@@ -1,15 +1,15 @@
 const chai = require('chai');
 
-const teamFactory = require('./team');
+const memberFactory = require('./member');
 
 const { expect } = chai;
 
 const logger = require('./logger').create(0);
 
-describe('Team entity', function () {
+describe('Member entity', function () {
 
   it('can be created', function () {
-    expect(teamFactory.create(logger)).not.to.be.null;
+    expect(memberFactory.create(logger)).not.to.be.null;
   });
 
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-class Team {
+class Member {
 
   /*
   *
@@ -13,5 +13,5 @@ class Team {
 }
 
 module.exports.create = (logger) => {
-  return new Team(logger);
+  return new Member(logger);
 }

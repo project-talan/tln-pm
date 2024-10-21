@@ -2,6 +2,8 @@
 const path = require('path');
 const fs = require('fs');
 
+const yaml = require('js-yaml');
+
 class Source {
 
   /*
@@ -20,6 +22,16 @@ class Source {
     } catch (err) {
       this.logger.error(err);
     }
+  }
+
+  async load() {
+    let data = null;
+    try {
+        data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
+    } catch (e) {
+      this.logger.error('Yaml file has incorrect format:', this.file);
+    }
+    return data;
   }
 
 }
