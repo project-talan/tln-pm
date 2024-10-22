@@ -2,6 +2,8 @@
 const path = require('path');
 const fs = require('fs');
 
+const yaml = require('yaml');
+
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
 const componentFactory = require('./component');
@@ -45,7 +47,23 @@ class App {
     }
   }
 
-  //
+  async getCurrentComponent(id) {
+    let component = this.rootComponent;
+    let components = [];
+    const h = this.home;
+    const c = id && id !== '.' ? path.join(this.cwd, id) : this.cwd;
+    if (h !== c) {
+      components = path.relative(h, c).split(path.sep);
+    }
+    if (components.length) {
+      component = await component.find(components);
+      if (!component) {
+        this.logger.warn('Component not found:', id);
+      }
+    }
+    return component;
+  }
+
   async ls(options) {
     const {component, depth, what, who, filter, hierarchy} = options;
     let aees = [...who.assignees];
@@ -62,23 +80,24 @@ class App {
     this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
-      let cmpt = this.rootComponent;
-      let components = [];
-      const h = this.home;
-      const c = component ? path.join(this.cwd, component) : this.cwd;
-      if (h !== c) {
-        components = path.relative(h, c).split(path.sep);
-      }
-      if (components.length) {
-        cmpt = await cmpt.find(components);
-        if (!cmpt) {
-          this.logger.warn('Component not found:', component);
-        }
-      }
-      if (cmpt) {
-        await cmpt.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
+      const c = await this.getCurrentComponent(component);
+      if (c) {
+        await c.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
+  }
+
+  async describe(options) {
+    const {component, id, what} = options;
+    const result = {};
+    // const c = await this.getCurrentComponent(component);
+    const c = this.rootComponent;
+    if (c) {
+      if (what.project) {
+        result.project = await c.describeProject();
+      }
+    }
+    this.logger.con(yaml.stringify(result));
   }
 
   //

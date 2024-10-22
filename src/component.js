@@ -157,7 +157,7 @@ class Component {
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
     // about me
     // team
-    if (what.project && this.project) {
+    if (what.project && this.project.length > 0) {
       let project = {};
       this.project.forEach( p => {
         project = assign(project, p);
@@ -229,7 +229,21 @@ class Component {
       }
     }
   }
-  
+
+  async describeProject(options) {
+    let projects = [];
+    if (this.project.length > 0) {
+      let project = {};
+      this.project.forEach( p => {
+        project = assign(project, p);
+      });
+      projects.push(project);
+    }
+    const prs = await Promise.all(this.components.map(async c => c.describeProject()));
+    projects = projects.concat(...prs);
+    return projects;
+  }
+
   getTeam( team, up, down) {
     let t = assign({}, team, this.team);
     if (up && this.parent) {

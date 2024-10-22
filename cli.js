@@ -72,6 +72,7 @@ yargs(hideBin(process.argv))
       });
     });
   })
+  //
   .command('config [section...]', 'Show list of tasks', (yargs) => {
     return yargs
     .positional('section', {
@@ -87,6 +88,27 @@ yargs(hideBin(process.argv))
         file: argv.file,
         all: argv.all,
         force: argv.force
+      });
+    });
+  })
+  //
+  .command('describe [component] [id]', 'Describe specific entity', (yargs) => {
+    return yargs
+    .positional('component', {
+      describe: 'Nested component to show',
+      default: null
+    })
+    .positional('id', {
+      describe: 'Optional entity id',
+      default: null
+    });
+  }, async (argv) => {
+    getApp(argv, true, async (a) => {
+      // console.log(argv);
+      await a.describe({
+        component: argv.component,
+        id: argv.id,
+        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
       });
     });
   })
