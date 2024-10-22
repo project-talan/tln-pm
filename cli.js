@@ -4,23 +4,24 @@
 const defaultFileName = '.tpm.yml';
 const defaultPort = 5445;
 
-const path = require('path');
 const fs = require('fs');
-const exec = require('child_process').execSync;
 
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
-const { option } = require('yargs');
+const yaml = require('yaml');
 
-const getApp = async (argv, fn) => {
+const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
   const include = argv.include.split(';');
   const ignore = argv.ignore.split(';');
   //
   const a = require('./src/app').create(require('./src/logger').create(verbose));
   //a.logger.con(argv);
-  await a.init(include, ignore);
+  await a.init();
+  if (load) {
+    await a.load(include, ignore);
+  }
   await fn(a);
 }
 
@@ -37,17 +38,23 @@ yargs(hideBin(process.argv))
   .option('t', { describe: 'Filter output using tag value', alias: 'tag', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
   .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
+
+  .option('file', { describe: 'File name', default: '.todo', type: 'string' })
+
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
   .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
+
+  .option('project', { describe: 'Include project section', default: false, type: 'boolean' })
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
-  .command('ls [component] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks', (yargs) => {
+  .command('ls [component] [--project] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks and other entities', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',
@@ -55,29 +62,56 @@ yargs(hideBin(process.argv))
     });
 
   }, async (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, true, async (a) => {
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        what: { team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         who: { assignees: argv.assignee, all: argv.all },
         filter: { tag: argv.tag, search: argv.search, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
         hierarchy: argv.hierarchy
       });
     });
   })
-  .command('config [--team] [--timeline] [--tasks] [--srs] [--all] [--force]', 'Show list of tasks', (yargs) => {
+  //
+  .command('config [section...]', 'Show list of tasks', (yargs) => {
     return yargs
+    .positional('section', {
+      describe: 'Section to add',
+      default: ['tasks'],
+      type: 'array'
+    });
   }, async (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, false, async (a) => {
+      // console.log(argv);
       await a.config({
-        team: argv.team,
-        timeline: argv.timeline,
-        tasks: argv.tasks,
-        srs: argv.srs,
+        sections: argv.section,
+        file: argv.file,
         all: argv.all,
         force: argv.force
       });
+    });
+  })
+  //
+  .command('describe [component] [id]', 'Describe specific entity', (yargs) => {
+    return yargs
+    .positional('component', {
+      describe: 'Nested component to show',
+      default: null
+    })
+    .positional('id', {
+      describe: 'Optional entity id',
+      default: null
+    });
+  }, async (argv) => {
+    getApp(argv, true, async (a) => {
+      // console.log(argv);
+      const r = await a.describe({
+        component: argv.component,
+        id: argv.id,
+        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+      });
+      a.logger.con(yaml.stringify(r));
     });
   })
   //
@@ -105,7 +139,7 @@ yargs(hideBin(process.argv))
       .option('read-only',  { describe: 'Readonly serve mode, no modifications are allowed', default: true, type: 'boolean' })
       ;
   }, (argv) => {
-    getApp(argv, async (a) => {
+    getApp(argv, true, async (a) => {
       a.serve({
         port: argv.port,
         readOnly: argv.readOnly

@@ -26,28 +26,31 @@ class Server {
     return {success: true, data };
   }
 
-  async serve(root, options) {
+  async serve(app, root, options) {
     const {port, readOnly} = options;
     //
     const getLocalContent = (file) => {
       return fs.readFileSync(path.join(__dirname, '..', 'web', file), {encoding: 'utf8'});
     }
     //
-    const app = express();
-    app.get('/', (req, res) => {
+    const ea = express();
+    ea.get('/', (req, res) => {
       res.send(getLocalContent('index.html'));
     })
-    app.get('/styles.css', (req, res) => {
+    ea.get('/styles.css', (req, res) => {
       res.send(getLocalContent('styles.css'));
     })
-    app.get('/main.js', (req, res) => {
+    ea.get('/main.js', (req, res) => {
       res.send(getLocalContent('main.js'));
     })
-    app.get('/team', (req, res) => {
+    ea.get('/team', (req, res) => {
       res.send(this.makeResponce(root.getTeam({}, true, true)));
     })
+    ea.get('/dashboard', async(req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { project: true } })));
+    })
 
-    app.get('/raw', (req, res) => {
+    ea.get('/raw', (req, res) => {
       const arr = [];
       const dump = (node, indent) => {
         arr.push(`${indent}${node.id?node.id:'/'}`);
@@ -58,7 +61,7 @@ class Server {
       res.send(arr.join('<br/>'));
     })
     
-    app.listen(port, () => {
+    ea.listen(port, () => {
       this.logger.con(`start server on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
     })
 

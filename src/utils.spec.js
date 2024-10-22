@@ -6,7 +6,7 @@ const { expect } = chai;
 
 const emptyTask = {status: '-', id: '', title: '', deadline: '', assignees: [], tags: [], links: []};
 
-describe('Test utils', function () {
+describe('Utils lib', function () {
 
   it('should parse empty string', function () {
     expect(utils.parseTask('')).to.be.eql(emptyTask);
