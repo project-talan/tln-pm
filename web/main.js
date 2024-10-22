@@ -7,6 +7,7 @@ google.charts.setOnLoadCallback(drawChart);
 $(document).ready(function(){
   updateTeam();
   //updateTimeline();
+  updateDashboard()
 });
 
 
@@ -14,6 +15,38 @@ $(document).ready(function(){
 // Dashboard
 $("#dashboard").click(function(){
 });
+
+function getProject(id, name, description) {
+  return '' +
+  '<div class="col">' +
+  ' <div class="card">' +
+  '   <div class="card-header">' +
+  `     <span class="badge float-end rounded-pill text-bg-success">15d</span>` +
+  `     <div class="card-title d-inline"><span class="fw-bold">${name}</span> (${id})</div>` +
+  '   </div>' +
+  '   <div class="card-body">' +
+  `     <p class="card-text">${description}</p>` +
+  '   </div>' +
+  '   <div class="card-footer">' +
+  '     Last updated 1 min ago' +
+  '   </div>' +
+  ' </div>' +
+  '</div>';
+}
+
+function updateDashboard() {
+  $.getJSON("dashboard", function(res, status){
+    if (res.success) {
+      var list = $('#dashboard_project_list');
+      list.empty();
+      if (res.data.project) {
+        res.data.project.forEach(function(v) {
+          list.append(getProject(v.id, v.name, v.description));
+        });
+      } 
+    }
+  });  
+}
 
 //-----------------------------------------------------------------------------
 // Timeline
@@ -93,6 +126,6 @@ function updateTeam() {
       Object.keys(res.data).forEach(function(v){
         list.append(getMember(v, res.data[v].name, res.data[v].email));
       });
-        }
+    }
   });  
 }

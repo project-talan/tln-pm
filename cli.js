@@ -9,6 +9,7 @@ const fs = require('fs');
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
+const yaml = require('yaml');
 
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
@@ -105,11 +106,12 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     getApp(argv, true, async (a) => {
       // console.log(argv);
-      await a.describe({
+      const r = await a.describe({
         component: argv.component,
         id: argv.id,
         what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
       });
+      a.logger.con(yaml.stringify(r));
     });
   })
   //

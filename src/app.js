@@ -97,7 +97,7 @@ class App {
         result.project = await c.describeProject();
       }
     }
-    this.logger.con(yaml.stringify(result));
+    return result;
   }
 
   //
@@ -172,7 +172,7 @@ class App {
   //
   async serve(options) {
     const s = server.create(this.logger);
-    await s.serve(this.rootComponent, options);
+    await s.serve(this, this.rootComponent, options);
   }
 
 }
