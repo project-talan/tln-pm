@@ -20,6 +20,7 @@ timeline:
   "v0.7.0":
     date: "2024-10"
 tasks: |
+  [>:022:v0.7.0] Describe command @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
   [+:019:v0.5.0] Add component as optional parameter for ls command @vlad.k
