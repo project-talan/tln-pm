@@ -22,8 +22,25 @@ $("#dashboard-tab").click(function(){
   updateDashboard();
 });
 
-function getProject(id, name, description) {
+function getProject(id, name, lastCommit) {
   const r = { ids: { tasks: `project-${id}-tasks`, workload: `project-${id}-workload` } };
+  const lut = dateFns.fp.intervalToDuration({start: new Date(lastCommit), end: new Date() });
+  let diff = '?';
+  if (lut.years) {
+    diff = `${lut.years}y`;
+  } else if (lut.months) {
+    diff = `${lut.months}m`;
+  } else if (lut.days) {
+    diff = `${lut.days}d`;
+  } else if (lut.hours) {
+    diff = `${lut.hours}h`;
+  } else if (lut.minutes) {
+    diff = `${lut.minutes}m`;
+  } else if (lut.seconds) {
+    diff = `${lut.seconds}s`;
+  }
+  let lastUpdateTime = `Updated ${diff} ago`;
+
   r.html = '' +
   '<div class="col pb-4">' +
   ' <div class="card">' +
@@ -43,9 +60,7 @@ function getProject(id, name, description) {
   '       </div>' +
   '     </div>' +
   '   </div>' +
-  '   <div class="card-footer bg-body text-body">' +
-  '     Last updated 1 min ago' +
-  '   </div>' +
+  `   <div class="card-footer bg-body text-body">${lastUpdateTime}</div>` +
   ' </div>' +
   '</div>';
   return r;
@@ -55,12 +70,6 @@ function getProject(id, name, description) {
 
 function getProjectDetails(description, summary) {
   const r = {};
-  console.log(summary.lastCommit);
-  console.log(dateFns.fp.intervalToDuration({
-    start: new Date(summary.lastCommit.year-1, summary.lastCommit.month, summary.lastCommit.day-1, summary.lastCommit.hour, summary.lastCommit.minute, summary.lastCommit.second),
-    end: new Date()
-  }));
-
   r.html = '' +
   '<div class="col pb-4">' +
   ' <div class="px-2 pb-4 bg-body-tertiary1 border1 rounded-3">' +
@@ -110,7 +119,7 @@ function initDashboard() {
       projects = res.data.projects;
       if (projects) {
         projects.forEach(function(p) {
-          const proj = getProject(p.id, p.name, p.description);
+          const proj = getProject(p.id, p.name, p.summary.lastCommit);
           list.append(proj.html);
           const details = getProjectDetails(p.description, p.summary);
           list.append(details.html);

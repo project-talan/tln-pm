@@ -70,8 +70,7 @@ class Component {
       this.checkRepo = false;
       if (fs.existsSync(path.join(this.home, '.git'))) {
         try {
-          const ls = exec(`git --no-pager log -1 --pretty='format:%cd' --date='format:%Y %m %d %H %M %S'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim().split(' ');
-          this.lastCommit = {year: ls[0], month: ls[1] - 1, day: ls[2], hour: ls[3], minute: ls[4], second: ls[5]};
+          this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
         } catch (e) {
           this.logger.warn('Could\'n read git repository', this.home, e);
         }
