@@ -43,10 +43,10 @@ class Server {
     ea.get('/main.js', (req, res) => {
       res.send(getLocalContent('main.js'));
     })
-    ea.get('/team', (req, res) => {
+    ea.get('/teams', (req, res) => {
       res.send(this.makeResponce(root.getTeam({}, true, true)));
     })
-    ea.get('/dashboard', async(req, res) => {
+    ea.get('/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
 

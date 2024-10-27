@@ -2,8 +2,9 @@
 
 const path = require('path');
 const fs = require('fs');
-const assign = require('assign-deep');
+const exec = require('child_process').execSync;
 
+const assign = require('assign-deep');
 
 const sourceFactory = require('./source');
 const projectFactory = require('./project');
@@ -23,6 +24,8 @@ class Component {
     this.parent = parent;
     this.home = home;
     this.id = id;
+    this.checkRepo = true;
+    this.lastCommit = null;
     this.sources = [];
     this.project = [];
     this.team = null;
@@ -62,6 +65,19 @@ class Component {
 
   async process(pathTo) {
     let result = false;
+    // check if component is git repo root
+    if (this.checkRepo) {
+      this.checkRepo = false;
+      if (fs.existsSync(path.join(this.home, '.git'))) {
+        try {
+          const ls = exec(`git --no-pager log -1 --pretty='format:%cd' --date='format:%Y %m %d %H %M %S'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim().split(' ');
+          this.lastCommit = {year: ls[0], month: ls[1] - 1, day: ls[2], hour: ls[3], minute: ls[4], second: ls[5]};
+        } catch (e) {
+          this.logger.warn('Could\'n read git repository', this.home, e);
+        }
+      }
+    }
+    //
     const items = pathTo.split(path.sep);
     if (items.length > 1) {
       // dive into subdirectories
@@ -237,11 +253,27 @@ class Component {
       this.project.forEach( p => {
         project = assign(project, p);
       });
+      let summary = {
+        tasks: { todo: 0, indev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 }
+      };
+      project.summary = await this.getSummary(summary);
+      project.summary.team = this.getTeam({}, false, true);
+      project.summary.lastCommit = this.lastCommit;
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
     projects = projects.concat(...prs);
     return projects;
+  }
+
+  async getSummary(summary) {
+    for (const task of this.tasks) {
+      summary.tasks = await task.getSummary(summary.tasks);
+    };
+    for (const component of this.components) {
+      summary = await component.getSummary(summary);
+    }
+    return summary;
   }
 
   getTeam( team, up, down) {

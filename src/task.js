@@ -82,7 +82,25 @@ class Task {
       };
     }
   }
- 
+
+  async getSummary(tasksSummary) {
+    if (this.tasks.length) {
+      for (const task of this.tasks) {
+        tasksSummary = await task.getSummary(tasksSummary);
+      }
+    } else {
+      switch (this.status) {
+        case '-': tasksSummary.todo++; break;
+        case '>': tasksSummary.indev++; break;
+        case '?': tasksSummary.tbd++; break;
+        case '!': tasksSummary.blocked++; break;
+        case '+': tasksSummary.done++; break;
+        case 'x': tasksSummary.dropped++; break;
+      }
+    }
+    return tasksSummary;
+  }
+  
 }
 
 module.exports.create = (logger, source) => {
