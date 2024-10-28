@@ -10,6 +10,7 @@ const yaml = require('js-yaml');
 
 
 const utils = require('./utils');
+const {version} = require('../package.json');
 
 class Server {
 
@@ -43,6 +44,10 @@ class Server {
     ea.get('/main.js', (req, res) => {
       res.send(getLocalContent('main.js'));
     })
+    // API
+    ea.get('/info', (req, res) => {
+      res.send(this.makeResponce({version}));
+    })
     ea.get('/teams', (req, res) => {
       res.send(this.makeResponce(root.getTeam({}, true, true)));
     })
@@ -62,7 +67,7 @@ class Server {
     })
     
     ea.listen(port, () => {
-      this.logger.con(`start server on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
+      this.logger.con(`start server version ${version} on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
     })
 
   }

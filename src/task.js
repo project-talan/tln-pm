@@ -101,6 +101,11 @@ class Task {
     return tasksSummary;
   }
   
+  async getCountByDeadlime(deadline) {
+    const st = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline)));
+    return this.deadline === deadline ? 1 : 0 + st.reduce((acc, c) => acc + c, 0);
+  }
+
 }
 
 module.exports.create = (logger, source) => {

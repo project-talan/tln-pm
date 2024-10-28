@@ -4,16 +4,31 @@ google.charts.setOnLoadCallback(drawChart);
 
 let projects = [];
 let timeline = {};
-let team = {};
+let teams = {};
+
+const colorsRAG = {
+  red: '#c45850', //'#dc3545',
+  amber: '#e8c3b9', //'#ffc107',
+  green: '#3cba9f' //'#28a745'
+};
 //-----------------------------------------------------------------------------
 // Initialisation
 $(document).ready(function(){
-  updateTeam();
-  //updateTimeline();
-  initDashboard();
-  updateDashboard();
+  // get general information
+  $.getJSON("info", function(res, status){
+    if (res.success) {
+      $('#nav_version').text(res.data.version);
+    }
+  });
+  //
+  initTeam(); updateTeam();
+  //initTimeline(); updateTimeline();
+  initDashboard(); updateDashboard();
   //
 });
+
+//-----------------------------------------------------------------------------
+// Utils
 
 
 //-----------------------------------------------------------------------------
@@ -22,9 +37,9 @@ $("#dashboard-tab").click(function(){
   updateDashboard();
 });
 
-function getProject(id, name, lastCommit) {
+function getProject(id, name, summary) {
   const r = { ids: { tasks: `project-${id}-tasks`, workload: `project-${id}-workload` } };
-  const lut = dateFns.fp.intervalToDuration({start: new Date(lastCommit), end: new Date() });
+  const lut = dateFns.fp.intervalToDuration({start: new Date(summary.lastCommit), end: new Date() });
   let diff = '?';
   if (lut.years) {
     diff = `${lut.years}y`;
@@ -39,7 +54,11 @@ function getProject(id, name, lastCommit) {
   } else if (lut.seconds) {
     diff = `${lut.seconds}s`;
   }
-  let lastUpdateTime = `Updated ${diff} ago`;
+  const lastUpdateTime = `Updated ${diff} ago`;
+
+  // const rd = dateFns.fp.intervalToDuration({start: new Date(summary.release.date), end: new Date() });
+  // console.log(rd);
+
 
   r.html = '' +
   '<div class="col pb-4">' +
@@ -50,11 +69,11 @@ function getProject(id, name, lastCommit) {
   '   </div>' +
   '   <div class="card-body">' +
   `     <div class="container-fluid">` +
-  `       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2">` +
-  '         <div class="col">' +
+  `       <div class="row 1row-cols-1 1row-cols-sm-2 1row-cols-md-2">` +
+  '         <div class="col-5">' +
   `           <canvas id="${r.ids.tasks}"></canvas>` +
   '         </div>' +
-  '         <div class="col">' +
+  '         <div class="col-7">' +
   `           <canvas id="${r.ids.workload}"></canvas>` +
   '         </div>' +
   '       </div>' +
@@ -66,22 +85,32 @@ function getProject(id, name, lastCommit) {
   return r;
 }
 
-
-
 function getProjectDetails(description, summary) {
   const r = {};
+  // release
+  let releaseName = 'n/a';
+  let releaseDate = 'n/a';
+  let releaseFeatures = 'n/a';
+  if (summary.timeline.length) {
+    releaseName = summary.timeline[0].name;
+    releaseDate = summary.timeline[0].date;
+    releaseFeatures = summary.timeline[0].features;
+  }
   r.html = '' +
   '<div class="col pb-4">' +
-  ' <div class="px-2 pb-4 bg-body-tertiary1 border1 rounded-3">' +
+  ' <div class="px-2 pb-4">' +
   `   <h5>${description}</h5>` +
   ' </div>' +
   ' <ul class="list-group">' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Release</li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  '     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">24.10.0</span>' +
+  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  '     <span class="fst-italic">date</span><span class="badge text-bg-secondary rounded-pill">24.10.27</span>' +
+  `     <span class="fst-italic">date</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
+  '   </li>' +
+  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
+  `     <span class="fst-italic">features</span><span class="badge text-bg-secondary rounded-pill">${releaseFeatures}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Workload & Bandwidth</li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
@@ -119,7 +148,7 @@ function initDashboard() {
       projects = res.data.projects;
       if (projects) {
         projects.forEach(function(p) {
-          const proj = getProject(p.id, p.name, p.summary.lastCommit);
+          const proj = getProject(p.id, p.name, p.summary);
           list.append(proj.html);
           const details = getProjectDetails(p.description, p.summary);
           list.append(details.html);
@@ -157,7 +186,8 @@ function initDashboard() {
             data: {
               datasets: [
                 {
-                  backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
+                  // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
+                  backgroundColor: [colorsRAG.green, colorsRAG.amber, colorsRAG.red],
                   data: [p.summary.tasks.indev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
@@ -233,6 +263,10 @@ function updateDashboard() {
 
 //-----------------------------------------------------------------------------
 // Timeline
+$("#timeline-tab").click(function(){
+  updateTimeline();
+});
+var ganttChart = null;
 
 function daysToMilliseconds(days) {
   return days * 24 * 60 * 60 * 1000;
@@ -271,9 +305,10 @@ function drawChart() {
     }
   };
 
-  var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
-  chart.draw(data, options);
+  if (!ganttChart) {
+    ganttChart = new google.visualization.Gantt(document.getElementById('timeline_gantt_chart'));
+  }
+  ganttChart.draw(data, options);
 }
 
 function updateTimeline() {
@@ -301,14 +336,18 @@ function getMember(id, name, email) {
   '</tr>';
 }
 
-function updateTeam() {
+function initTeam() {
   $.getJSON("teams", function(res, status){
     if (res.success) {
+      teams = res.data;
       var list = $('#dashboard_team_list');
       list.empty();
-      Object.keys(res.data).forEach(function(v){
-        list.append(getMember(v, res.data[v].name, res.data[v].email));
+      Object.keys(teams).forEach(function(v){
+        list.append(getMember(v, teams[v].name, teams[v].email));
       });
     }
   });  
+}
+
+function updateTeam() {
 }

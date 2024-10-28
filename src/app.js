@@ -95,6 +95,7 @@ class App {
     if (c) {
       if (what.project) {
         result.projects = await c.describeProject();
+        // console.log(result.projects[0].summary.timeline);
       }
     }
     return result;
