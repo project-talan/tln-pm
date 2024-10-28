@@ -7,6 +7,8 @@ team:
     email: vladislav.kurmaz@gmail.com
     name: Vladyslav Kurmaz
 timeline:
+  - name: v0.8.0
+    date: 2024-11-01 17:30:00 GMT+0200
   - name: v0.7.0
     date: 2024-10-28 23:55:00 GMT+0200
   - name: v0.6.0
@@ -20,6 +22,7 @@ timeline:
   - name: v0.2.0
     date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
+  [>:023:v0.8.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
