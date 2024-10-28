@@ -7,34 +7,35 @@ team:
     email: vladislav.kurmaz@gmail.com
     name: Vladyslav Kurmaz
 timeline:
-  "v0.2.0":
-    date: "2024-09-04"
-  "v0.3.0":
-    date: "2024-09-12"
-  "v0.4.0":
-    date: "2024-09-15"
-  "v0.5.0":
-    date: "2024-09-23"
-  "v0.6.0":
-    date: "2024-10-22"
-  "v0.7.0":
-    date: "2024-10"
+  - name: v0.7.0
+    date: 2024-10-28 23:55:00 GMT+0200
+  - name: v0.6.0
+    date: 2024-10-22 17:30:00 GMT+0200
+  - name: v0.5.0
+    date: 2024-09-23 17:30:00 GMT+0200
+  - name: v0.4.0
+    date: 2024-09-15 17:30:00 GMT+0200
+  - name: v0.3.0
+    date: 2024-09-12 17:30:00 GMT+0200
+  - name: v0.2.0
+    date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
+  [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
   [+:019:v0.5.0] Add component as optional parameter for ls command @vlad.k
-  [-:018:v0.7.0] Generate snapshot @vlad.k
+  [-:018:v0.8.0] Generate snapshot @vlad.k
   [+:017:v0.5.0] Add SRS section @vlad.k
-  [-:016:v0.7.0] Add describe command with resolved links @vlad.k
+  [-:016:v0.8.0] Add describe command with resolved links @vlad.k
   [x:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
-  [-:014:v0.7.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
+  [-:014:v0.8.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:v0.6.0] Add search @vlad.k
   [+:012:v0.6.0] Add CI/CD @vlad.k
   [+:011:v0.6.0] Add unit test framework @vlad.k
   [+:010:v0.6.0] Extract tags, timeline from task description @vlad.k
   [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [+:008:v0.6.0] Merge multiple descriptions from one file @vlad.k
-  [-:007:v0.7.0] Server command: express server + fs watch @vlad.k
+  [-:007:v0.8.0] Server command: express server + fs watch @vlad.k
     [-] Create API using express @vlad.k
     [-] Implement web part: Dashboard @vlad.k
     [-] Implement web part: Timeline @vlad.k

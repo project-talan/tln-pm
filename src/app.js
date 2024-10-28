@@ -71,7 +71,7 @@ class App {
     try {
       if (!(who.all || aees.length)) {
         aees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
-      }
+     }
     } catch (e) {
       this.logger.warn('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
     }
@@ -94,7 +94,8 @@ class App {
     const c = this.rootComponent;
     if (c) {
       if (what.project) {
-        result.project = await c.describeProject();
+        result.projects = await c.describeProject();
+        // console.log(result.projects[0].summary.timeline);
       }
     }
     return result;

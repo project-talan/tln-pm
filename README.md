@@ -41,7 +41,7 @@ Here is example for `.todo` file at repository root
     | Symbol | Meaning         |
     | ---    | ---             |
     | -      | todo            |
-    | >      | in progress     |
+    | >      | in development  |
     | ?      | to be discussed |
     | !      | blocked         |
     | +      | done            |

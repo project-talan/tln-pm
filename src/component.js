@@ -2,13 +2,14 @@
 
 const path = require('path');
 const fs = require('fs');
-const assign = require('assign-deep');
+const exec = require('child_process').execSync;
 
+const assign = require('assign-deep');
 
 const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
-const deadlineFactory = require('./deadline');
+const timelineFactory = require('./timeline');
 const taskFactory = require('./task');
 const srsFactory = require('./srs');
 
@@ -23,10 +24,12 @@ class Component {
     this.parent = parent;
     this.home = home;
     this.id = id;
+    this.checkRepo = true;
+    this.lastCommit = null;
     this.sources = [];
     this.project = [];
     this.team = null;
-    this.timeline = null;
+    this.timeline = [];
     this.tasks = [];
     this.srs = null;
     this.components = [];
@@ -62,6 +65,18 @@ class Component {
 
   async process(pathTo) {
     let result = false;
+    // check if component is git repo root
+    if (this.checkRepo) {
+      this.checkRepo = false;
+      if (fs.existsSync(path.join(this.home, '.git'))) {
+        try {
+          this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+        } catch (e) {
+          this.logger.warn('Could\'n read git repository', this.home, e);
+        }
+      }
+    }
+    //
     const items = pathTo.split(path.sep);
     if (items.length > 1) {
       // dive into subdirectories
@@ -102,8 +117,12 @@ class Component {
       result |= true;
     }
     if (data.timeline) {
-      this.timeline = assign({}, data.timeline);
-      result |= true;
+      if (data.timeline.length) {
+        const timeline = timelineFactory.create(this.logger, source);
+        await timeline.load(data.timeline);
+        this.timeline.push(timeline);
+        result |= true;
+      }
     }
     if (data.tasks) {
       const task = taskFactory.create(this.logger, source);
@@ -172,6 +191,8 @@ class Component {
     }
     // timeline
     if (what.timeline && this.timeline) {
+      summary.timeline = summary.timeline.concat(await timeline.getSummary(0));
+
       if (Object.keys(this.timeline).length) {
         this.logger.con((require('yaml')).stringify({ timeline: this.timeline }));
       }
@@ -237,11 +258,37 @@ class Component {
       this.project.forEach( p => {
         project = assign(project, p);
       });
+      let summary = {
+        tasks: { todo: 0, indev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
+        timeline: []
+      };
+      project.summary = await this.getSummary(summary);
+      project.summary.team = this.getTeam({}, false, true);
+      project.summary.lastCommit = this.lastCommit;
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
     projects = projects.concat(...prs);
     return projects;
+  }
+
+  async getSummary(summary) {
+    for (const timeline of this.timeline) {
+      summary.timeline = summary.timeline.concat(await timeline.getSummary({features: 0}));
+    }
+    for (const deadline of summary.timeline) {
+      const tsks = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline.name)));
+      const cnt = tsks.reduce((acc, c) => acc + c, 0);
+      deadline.features += cnt;
+    }
+    //
+    for (const task of this.tasks) {
+      summary.tasks = await task.getSummary(summary.tasks);
+    };
+    for (const component of this.components) {
+      summary = await component.getSummary(summary);
+    }
+    return summary;
   }
 
   getTeam( team, up, down) {

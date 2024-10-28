@@ -82,7 +82,30 @@ class Task {
       };
     }
   }
- 
+
+  async getSummary(tasksSummary) {
+    if (this.tasks.length) {
+      for (const task of this.tasks) {
+        tasksSummary = await task.getSummary(tasksSummary);
+      }
+    } else {
+      switch (this.status) {
+        case '-': tasksSummary.todo++; break;
+        case '>': tasksSummary.indev++; break;
+        case '?': tasksSummary.tbd++; break;
+        case '!': tasksSummary.blocked++; break;
+        case '+': tasksSummary.done++; break;
+        case 'x': tasksSummary.dropped++; break;
+      }
+    }
+    return tasksSummary;
+  }
+  
+  async getCountByDeadlime(deadline) {
+    const st = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline)));
+    return this.deadline === deadline ? 1 : 0 + st.reduce((acc, c) => acc + c, 0);
+  }
+
 }
 
 module.exports.create = (logger, source) => {
