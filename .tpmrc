@@ -1,0 +1,4 @@
+{
+  "include": "**/.todo;**/.srs*;docs/srs/*",
+  "ignore": "**/node_modules/**;**/dist/**;.github/**"
+}

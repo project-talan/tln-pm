@@ -65,9 +65,10 @@ class App {
   }
 
   async ls(options) {
-    const {component, depth, what, who, filter, hierarchy} = options;
+    const {component, depth, who, filter, hierarchy} = options;
     let aees = [...who.assignees];
     //
+    // console.log(options, who.all || aees.length);
     try {
       if (!(who.all || aees.length)) {
         aees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
@@ -82,7 +83,7 @@ class App {
     if (who.all || aees.length) {
       const c = await this.getCurrentComponent(component);
       if (c) {
-        await c.ls({depth, what, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
+        await c.ls({depth, who: {...who, assignees: aees}, filter, hierarchy, indent: '', last: true});
       }
     } 
   }
