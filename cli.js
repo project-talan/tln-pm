@@ -33,11 +33,12 @@ yargs(hideBin(process.argv))
   .option('verbose', { alias: 'v', count: true, default: 0 })
   .option('include', { default: '**/.todo', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
-  .option('d', { describe: 'Scan depth', alias: 'depth', default: 5, type: 'number' })
+  .option('depth', { describe: 'Scan depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('t', { describe: 'Filter output using tag value', alias: 'tag', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
-  .option('a', { describe: 'Show all elements', alias: 'all', default: false, type: 'boolean' })
+  .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
+  .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
 
   .option('file', { describe: 'File name', default: '.todo', type: 'string' })
 
@@ -54,21 +55,21 @@ yargs(hideBin(process.argv))
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
-  .command('ls [component] [--project] [--team] [--timeline] [--tasks] [--srs] [-g assignee] [--all]', 'Show list of tasks and other entities', (yargs) => {
+  // ls command aims to work exclusively with tasks
+  .command('ls [component] [-g assignee] [-t tag]', 'Show list of tasks', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',
       default: null
     });
-
   }, async (argv) => {
     getApp(argv, true, async (a) => {
+      // console.log(argv);
       await a.ls({
         component: argv.component,
         depth: argv.depth,
-        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         who: { assignees: argv.assignee, all: argv.all },
-        filter: { tag: argv.tag, search: argv.search, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
+        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
         hierarchy: argv.hierarchy
       });
     });

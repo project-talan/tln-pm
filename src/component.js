@@ -172,81 +172,48 @@ class Component {
   }
 
   async ls(options) {
-    const {depth, what, who, filter, hierarchy, indent, last} = options;
+    const {depth, who, filter, hierarchy, indent, last} = options;
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
-    // about me
-    // team
-    if (what.project && this.project.length > 0) {
-      let project = {};
-      this.project.forEach( p => {
-        project = assign(project, p);
-      });
-      this.logger.con((require('yaml')).stringify({ project: project }));
-    }
-    // team
-    if (what.team && this.team) {
-      if (Object.keys(this.team).length) {
-        this.logger.con((require('yaml')).stringify({ team: this.team }));
-      }
-    }
-    // timeline
-    if (what.timeline && this.timeline) {
-      summary.timeline = summary.timeline.concat(await timeline.getSummary(0));
-
-      if (Object.keys(this.timeline).length) {
-        this.logger.con((require('yaml')).stringify({ timeline: this.timeline }));
-      }
-    }
     // tasks
-    if (what.tasks && this.tasks.length > 0) {
-      //
-      const ts = { tasks: [] };
-      for (const task of this.tasks) {
-        const t = await task.filter({who: who2, filter});
-        if (t && t.tasks.length) {
-          ts.tasks.push(...t.tasks);
-        }
-      };
-      //
-      if (ts && ts.tasks.length) {
-        let ti = '  ';
-        if (hierarchy) {
-          ti = `${indent}${ti}`;
-          const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
-          const summary = '45%';
-          this.logger.con(`${title} ${summary}`);
-        } else {
-          this.logger.con();
-          this.logger.con(`~ ${this.getRelativePath()}`);
-        }
-        const out = (task, indent) => {
-          if (task.title) {
-            const a = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
-            const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
-            const dl = task.deadline ? ` (${task.deadline})` : '';
-            const id = task.id ? ` ${task.id}:` : '';
-            this.logger.con(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
-          }
-          for (const t of task.tasks) {
-            out(t, `${indent}  `);
-          }
-        }
-        out(ts, '');
+    const ts = { tasks: [] };
+    for (const task of this.tasks) {
+      const t = await task.filter({who: who2, filter});
+      if (t && t.tasks.length) {
+        ts.tasks.push(...t.tasks);
       }
-    }
+    };
     //
-    // srs
-    if (what.srs && this.srs) {
-      if (Object.keys(this.srs).length) {
-        this.logger.con((require('yaml')).stringify(this.srs).split('\n').map( l => `${indent}${l}`).join('\n'));
+    if (ts && ts.tasks.length) {
+      let ti = '  ';
+      if (hierarchy) {
+        ti = `${indent}${ti}`;
+        const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
+        const summary = '45%';
+        this.logger.con(`${title} ${summary}`);
+      } else {
+        this.logger.con();
+        this.logger.con(`~ ${this.getRelativePath()}`);
       }
+      const out = (task, indent) => {
+        if (task.title) {
+          const a = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
+          const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
+          const dl = task.deadline ? ` (${task.deadline})` : '';
+          const id = task.id ? ` ${task.id}:` : '';
+          this.logger.con(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
+        }
+        for (const t of task.tasks) {
+          out(t, `${indent}  `);
+        }
+      }
+      out(ts, '');
     }
     // about components
     if (depth) {
       const lng = this.components.length;
       for (let i = 0; i < lng; i++) {
         const lc = (i === lng - 1);
-        await this.components[i].ls({depth: depth - 1, what, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
+        await this.components[i].ls({depth: depth - 1, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
       }
     }
   }

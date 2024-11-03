@@ -58,6 +58,7 @@ class Task {
   async filter(options) {
     const {who, filter} = options;
     // check myself
+    // console.log(who, this.assignees);
     const me = who.assignees.some( r => this.assignees.includes(r));
     const st = [
       { statuses: ['-', '?', '!'], flag: filter.status.backlog },
@@ -67,7 +68,7 @@ class Task {
     const tg = filter.tag.length ? filter.tag.find( t => this.tags.includes(t) ) : true;
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
-    //console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
+    // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
       return {

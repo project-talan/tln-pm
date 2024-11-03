@@ -22,6 +22,7 @@ timeline:
   - name: v0.2.0
     date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
+  [-:024:v0.8.0] Tweak task status based on child tasks @vlad.k
   [>:023:v0.8.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
