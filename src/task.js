@@ -55,11 +55,11 @@ class Task {
     this.links = links;
   }
 
-  async filter(options) {
+  async filter(options, alsoMe = false) {
     const {who, filter} = options;
     // check myself
     // console.log(who, this.assignees);
-    const me = who.assignees.some( r => this.assignees.includes(r));
+    const me = who.assignees.some( r => this.assignees.includes(r)) || alsoMe;
     const st = [
       { statuses: ['-', '?', '!'], flag: filter.status.backlog },
       { statuses: ['>'], flag: filter.status.indev },
@@ -69,7 +69,7 @@ class Task {
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
-    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options)))).filter(v => !!v);
+    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me)))).filter(v => !!v);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
       return {
         status: this.status,

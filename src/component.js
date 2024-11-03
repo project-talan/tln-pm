@@ -232,6 +232,7 @@ class Component {
       project.summary = await this.getSummary(summary);
       project.summary.team = this.getTeam({}, false, true);
       project.summary.lastCommit = this.lastCommit;
+      project.summary.totalFte = Object.keys(project.summary.team).reduce((acc, m) => acc + project.summary.team[m].fte, 0);
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));

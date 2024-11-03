@@ -29,7 +29,25 @@ $(document).ready(function(){
 
 //-----------------------------------------------------------------------------
 // Utils
-
+function getStringFromInterval(interval) {
+  let diff = '?';
+  if (interval) {
+    if (interval.years) {
+      diff = `${interval.years} yr`;
+    } else if (interval.months) {
+      diff = `${interval.months} mo`;
+    } else if (interval.days) {
+      diff = `${interval.days} d`;
+    } else if (interval.hours) {
+      diff = `${interval.hours} h`;
+    } else if (interval.minutes) {
+      diff = `${interval.minutes} min`;
+    } else if (interval.seconds) {
+      diff = `${interval.seconds} s`;
+    }
+  }
+  return diff;
+}
 
 //-----------------------------------------------------------------------------
 // Dashboard
@@ -40,21 +58,17 @@ $("#dashboard-tab").click(function(){
 function getProject(id, name, summary) {
   const r = { ids: { tasks: `project-${id}-tasks`, workload: `project-${id}-workload` } };
   const lut = dateFns.fp.intervalToDuration({start: new Date(summary.lastCommit), end: new Date() });
-  let diff = '?';
-  if (lut.years) {
-    diff = `${lut.years}y`;
-  } else if (lut.months) {
-    diff = `${lut.months}m`;
-  } else if (lut.days) {
-    diff = `${lut.days}d`;
-  } else if (lut.hours) {
-    diff = `${lut.hours}h`;
-  } else if (lut.minutes) {
-    diff = `${lut.minutes}m`;
-  } else if (lut.seconds) {
-    diff = `${lut.seconds}s`;
-  }
+  const diff = getStringFromInterval(lut);
   const lastUpdateTime = `Updated ${diff} ago`;
+  //
+  let releaseName = 'n/a';
+  let timeToRelease = 'n/a';
+  if (summary.timeline.length) {
+    releaseName = summary.timeline[0].name;
+//    releaseDate = summary.timeline[0].date;
+    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].date)}));
+  }
+
 
   // const rd = dateFns.fp.intervalToDuration({start: new Date(summary.release.date), end: new Date() });
   // console.log(rd);
@@ -64,7 +78,7 @@ function getProject(id, name, summary) {
   '<div class="col pb-4">' +
   ' <div class="card">' +
   '   <div class="card-header bg-body text-body">' +
-  `     <span class="badge float-end rounded-pill text-bg-danger">24.10.0 in 15d</span>` +
+  `     <span class="badge float-end rounded-pill text-bg-danger">${releaseName} in ${timeToRelease}</span>` +
   `     <div class="card-title d-inline"><span class="fw-bold">${name}</span> (${id})</div>` +
   '   </div>' +
   '   <div class="card-body">' +
@@ -117,16 +131,16 @@ function getProjectDetails(description, summary) {
   `     <span class="fst-italic">team size</span><span class="badge text-bg-secondary rounded-pill">${Object.keys(summary.team).length}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">todo</span><span class="badge text-bg-info rounded-pill">${summary.tasks.todo}</span>` +
-  '   </li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.green}">` +
   `     <span class="fst-italic">in development</span><span class="badge text-bg-info rounded-pill">${summary.tasks.indev}</span>` +
   '   </li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.amber}">` +
+  `     <span class="fst-italic">todo</span><span class="badge text-bg-info rounded-pill">${summary.tasks.todo}</span>` +
+  '   </li>' +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.red}">` +
   `     <span class="fst-italic">tbd</span><span class="badge text-bg-info rounded-pill">${summary.tasks.tbd}</span>` +
   '   </li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.red}">` +
   `     <span class="fst-italic">blocked</span><span class="badge text-bg-info rounded-pill">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
@@ -222,28 +236,32 @@ function initDashboard() {
               }
             }]
           });
+
+          const numberofDays = 14;
           const worloadChart = new Chart(document.getElementById(proj.ids.workload), {
-            type: 'bar',
+            type: 'line',
             data: {
-              labels: ["1900", "1950", "1999", "2050"],
-              datasets: [
-                {
-                  backgroundColor: "#3e95cd",
-                  data: [133,221,783,2478]
-                }, {
-                  backgroundColor: "#8e5ea2",
-                  data: [408,547,675,734]
+              labels: Array(numberofDays).fill(""),
+              datasets: [{ 
+                data: Array(numberofDays).fill(p.summary.totalFte),
+                label: "Europe",
+                borderColor: "#3cba9f",
+                fill: false
+                }, { 
+                  data: Array(numberofDays).fill(0),
+                  label: "Africa",
+                  borderColor: "#3e95cd",
+                  fill: false
                 }
               ]
             },
             options: {
               aspectRatio: 1,
-              //maintainAspectRatio: false,
               plugins: {
                 legend: {
                     display: false
                 }
-              }              
+              }
             }
           });
           p.charts = [tasksChart, worloadChart];
@@ -316,19 +334,20 @@ function updateTimeline() {
 }
 //-----------------------------------------------------------------------------
 // Team
-function getMember(id, name, email) {
+function getMember(id, name, fte, email) {
   return '<tr>' +
   ` <th scope="row">${id}</th>` +
   ` <td>${name}</td>` +
+  ` <td>${fte}</td>` +
   ' <td class="align-middle">' +
   '  <div class="progress-stacked">' +
-  '    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">' +
+  '    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
   '      <div class="progress-bar bg-success">15</div>' +
   '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment two" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%">' +
+  '    <div class="progress" role="progressbar" aria-label="Segment two" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
   '      <div class="progress-bar bg-danger">30</div>' +
   '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment three" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%">' +
+  '    <div class="progress" role="progressbar" aria-label="Segment three" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
   '      <div class="progress-bar bg-warning">50</div>' +
   '    </div>' +
   '  </div>' +
@@ -343,7 +362,7 @@ function initTeam() {
       var list = $('#dashboard_team_list');
       list.empty();
       Object.keys(teams).forEach(function(v){
-        list.append(getMember(v, teams[v].name, teams[v].email));
+        list.append(getMember(v, teams[v].name, teams[v].fte, teams[v].email));
       });
     }
   });  

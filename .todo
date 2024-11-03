@@ -6,9 +6,12 @@ team:
   vlad.k:
     email: vladislav.kurmaz@gmail.com
     name: Vladyslav Kurmaz
+    fte: 1
 timeline:
+  - name: v0.9.0
+    date: 2024-11-08 17:00:00 GMT+0200
   - name: v0.8.0
-    date: 2024-11-01 17:30:00 GMT+0200
+    date: 2024-11-03 14:00:00 GMT+0200
   - name: v0.7.0
     date: 2024-10-28 23:55:00 GMT+0200
   - name: v0.6.0
@@ -23,7 +26,7 @@ timeline:
     date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
   [-:024:v0.8.0] Tweak task status based on child tasks @vlad.k
-  [>:023:v0.8.0] Implement project, team, srs section as classes @vlad.k
+  [+:023:v0.8.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
@@ -40,11 +43,11 @@ tasks: |
   [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [+:008:v0.6.0] Merge multiple descriptions from one file @vlad.k
   [-:007:v0.8.0] Server command: express server + fs watch @vlad.k
-    [-] Create API using express @vlad.k
-    [-] Implement web part: Dashboard @vlad.k
-    [-] Implement web part: Timeline @vlad.k
-    [-] Implement web part: Team @vlad.k
-    [-] Add --watch option to watch for changes in .todo file and refresh tpm internal state @vlad.k
+    [-] Create API using express
+    [-] Implement web part: Dashboard
+    [-] Implement web part: Timeline
+    [-] Implement web part: Team
+    [-] Add --watch option to watch for changes in .todo file and refresh tpm internal state
   [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k
   [+:005:v0.4.0] Implement ls command for timeline @vlad.k
   [+:004:v0.4.0] Implement ls for team @vlad.k
