@@ -8,18 +8,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
     <script>
       import('https://cdn.jsdelivr.net/npm/date-fns@3.6.0/fp/cdn.min.js').then((dateFns) => {
         console.log(dateFns);
       });
     </script>    
-    <link rel="stylesheet" href="styles.css">
 
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
       google.charts.load("current", { packages: ["gantt"] });
     </script>
-
+    <link rel="stylesheet" type="text/css" href="styles.css">
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -65,7 +66,6 @@
         </div>
       </div>
     </nav>
-
     <div class="container pt-4">
       <!-- Tabs -->
       <div class="tab-content" id="myTabContent">
@@ -93,7 +93,7 @@
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">Id</th>
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">Name</th>
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">FTE</th>
-                <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">inDev / Blocked / Backlog</th>
+                <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">Dev / Blocked / Backlog</th>
               </tr>
             </thead>
             <tbody id="dashboard_team_list">
@@ -119,7 +119,77 @@
         </div>
         <!-- SRS -->
         <div class="tab-pane fade" id="srs-tab-pane" role="tabpanel" aria-labelledby="srs-tab" tabindex="0">
-          <p>Comming soon...</p>
+          <div class="container">
+            <div class="row">
+              <div class="col-3 d-sm-none d-md-block border border-black border-0 border-top-0 border-bottom-0 border-start-0">
+
+                <aside class="bd-aside sticky-xl-top text-body-secondary align-self-start mb-3 mb-xl-5 px-2">
+                  <nav class="small">
+                    <ul class="list-unstyled" id="srs-toc">
+                      <li class="my-2">
+                        <ul class="list-unstyled ps-3 collapse show" id="forms-collapse1" style="">
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#overview">Overview</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#disabled-forms">Disabled forms</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#sizing">Sizing</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#input-group">Input group</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#floating-labels">Floating labels</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#validation">Validation</a></li>
+                        </ul>
+                      </li>
+                      <li class="my-2">
+                        <button type="button" class="btn d-inline-flex align-items-center border-0 collapsed" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#contents-collapse" aria-controls="contents-collapse">docs</button>
+                        <ul class="list-unstyled ps-3 collapse" id="contents-collapse" style="">
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#typography">Typography</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#images">Images</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#tables">Tables</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#figures">Figures</a></li>
+                          <li class="my-2">
+                            <button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#forms-collapse" aria-controls="forms-collapse">srs</button>
+                            <ul class="list-unstyled ps-3 collapse show" id="forms-collapse" style="">
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#overview">Overview</a></li>
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#disabled-forms">Disabled forms</a></li>
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#sizing">Sizing</a></li>
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#input-group">Input group</a></li>
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#floating-labels">Floating labels</a></li>
+                              <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#validation">Validation</a></li>
+                            </ul>
+                          </li>
+    
+                        </ul>
+                      </li>
+                      <li class="my-2">
+                        <button type="button" class="btn d-inline-flex align-items-center border-0 collapsed" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#components-collapse" aria-controls="components-collapse">backend</button>
+                        <ul class="list-unstyled ps-3 collapse" id="components-collapse" style="">
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#accordion">Accordion</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#alerts">Alerts</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#badge">Badge</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#breadcrumb">Breadcrumb</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#buttons">Buttons</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#button-group">Button group</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#card">Card</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#carousel">Carousel</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#dropdowns">Dropdowns</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#list-group">List group</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#modal">Modal</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#navs">Navs</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#navbar">Navbar</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#pagination">Pagination</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#popovers">Popovers</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#progress">Progress</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#scrollspy">Scrollspy</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#spinners">Spinners</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#toasts">Toasts</a></li>
+                          <li><a class="d-inline-flex align-items-center rounded text-decoration-none" href="#tooltips">Tooltips</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </nav>
+                </aside>    
+              </div>
+              <div class="col-12 col-sm-9 p-4" id="srs-content">
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -149,6 +219,7 @@
 </div-->
 
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="main.js"></script>
   </body>

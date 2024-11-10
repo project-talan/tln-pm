@@ -31,7 +31,7 @@ class Component {
     this.team = null;
     this.timeline = [];
     this.tasks = [];
-    this.srs = null;
+    this.srs = [];
     this.components = [];
   }
 
@@ -133,7 +133,9 @@ class Component {
       }
     }
     if (data.srs) {
-      this.srs = assign({}, data.srs);
+      const srs = srsFactory.create(this.logger, source);
+      await srs.load(data.srs);
+      this.srs.push(srs);
       result |= true;
     }
     if (data.components) {
@@ -238,6 +240,19 @@ class Component {
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
     projects = projects.concat(...prs);
     return projects;
+  }
+
+  async describeSrs(options) {
+    let srs = {};
+    (await Promise.all(this.srs.map(async c => c.getSummary()))).forEach( s => srs = assign(srs, s));
+    const components = (await Promise.all(this.components.map(async c => c.describeSrs()))).filter(c => !!c);
+    if (Object.keys(srs).length > 0 || components.length > 0) {
+     return {
+        id: this.id,
+        srs,
+        components
+      }
+    }
   }
 
   async getSummary(summary) {

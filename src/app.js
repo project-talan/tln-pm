@@ -40,8 +40,9 @@ class App {
   }
 
   async load(include, ignore) {
-    this.rootComponent = componentFactory.create(this.logger, this.home, null);
+    this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
+    this.logger.info('entries to scan:', entries.length);
     for (const e of entries) {
       await this.rootComponent.process(e);
     }
@@ -96,7 +97,9 @@ class App {
     if (c) {
       if (what.project) {
         result.projects = await c.describeProject();
-        // console.log(result.projects[0].summary.timeline);
+      }
+      if (what.srs) {
+        result.srs = await c.describeSrs();
       }
     }
     return result;
