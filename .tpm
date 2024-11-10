@@ -28,7 +28,7 @@ timeline:
     date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
   [-:028:v0.10.0] Tasks spill over batch mode @vlad.k
-  [-:027:v0.10.0] Implement team section as classes @vlad.k
+  [>:027:v0.10.0] Implement team section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k
   [-:024:v0.10.0] Tweak task status based on child tasks @vlad.k
