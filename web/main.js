@@ -5,6 +5,8 @@ google.charts.setOnLoadCallback(drawChart);
 let projects = [];
 let timeline = {};
 let teams = {};
+let srs = {};
+let topics = {};
 
 const colorsRAG = {
   red: '#c45850', //'#dc3545',
@@ -24,6 +26,7 @@ $(document).ready(function(){
   initTeam(); updateTeam();
   //initTimeline(); updateTimeline();
   initDashboard(); updateDashboard();
+  initSrs(); updateSrs();
   //
 });
 
@@ -73,11 +76,10 @@ function getProject(id, name, summary) {
   // const rd = dateFns.fp.intervalToDuration({start: new Date(summary.release.date), end: new Date() });
   // console.log(rd);
 
-
   r.html = '' +
   '<div class="col pb-4">' +
   ' <div class="card">' +
-  '   <div class="card-header bg-body text-body">' +
+  '   <div class="card-header">' +
   `     <span class="badge float-end rounded-pill text-bg-danger">${releaseName} in ${timeToRelease}</span>` +
   `     <div class="card-title d-inline"><span class="fw-bold">${name}</span> (${id})</div>` +
   '   </div>' +
@@ -93,7 +95,7 @@ function getProject(id, name, summary) {
   '       </div>' +
   '     </div>' +
   '   </div>' +
-  `   <div class="card-footer bg-body text-body">${lastUpdateTime}</div>` +
+  `   <div class="card-footer">${lastUpdateTime}</div>` +
   ' </div>' +
   '</div>';
   return r;
@@ -131,23 +133,23 @@ function getProjectDetails(description, summary) {
   `     <span class="fst-italic">team size</span><span class="badge text-bg-secondary rounded-pill">${Object.keys(summary.team).length}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
-  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.green}">` +
-  `     <span class="fst-italic">in development</span><span class="badge text-bg-info rounded-pill">${summary.tasks.indev}</span>` +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.indev}</span>` +
   '   </li>' +
-  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.amber}">` +
-  `     <span class="fst-italic">todo</span><span class="badge text-bg-info rounded-pill">${summary.tasks.todo}</span>` +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
+  `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.amber}">${summary.tasks.todo}</span>` +
   '   </li>' +
-  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.red}">` +
-  `     <span class="fst-italic">tbd</span><span class="badge text-bg-info rounded-pill">${summary.tasks.tbd}</span>` +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
+  `     <span class="fst-italic">tbd</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.tbd}</span>` +
   '   </li>' +
-  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4" style="background-color: ${colorsRAG.red}">` +
-  `     <span class="fst-italic">blocked</span><span class="badge text-bg-info rounded-pill">${summary.tasks.blocked}</span>` +
+  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
+  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">done</span><span class="badge text-bg-info rounded-pill">${summary.tasks.done}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">dropped</span><span class="badge text-bg-info rounded-pill">${summary.tasks.dropped}</span>` +
+  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.dropped}</span>` +
   '   </li>' +
   ' </ul>' +
   '</div>';
@@ -332,8 +334,13 @@ function drawChart() {
 function updateTimeline() {
   drawChart();
 }
+
 //-----------------------------------------------------------------------------
 // Team
+$("#team-tab").click(function(){
+  updateTeam();
+});
+
 function getMember(id, name, fte, email) {
   return '<tr>' +
   ` <th scope="row">${id}</th>` +
@@ -369,4 +376,65 @@ function initTeam() {
 }
 
 function updateTeam() {
+}
+
+//-----------------------------------------------------------------------------
+// SRS
+$("#srs-tab").click(function(){
+  updateSrs();
+});
+
+var md = null;
+
+function getSrs(item, id ='srs') {
+  const cid = `${id}-${item.id}`;
+  let r = '';
+  if (Object.keys(item.srs).length) {
+    r = '' +
+    '<li class="my-2">' +
+    ' <ul class="list-unstyled ps-0 collapse show" style="">' +
+    Object.keys(item.srs).map(function(v) {
+      const tid = `${cid}-${v}`;
+      topics[tid] = item.srs[v];
+      return `<li><a class="d-inline-flex align-items-center rounded text-decoration-none srs-topic" id="${tid}" href="#">${v}</a></li>`;
+    }).join('') +
+    ' </ul>' +
+    '</li>'
+    ;
+  }
+  if (item.components.length) {
+    r += '' +
+    '<li class="my-2">' +
+    `<button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#${cid}" aria-controls="${cid}">${item.id}</button>` +
+    ` <ul class="list-unstyled ps-3 collapse show" id="${cid}" style="">` +
+    item.components.map(function(v) {
+      return getSrs(v, cid);
+    }) +
+    ' </ul>' +
+    '</li>'
+    ;
+  }
+  return r;
+}
+
+function initSrs() {
+  md = window.markdownit();
+  $.getJSON("srs", function(res, status){
+    if (res.success) {
+      srs = res.data.srs;
+      var toc = $('#srs-toc');
+      toc.empty();
+      toc.append(getSrs(srs));
+      //
+      var mdPane = $('#srs-content');
+      $(".srs-topic").on("click", function() {
+        const id = $(this).attr("id");
+        mdPane.empty();
+        mdPane.append(md.render(topics[id]));
+      });      
+    }
+  });  
+}
+
+function updateSrs() {
 }

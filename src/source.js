@@ -15,6 +15,10 @@ class Source {
     this.file = file;
   }
  
+  async getFolder() {
+    return path.dirname(this.file);
+  }
+
   async flush(data) {
     try {
       fs.writeFileSync(this.file, `${(require('yaml')).stringify(data)}`);

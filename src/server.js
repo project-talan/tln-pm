@@ -35,24 +35,29 @@ class Server {
     }
     //
     const ea = express();
-    ea.get('/', (req, res) => {
-      res.send(getLocalContent('index.html'));
-    })
-    ea.get('/styles.css', (req, res) => {
-      res.send(getLocalContent('styles.css'));
-    })
-    ea.get('/main.js', (req, res) => {
-      res.send(getLocalContent('main.js'));
-    })
+    ea.use(express.static(path.join(__dirname, '..', 'web')));
+
+    // ea.get('/', (req, res) => {
+    //   res.send(getLocalContent('index.html'));
+    // })
+    // ea.get('/styles.css', (req, res) => {
+    //   res.send(getLocalContent('styles.css'));
+    // })
+    // ea.get('/main.js', (req, res) => {
+    //   res.send(getLocalContent('main.js'));
+    // })
     // API
     ea.get('/info', (req, res) => {
       res.send(this.makeResponce({version}));
     })
+    ea.get('/projects', async(req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { project: true } })));
+    })
     ea.get('/teams', (req, res) => {
       res.send(this.makeResponce(root.getTeam({}, true, true)));
     })
-    ea.get('/projects', async(req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { project: true } })));
+    ea.get('/srs', async(req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { srs: true } })));
     })
 
     ea.get('/raw', (req, res) => {
