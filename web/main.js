@@ -389,36 +389,45 @@ var md = null;
 function getSrs(item, id ='srs') {
   const cid = `${id}-${item.id}`;
   let r = '';
-  if (Object.keys(item.srs).length) {
-    r = '' +
-    '<li class="my-2">' +
-    ' <ul class="list-unstyled ps-0 collapse show" style="">' +
-    Object.keys(item.srs).map(function(v) {
-      const tid = `${cid}-${v}`;
-      topics[tid] = item.srs[v];
-      return `<li><a class="d-inline-flex align-items-center rounded text-decoration-none srs-topic" id="${tid}" href="#">${v}</a></li>`;
-    }).join('') +
-    ' </ul>' +
-    '</li>'
-    ;
-  }
-  if (item.components.length) {
+  const srsKeys = Object.keys(item.srs);
+  if (srsKeys.length || item.components.length) {
     r += '' +
-    '<li class="my-2">' +
-    `<button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#${cid}" aria-controls="${cid}">${item.id}</button>` +
-    ` <ul class="list-unstyled ps-3 collapse show" id="${cid}" style="">` +
-    item.components.map(function(v) {
-      return getSrs(v, cid);
-    }) +
-    ' </ul>' +
-    '</li>'
+      '<li class="my-2">' +
+      ` <button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#${cid}" aria-controls="${cid}">${item.id}</button>` +
+      ` <ul class="list-unstyled ps-3 collapse show" id="${cid}" style="">`
+      ;
+    if (srsKeys.length) {
+      r += '' +
+       '<li class="my-2">' +
+        ' <ul class="list-unstyled ps-0 collapse show" style="">' +
+        srsKeys.map(function(v) {
+          const tid = `${cid}-${v}`;
+          topics[tid] = item.srs[v];
+          return `<li><a class="d-inline-flex align-items-center rounded text-decoration-none srs-topic" id="${tid}" href="#">${v}</a></li>`;
+        }).join('') +
+        ' </ul>' +
+        '</li>'
+      ;
+    }
+    if (item.components.length) {
+      r += '' +
+        item.components.map(function(v) {
+          return getSrs(v, cid);
+        }).join('')
+      ;
+    }
+    r += '' +
+      ' </ul>' +
+      '</li>'
     ;
   }
   return r;
 }
 
 function initSrs() {
-  md = window.markdownit();
+  md = window.markdownit({
+    breaks: true,
+  });
   $.getJSON("srs", function(res, status){
     if (res.success) {
       srs = res.data.srs;
