@@ -55,22 +55,28 @@ class Task {
     this.links = links;
   }
 
-  async filter(options, alsoMe = false) {
+  async filter(options, alsoMe = false, alsoTags = false) {
+    //console.log('filter in', this.id);
     const {who, filter} = options;
     // check myself
     // console.log(who, this.assignees);
     const me = who.assignees.some( r => this.assignees.includes(r)) || alsoMe;
     const st = [
       { statuses: ['-', '?', '!'], flag: filter.status.backlog },
-      { statuses: ['>'], flag: filter.status.indev },
+      { statuses: ['>'], flag: filter.status.dev },
       { statuses: ['+', 'x'], flag: filter.status.done },
     ].find(v => v.flag && v.statuses.includes(this.status) );
-    const tg = filter.tag.length ? filter.tag.find( t => this.tags.includes(t) ) : true;
+    //
+    const tags = [this.deadline].concat(this.tags);
+    const tg = (filter.tag.length ? filter.tag.find( t => tags.includes(t) ) : true) || alsoTags;
+    //
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
-    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me)))).filter(v => !!v);
+    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me, tg)))).filter(v => !!v);
+    //console.log(this.id, st, who.all, me, tg, sr, tasks.length);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
+      //console.log('filter out', this.id);
       return {
         status: this.status,
         id: this.id,
@@ -92,7 +98,7 @@ class Task {
     } else {
       switch (this.status) {
         case '-': tasksSummary.todo++; break;
-        case '>': tasksSummary.indev++; break;
+        case '>': tasksSummary.dev++; break;
         case '?': tasksSummary.tbd++; break;
         case '!': tasksSummary.blocked++; break;
         case '+': tasksSummary.done++; break;

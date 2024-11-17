@@ -4,7 +4,7 @@ google.charts.setOnLoadCallback(drawChart);
 
 let projects = [];
 let timeline = {};
-let teams = {};
+let team = {};
 let srs = {};
 let topics = {};
 
@@ -67,9 +67,9 @@ function getProject(id, name, summary) {
   let releaseName = 'n/a';
   let timeToRelease = 'n/a';
   if (summary.timeline.length) {
-    releaseName = summary.timeline[0].name;
+    releaseName = summary.timeline[0].id;
 //    releaseDate = summary.timeline[0].date;
-    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].date)}));
+    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].deadline)}));
   }
 
 
@@ -108,8 +108,8 @@ function getProjectDetails(description, summary) {
   let releaseDate = 'n/a';
   let releaseFeatures = 'n/a';
   if (summary.timeline.length) {
-    releaseName = summary.timeline[0].name;
-    releaseDate = summary.timeline[0].date;
+    releaseName = summary.timeline[0].id;
+    releaseDate = summary.timeline[0].deadline;
     releaseFeatures = summary.timeline[0].features;
   }
   r.html = '' +
@@ -134,7 +134,7 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.indev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
   `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.amber}">${summary.tasks.todo}</span>` +
@@ -204,7 +204,7 @@ function initDashboard() {
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
                   backgroundColor: [colorsRAG.green, colorsRAG.amber, colorsRAG.red],
-                  data: [p.summary.tasks.indev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
+                  data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
             },
@@ -331,6 +331,9 @@ function drawChart() {
   ganttChart.draw(data, options);
 }
 
+function initTimeline() {
+}
+
 function updateTimeline() {
   drawChart();
 }
@@ -341,10 +344,10 @@ $("#team-tab").click(function(){
   updateTeam();
 });
 
-function getMember(id, name, fte, email) {
+function getMember(id, name, email, fte) {
   return '<tr>' +
   ` <th scope="row">${id}</th>` +
-  ` <td>${name}</td>` +
+  ` <td class="">${name} (${email})</td>` +
   ` <td>${fte}</td>` +
   ' <td class="align-middle">' +
   '  <div class="progress-stacked">' +
@@ -363,13 +366,13 @@ function getMember(id, name, fte, email) {
 }
 
 function initTeam() {
-  $.getJSON("teams", function(res, status){
+  $.getJSON("team", function(res, status){
     if (res.success) {
-      teams = res.data;
+      team = res.data;
       var list = $('#dashboard_team_list');
       list.empty();
-      Object.keys(teams).forEach(function(v){
-        list.append(getMember(v, teams[v].name, teams[v].fte, teams[v].email));
+      team.forEach(function(m){
+        list.append(getMember(m.id, m.name, m.email, m.fte));
       });
     }
   });  
@@ -389,42 +392,53 @@ var md = null;
 function getSrs(item, id ='srs') {
   const cid = `${id}-${item.id}`;
   let r = '';
-  if (Object.keys(item.srs).length) {
-    r = '' +
-    '<li class="my-2">' +
-    ' <ul class="list-unstyled ps-0 collapse show" style="">' +
-    Object.keys(item.srs).map(function(v) {
-      const tid = `${cid}-${v}`;
-      topics[tid] = item.srs[v];
-      return `<li><a class="d-inline-flex align-items-center rounded text-decoration-none srs-topic" id="${tid}" href="#">${v}</a></li>`;
-    }).join('') +
-    ' </ul>' +
-    '</li>'
-    ;
-  }
-  if (item.components.length) {
+  const srsKeys = Object.keys(item.srs);
+  if (srsKeys.length || item.components.length) {
     r += '' +
-    '<li class="my-2">' +
-    `<button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#${cid}" aria-controls="${cid}">${item.id}</button>` +
-    ` <ul class="list-unstyled ps-3 collapse show" id="${cid}" style="">` +
-    item.components.map(function(v) {
-      return getSrs(v, cid);
-    }) +
-    ' </ul>' +
-    '</li>'
+      '<li class="my-2">' +
+      ` <button type="button" class="btn d-inline-flex align-items-center border-0" data-bs-toggle="collapse" aria-expanded="true" data-bs-target="#${cid}" aria-controls="${cid}">${item.id}</button>` +
+      ` <ul class="list-unstyled ps-3 collapse show" id="${cid}" style="">`
+      ;
+    if (srsKeys.length) {
+      r += '' +
+       '<li class="my-2">' +
+        ' <ul class="list-unstyled ps-0 collapse show" style="">' +
+        srsKeys.map(function(v) {
+          const tid = `${cid}-${v}`;
+          topics[tid] = item.srs[v];
+          return `<li><a class="d-inline-flex align-items-center rounded text-decoration-none srs-topic" id="${tid}" href="#">${v}</a></li>`;
+        }).join('') +
+        ' </ul>' +
+        '</li>'
+      ;
+    }
+    if (item.components.length) {
+      r += '' +
+        item.components.map(function(v) {
+          return getSrs(v, cid);
+        }).join('')
+      ;
+    }
+    r += '' +
+      ' </ul>' +
+      '</li>'
     ;
   }
   return r;
 }
 
 function initSrs() {
-  md = window.markdownit();
+  md = window.markdownit({
+    breaks: true,
+  });
   $.getJSON("srs", function(res, status){
     if (res.success) {
       srs = res.data.srs;
       var toc = $('#srs-toc');
-      toc.empty();
-      toc.append(getSrs(srs));
+      if (srs) {
+        toc.empty();
+        toc.append(getSrs(srs));
+      }
       //
       var mdPane = $('#srs-content');
       $(".srs-topic").on("click", function() {

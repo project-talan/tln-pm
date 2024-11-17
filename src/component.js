@@ -9,7 +9,7 @@ const assign = require('assign-deep');
 const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
-const timelineFactory = require('./timeline');
+const deadlineFactory = require('./deadline');
 const taskFactory = require('./task');
 const srsFactory = require('./srs');
 
@@ -28,7 +28,7 @@ class Component {
     this.lastCommit = null;
     this.sources = [];
     this.project = [];
-    this.team = null;
+    this.team = [];
     this.timeline = [];
     this.tasks = [];
     this.srs = [];
@@ -113,14 +113,18 @@ class Component {
       result |= true;
     }
     if (data.team) {
-      this.team = assign({}, data.team);
+      for (const m of Object.keys(data.team)) {
+        const member = memberFactory.create(this.logger, source);
+        await member.load(m, data.team[m]);
+        this.team.push(member);
+      }
       result |= true;
     }
     if (data.timeline) {
-      if (data.timeline.length) {
-        const timeline = timelineFactory.create(this.logger, source);
-        await timeline.load(data.timeline);
-        this.timeline.push(timeline);
+      for (const d of Object.keys(data.timeline)) {
+        const deadline = deadlineFactory.create(this.logger, source);
+        await deadline.load(d, data.timeline[d]);
+        this.timeline.push(deadline);
         result |= true;
       }
     }
@@ -160,13 +164,11 @@ class Component {
   async getAssignees(assignees) {
     const aees = [...assignees];
     // add aliaces for assignees
-    if (this.team) {
-      Object.keys(this.team).forEach( m => {
-        if (assignees.indexOf(this.team[m].email) >= 0) {
-          aees.push(m);
-        }
-      });
-    }
+    this.team.forEach( m => {
+      if (assignees.indexOf(m.email) >= 0) {
+        aees.push(m.id);
+      }
+    });
     if (this.parent) {
       return await this.parent.getAssignees(aees);
     }
@@ -180,6 +182,7 @@ class Component {
     const ts = { tasks: [] };
     for (const task of this.tasks) {
       const t = await task.filter({who: who2, filter});
+      //console.log(t);
       if (t && t.tasks.length) {
         ts.tasks.push(...t.tasks);
       }
@@ -228,13 +231,15 @@ class Component {
         project = assign(project, p);
       });
       let summary = {
-        tasks: { todo: 0, indev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
+        tasks: { todo: 0, dev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
         timeline: []
       };
       project.summary = await this.getSummary(summary);
-      project.summary.team = this.getTeam({}, false, true);
+      const team = [];
+      this.getTeam(team, false, true)
+      project.summary.team = team;
       project.summary.lastCommit = this.lastCommit;
-      project.summary.totalFte = Object.keys(project.summary.team).reduce((acc, m) => acc + project.summary.team[m].fte, 0);
+      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.fte, 0);
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
@@ -256,13 +261,13 @@ class Component {
   }
 
   async getSummary(summary) {
-    for (const timeline of this.timeline) {
-      summary.timeline = summary.timeline.concat(await timeline.getSummary({features: 0}));
+    for (const dl of this.timeline) {
+      summary.timeline.push(await dl.getSummary({features: 0}));
     }
-    for (const deadline of summary.timeline) {
-      const tsks = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline.name)));
+    for (const dl of summary.timeline) {
+      const tsks = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(dl.id)));
       const cnt = tsks.reduce((acc, c) => acc + c, 0);
-      deadline.features += cnt;
+      dl.features += cnt;
     }
     //
     for (const task of this.tasks) {
@@ -274,17 +279,21 @@ class Component {
     return summary;
   }
 
-  getTeam( team, up, down) {
-    let t = assign({}, team, this.team);
+  getTeam(team, up, down) {
+    for (const m of this.team) {
+      const desc = m.getDscription();
+      if (!team.find( t => t.id === desc.id)) {
+        team.push(desc);
+      }
+    }
     if (up && this.parent) {
-      t = this.parent.getTeam(t, up, false);
+      this.parent.getTeam(team, up, false);
     }
     if (down) {
       for (const c of this.components) {
-        t = c.getTeam(t, false, down);
+        c.getTeam(team, false, down);
       }
     }
-    return t;
   }
 }
 
