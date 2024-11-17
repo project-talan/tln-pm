@@ -28,7 +28,7 @@ class Component {
     this.lastCommit = null;
     this.sources = [];
     this.project = [];
-    this.team = null;
+    this.team = [];
     this.timeline = [];
     this.tasks = [];
     this.srs = [];
@@ -113,7 +113,11 @@ class Component {
       result |= true;
     }
     if (data.team) {
-      this.team = assign({}, data.team);
+      for (const m of Object.keys(data.team)) {
+        const member = memberFactory.create(this.logger, source);
+        await member.load(m, data.team[m]);
+        this.team.push(member);
+      }
       result |= true;
     }
     if (data.timeline) {
@@ -160,13 +164,11 @@ class Component {
   async getAssignees(assignees) {
     const aees = [...assignees];
     // add aliaces for assignees
-    if (this.team) {
-      Object.keys(this.team).forEach( m => {
-        if (assignees.indexOf(this.team[m].email) >= 0) {
-          aees.push(m);
-        }
-      });
-    }
+    this.team.forEach( m => {
+      if (assignees.indexOf(m.email) >= 0) {
+        aees.push(m.id);
+      }
+    });
     if (this.parent) {
       return await this.parent.getAssignees(aees);
     }
@@ -232,9 +234,11 @@ class Component {
         timeline: []
       };
       project.summary = await this.getSummary(summary);
-      project.summary.team = this.getTeam({}, false, true);
+      const team = [];
+      this.getTeam(team, false, true)
+      project.summary.team = team;
       project.summary.lastCommit = this.lastCommit;
-      project.summary.totalFte = Object.keys(project.summary.team).reduce((acc, m) => acc + project.summary.team[m].fte, 0);
+      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.fte, 0);
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
@@ -274,17 +278,21 @@ class Component {
     return summary;
   }
 
-  getTeam( team, up, down) {
-    let t = assign({}, team, this.team);
+  getTeam(team, up, down) {
+    for (const m of this.team) {
+      const desc = m.getDscription();
+      if (!team.find( t => t.id === desc.id)) {
+        team.push(desc);
+      }
+    }
     if (up && this.parent) {
-      t = this.parent.getTeam(t, up, false);
+      this.parent.getTeam(team, up, false);
     }
     if (down) {
       for (const c of this.components) {
-        t = c.getTeam(t, false, down);
+        c.getTeam(team, false, down);
       }
     }
-    return t;
   }
 }
 

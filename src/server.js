@@ -53,8 +53,10 @@ class Server {
     ea.get('/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
-    ea.get('/teams', (req, res) => {
-      res.send(this.makeResponce(root.getTeam({}, true, true)));
+    ea.get('/team', (req, res) => {
+      const team = [];
+      root.getTeam(team, true, true)
+      res.send(this.makeResponce(team));
     })
     ea.get('/srs', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { srs: true } })));

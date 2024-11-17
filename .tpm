@@ -9,7 +9,7 @@ team:
     fte: 1
 timeline:
   - name: v0.10.0
-    date: 2024-11-15 17:00:00 GMT+0200
+    date: 2024-11-17 17:00:00 GMT+0200
   - name: v0.9.0
     date: 2024-11-10 23:00:00 GMT+0200
   - name: v0.8.0
@@ -27,28 +27,29 @@ timeline:
   - name: v0.2.0
     date: 2024-09-04 17:30:00 GMT+0200
 tasks: |
-  [-:028:v0.10.0] Tasks spill over batch mode @vlad.k
-  [>:027:v0.10.0] Implement team section as classes @vlad.k
+  [-:029:v0.11.0] Implement config command via source class @vlad.k
+  [-:028:v0.11.0] Tasks spill over batch mode @vlad.k
+  [+:027:v0.10.0] Implement team/member section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k
-  [-:024:v0.10.0] Tweak task status based on child tasks @vlad.k
+  [-:024:v0.11.0] Tweak task status based on child tasks @vlad.k
   [+:023:v0.9.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
   [+:020:v0.5.0] Add option to display tasks with different statuses: --backlog, --indev, --done @vlad.k
   [+:019:v0.5.0] Add component as optional parameter for ls command @vlad.k
-  [-:018:v0.10.0] Generate snapshot @vlad.k
+  [-:018:v0.11.0] Generate snapshot @vlad.k
   [+:017:v0.5.0] Add SRS section @vlad.k
-  [-:016:v0.10.0] Add describe command with resolved links @vlad.k
+  [-:016:v0.11.0] Add describe command with resolved links @vlad.k
   [x:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
-  [-:014:v0.10.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
+  [-:014:v0.11.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:v0.6.0] Add search @vlad.k
   [+:012:v0.6.0] Add CI/CD @vlad.k
   [+:011:v0.6.0] Add unit test framework @vlad.k
   [+:010:v0.6.0] Extract tags, timeline from task description @vlad.k
   [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [+:008:v0.6.0] Merge multiple descriptions from one file @vlad.k
-  [-:007:v0.10.0] Server command: express server + fs watch @vlad.k
+  [-:007:v0.11.0] Server command: express server + fs watch @vlad.k
     [+] Create API using express
     [+] Implement web part: Dashboard
     [-] Implement web part: Timeline

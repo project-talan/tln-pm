@@ -4,7 +4,7 @@ google.charts.setOnLoadCallback(drawChart);
 
 let projects = [];
 let timeline = {};
-let teams = {};
+let team = {};
 let srs = {};
 let topics = {};
 
@@ -331,6 +331,9 @@ function drawChart() {
   ganttChart.draw(data, options);
 }
 
+function initTimeline() {
+}
+
 function updateTimeline() {
   drawChart();
 }
@@ -341,10 +344,10 @@ $("#team-tab").click(function(){
   updateTeam();
 });
 
-function getMember(id, name, fte, email) {
+function getMember(id, name, email, fte) {
   return '<tr>' +
   ` <th scope="row">${id}</th>` +
-  ` <td>${name}</td>` +
+  ` <td class="">${name} (${email})</td>` +
   ` <td>${fte}</td>` +
   ' <td class="align-middle">' +
   '  <div class="progress-stacked">' +
@@ -363,13 +366,13 @@ function getMember(id, name, fte, email) {
 }
 
 function initTeam() {
-  $.getJSON("teams", function(res, status){
+  $.getJSON("team", function(res, status){
     if (res.success) {
-      teams = res.data;
+      team = res.data;
       var list = $('#dashboard_team_list');
       list.empty();
-      Object.keys(teams).forEach(function(v){
-        list.append(getMember(v, teams[v].name, teams[v].fte, teams[v].email));
+      team.forEach(function(m){
+        list.append(getMember(m.id, m.name, m.email, m.fte));
       });
     }
   });  

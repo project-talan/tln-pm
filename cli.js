@@ -40,7 +40,7 @@ yargs(hideBin(process.argv))
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
 
-  .option('file', { describe: 'File name', default: '.todo', type: 'string' })
+  .option('file', { describe: 'File name', default: '.tpm', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
