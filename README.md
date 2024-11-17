@@ -1,37 +1,41 @@
 # Project Management as Code - TPM
 The goal of the utility is to make the git repository the single source of truth for project planning and execution, minimize daily routine, and extend project management activities beyond one person.
 
-It scans your repository for specific files and marked comment sections to get hierarchy of tasks, statuses, assignments & timeline.
+It scans your repository for specific file(.tpm) get hierarchy of tasks, statuses, assignments, timeline, srs & project description.
 
 Based on history of commits, TPM can provide up to date project's statistic like average tasks development time, blocked status resolution timeout etc.
 
-One of the main USP is to provide estimates based on development speed captures in repository commits.
+One of the main USP is to provide estimates based on development speed captures from repository commits.
 
 ## Quick start
 
 ## DSL
   
-Typically `.todo` files are used to define PM artifacts, but description of tasks can be placed into any file in the repository.
+`.tpm` files are used to define PM artifacts.
 
 Here is example for `.todo` file at repository root
   ```
   team:
-    "vlad.k":
-      email: "vk@moonnoon.net"
-    "artem.y":
-      email: "ay@moonnoon.net"
+    vlad.k:
+      email: vlad.k@mycompany.com
+      name: Vlad K
+      fte: 1
+    artem.y:
+      email: artem.y@mycompany.com
+      name: Artem Y
+      fte: 1
 
   timeline:
-    "v24.9.0":
-      date: "2024-09-30"
-    "v24.10.0":
-      date: "2024-10-31"
+    v0.11.0:
+      deadline: 2024-11-21 21:00:00 GMT+0200
+    v0.10.0:
+      deadline: 2024-11-17 21:00:00 GMT+0200
 
   tasks: |
-    [!:004:v24.9.0] Deploy UAT environment @vlad.k
-    [>:003:v24.9.0] Configure SES @vlad.k
-    [>:002:v24.9.0] Test payment processor: embedded & external checkout form @artem.y
-    [+:001:v24.9.0] Restore CI/CD @vlad.k
+    [!:004:v241.0] Deploy UAT environment @vlad.k
+    [>:003:v24.11.0] Configure SES @vlad.k
+    [>:002:v24.11.0] Test payment processor: embedded & external checkout form @artem.y
+    [+:001:v24.10.0] Restore CI/CD @vlad.k
       [+] Attach tln-cicd-git subtree
       [+] Configure envariment variables, tweak root .tln.conf
   ```
