@@ -67,9 +67,9 @@ function getProject(id, name, summary) {
   let releaseName = 'n/a';
   let timeToRelease = 'n/a';
   if (summary.timeline.length) {
-    releaseName = summary.timeline[0].name;
+    releaseName = summary.timeline[0].id;
 //    releaseDate = summary.timeline[0].date;
-    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].date)}));
+    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].deadline)}));
   }
 
 
@@ -108,8 +108,8 @@ function getProjectDetails(description, summary) {
   let releaseDate = 'n/a';
   let releaseFeatures = 'n/a';
   if (summary.timeline.length) {
-    releaseName = summary.timeline[0].name;
-    releaseDate = summary.timeline[0].date;
+    releaseName = summary.timeline[0].id;
+    releaseDate = summary.timeline[0].deadline;
     releaseFeatures = summary.timeline[0].features;
   }
   r.html = '' +
@@ -435,8 +435,10 @@ function initSrs() {
     if (res.success) {
       srs = res.data.srs;
       var toc = $('#srs-toc');
-      toc.empty();
-      toc.append(getSrs(srs));
+      if (srs) {
+        toc.empty();
+        toc.append(getSrs(srs));
+      }
       //
       var mdPane = $('#srs-content');
       $(".srs-topic").on("click", function() {

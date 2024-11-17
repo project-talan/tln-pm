@@ -9,7 +9,7 @@ const assign = require('assign-deep');
 const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
-const timelineFactory = require('./timeline');
+const deadlineFactory = require('./deadline');
 const taskFactory = require('./task');
 const srsFactory = require('./srs');
 
@@ -121,10 +121,10 @@ class Component {
       result |= true;
     }
     if (data.timeline) {
-      if (data.timeline.length) {
-        const timeline = timelineFactory.create(this.logger, source);
-        await timeline.load(data.timeline);
-        this.timeline.push(timeline);
+      for (const d of Object.keys(data.timeline)) {
+        const deadline = deadlineFactory.create(this.logger, source);
+        await deadline.load(d, data.timeline[d]);
+        this.timeline.push(deadline);
         result |= true;
       }
     }
@@ -261,13 +261,13 @@ class Component {
   }
 
   async getSummary(summary) {
-    for (const timeline of this.timeline) {
-      summary.timeline = summary.timeline.concat(await timeline.getSummary({features: 0}));
+    for (const dl of this.timeline) {
+      summary.timeline.push(await dl.getSummary({features: 0}));
     }
-    for (const deadline of summary.timeline) {
-      const tsks = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline.name)));
+    for (const dl of summary.timeline) {
+      const tsks = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(dl.id)));
       const cnt = tsks.reduce((acc, c) => acc + c, 0);
-      deadline.features += cnt;
+      dl.features += cnt;
     }
     //
     for (const task of this.tasks) {

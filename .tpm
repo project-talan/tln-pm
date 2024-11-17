@@ -8,26 +8,28 @@ team:
     name: Vladyslav Kurmaz
     fte: 1
 timeline:
-  - name: v0.10.0
-    date: 2024-11-17 17:00:00 GMT+0200
-  - name: v0.9.0
-    date: 2024-11-10 23:00:00 GMT+0200
-  - name: v0.8.0
-    date: 2024-11-03 14:00:00 GMT+0200
-  - name: v0.7.0
-    date: 2024-10-28 23:55:00 GMT+0200
-  - name: v0.6.0
-    date: 2024-10-22 17:30:00 GMT+0200
-  - name: v0.5.0
-    date: 2024-09-23 17:30:00 GMT+0200
-  - name: v0.4.0
-    date: 2024-09-15 17:30:00 GMT+0200
-  - name: v0.3.0
-    date: 2024-09-12 17:30:00 GMT+0200
-  - name: v0.2.0
-    date: 2024-09-04 17:30:00 GMT+0200
+  v0.11.0:
+    deadline: 2024-11-21 21:00:00 GMT+0200
+  v0.10.0:
+    deadline: 2024-11-17 21:00:00 GMT+0200
+  v0.9.0:
+    deadline: 2024-11-10 23:00:00 GMT+0200
+  v0.8.0:
+    deadline: 2024-11-03 14:00:00 GMT+0200
+  v0.7.0:
+    deadline: 2024-10-28 23:55:00 GMT+0200
+  v0.6.0:
+    deadline: 2024-10-22 17:30:00 GMT+0200
+  v0.5.0:
+    deadline: 2024-09-23 17:30:00 GMT+0200
+  v0.4.0:
+    deadline: 2024-09-15 17:30:00 GMT+0200
+  v0.3.0:
+    deadline: 2024-09-12 17:30:00 GMT+0200
+  v0.2.0:
+    deadline: 2024-09-04 17:30:00 GMT+0200
 tasks: |
-  [>:030:v0.10.0] Implement deadline class @vlad.k
+  [+:030:v0.10.0] Implement deadline class @vlad.k
   [-:029:v0.11.0] Implement config command via source class @vlad.k
   [-:028:v0.11.0] Tasks spill over batch mode @vlad.k
   [+:027:v0.10.0] Implement team/member section as classes @vlad.k
