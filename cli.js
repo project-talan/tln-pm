@@ -43,7 +43,7 @@ yargs(hideBin(process.argv))
   .option('file', { describe: 'File name', default: '.tpm', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
-  .option('indev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
+  .option('dev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
   .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
 
   .option('project', { describe: 'Include project section', default: false, type: 'boolean' })
@@ -69,7 +69,7 @@ yargs(hideBin(process.argv))
         component: argv.component,
         depth: argv.depth,
         who: { assignees: argv.assignee, all: argv.all },
-        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, indev: argv.indev, done: argv.done } },
+        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } },
         hierarchy: argv.hierarchy
       });
     });

@@ -182,6 +182,7 @@ class Component {
     const ts = { tasks: [] };
     for (const task of this.tasks) {
       const t = await task.filter({who: who2, filter});
+      //console.log(t);
       if (t && t.tasks.length) {
         ts.tasks.push(...t.tasks);
       }
@@ -230,7 +231,7 @@ class Component {
         project = assign(project, p);
       });
       let summary = {
-        tasks: { todo: 0, indev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
+        tasks: { todo: 0, dev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
         timeline: []
       };
       project.summary = await this.getSummary(summary);

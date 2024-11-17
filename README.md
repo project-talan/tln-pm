@@ -64,7 +64,7 @@ tpm [ls] [parameters] [optios]
 | tpm ls | | Display list of tasks for current git user |
 | tpm config --team --timeline | | Generate example .todo file at current directory |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
-| tpm ls --indev | true | Display list of tasks for current git user in development |
+| tpm ls --dev | true | Display list of tasks for current git user in development |
 | tpm ls --done | true | Display list of tasks for current git user which were aleady completed |
 | tpm ls --tasks | true | Display tasks |
 | tpm ls --team | false | Display team structure |

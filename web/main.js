@@ -134,7 +134,7 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.indev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
   `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.amber}">${summary.tasks.todo}</span>` +
@@ -204,7 +204,7 @@ function initDashboard() {
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
                   backgroundColor: [colorsRAG.green, colorsRAG.amber, colorsRAG.red],
-                  data: [p.summary.tasks.indev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
+                  data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
             },
