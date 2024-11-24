@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <script src="https://code.highcharts.com/gantt/highcharts-gantt.js"></script>
     <script>
       import('https://cdn.jsdelivr.net/npm/date-fns@3.6.0/fp/cdn.min.js').then((dateFns) => {
         console.log(dateFns);
@@ -30,13 +31,12 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
           <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard-tab-pane" type="button" role="tab" aria-controls="dashboard-tab-pane" aria-selected="true">Dashboard</button>
+              <button class="nav-link" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard-tab-pane" type="button" role="tab" aria-controls="dashboard-tab-pane" aria-selected="true">Dashboard</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-tab-pane" type="button" role="tab" aria-controls="timeline-tab-pane" aria-selected="false">Timeline</button>
+              <button class="nav-link active" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-tab-pane" type="button" role="tab" aria-controls="timeline-tab-pane" aria-selected="false">Timeline</button>
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="team-tab" data-bs-toggle="tab" data-bs-target="#team-tab-pane" type="button" role="tab" aria-controls="team-tab-pane" aria-selected="false">Team</button>
@@ -70,7 +70,7 @@
       <!-- Tabs -->
       <div class="tab-content" id="myTabContent">
         <!-- Dashboard -->
-        <div class="tab-pane fade show active" id="dashboard-tab-pane" role="tabpanel" aria-labelledby="dashboard-tab" tabindex="0">
+        <div class="tab-pane fade" id="dashboard-tab-pane" role="tabpanel" aria-labelledby="dashboard-tab" tabindex="0">
           <p class="fs-5 d-none">
             <i class="bi bi-github"></i>
           </p>
@@ -81,8 +81,8 @@
           </div>
         </div>
         <!-- Timeline -->
-        <div class="tab-pane fade" id="timeline-tab-pane" role="tabpanel" aria-labelledby="timeline-tab" tabindex="0">
-          <p>Comming soon...</p>
+        <div class="tab-pane fade show active" id="timeline-tab-pane" role="tabpanel" aria-labelledby="timeline-tab" tabindex="0">
+          <div id="gantt"></div>
           <div class="d-none" id="timeline_gantt_chart"></div>
         </div>
         <!-- Team -->

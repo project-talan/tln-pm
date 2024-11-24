@@ -1,17 +1,30 @@
 //-----------------------------------------------------------------------------
 // Global variables
-google.charts.setOnLoadCallback(drawChart);
+//google.charts.setOnLoadCallback(drawChart);
 
 let projects = [];
 let timeline = {};
 let team = {};
+let tasks = {};
 let srs = {};
 let topics = {};
 
-const colorsRAG = {
-  red: '#c45850', //'#dc3545',
-  amber: '#e8c3b9', //'#ffc107',
-  green: '#3cba9f' //'#28a745'
+const colors = {
+  rag: {
+    red: '#c45850', //'#dc3545',
+    amber: '#e8c3b9', //'#ffc107',
+    green: '#3cba9f' //'#28a745'
+  },
+  timeline: {
+    component: 'gray',
+    group: '#20C997',
+    dev: '#007BFF',
+    backlog: '#FFA500',
+    tbd: '#FFDF58',
+    blocked: '#DC3545',
+    done: '#28A745',
+    dropped: '#343A40'
+  }
 };
 //-----------------------------------------------------------------------------
 // Initialisation
@@ -23,9 +36,9 @@ $(document).ready(function(){
     }
   });
   //
+  initDashboard();
   initTeam(); updateTeam();
-  //initTimeline(); updateTimeline();
-  initDashboard(); updateDashboard();
+  initTimeline();
   initSrs(); updateSrs();
   //
 });
@@ -52,6 +65,20 @@ function getStringFromInterval(interval) {
   return diff;
 }
 
+function getDeadlineDate(deadline) {
+  //console.log(projects);
+  let result = new Date();
+  projects.forEach(
+    function(p) {
+      p.summary.timeline.forEach(function(t) {
+        if (t.id === deadline){
+          result = new Date(t.deadline);
+        }
+      })
+    }
+  );
+  return result;
+}
 //-----------------------------------------------------------------------------
 // Dashboard
 $("#dashboard-tab").click(function(){
@@ -134,22 +161,22 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.dev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colors.rag.green}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.amber}">${summary.tasks.todo}</span>` +
+  `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.rag.amber}">${summary.tasks.todo}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">tbd</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.tbd}</span>` +
+  `     <span class="fst-italic">tbd</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.tbd}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.blocked}</span>` +
+  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">done</span><span class="badge text-bg-info rounded-pill">${summary.tasks.done}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.dropped}</span>` +
+  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.dropped}</span>` +
   '   </li>' +
   ' </ul>' +
   '</div>';
@@ -203,7 +230,7 @@ function initDashboard() {
               datasets: [
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colorsRAG.green, colorsRAG.amber, colorsRAG.red],
+                  backgroundColor: [colors.rag.green, colors.rag.amber, colors.rag.red],
                   data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
@@ -270,7 +297,8 @@ function initDashboard() {
         });
       } 
     }
-  });  
+  });
+  updateDashboard();
 }
 
 function updateDashboard() {
@@ -283,59 +311,139 @@ function updateDashboard() {
 
 //-----------------------------------------------------------------------------
 // Timeline
+let ganttChart = null;
+
 $("#timeline-tab").click(function(){
   updateTimeline();
 });
-var ganttChart = null;
-
-function daysToMilliseconds(days) {
-  return days * 24 * 60 * 60 * 1000;
-}
-function drawChart() {
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'Task ID');
-  data.addColumn('string', 'Task Name');
-  data.addColumn('date', 'Start Date');
-  data.addColumn('date', 'End Date');
-  data.addColumn('number', 'Duration');
-  data.addColumn('number', 'Percent Complete');
-  data.addColumn('string', 'Dependencies');
-
-  data.addRows([
-    ['Research', 'Find sources',
-     new Date(2015, 0, 1), new Date(2015, 0, 5), null,  100,  null],
-    ['Write', 'Write paper',
-     null, new Date(2015, 0, 9), daysToMilliseconds(3), 25, 'Research,Outline'],
-    ['Cite', 'Create bibliography',
-     null, new Date(2015, 0, 7), daysToMilliseconds(1), 20, 'Research'],
-    ['Complete', 'Hand in paper',
-     null, new Date(2015, 0, 10), daysToMilliseconds(1), 0, 'Cite,Write'],
-    ['Outline', 'Outline paper',
-     null, new Date(2015, 0, 6), daysToMilliseconds(1), 100, 'Research']
-  ]);
-
-  var options = {
-    height: 512,
-    gantt: {
-      labelStyle: {
-        fontName: 'Roboto',
-        fontSize: 16,
-        color: '#000'
-      }
-    }
-  };
-
-  if (!ganttChart) {
-    ganttChart = new google.visualization.Gantt(document.getElementById('timeline_gantt_chart'));
-  }
-  ganttChart.draw(data, options);
-}
-
 function initTimeline() {
+  $.getJSON("tasks", function(res, status){
+    if (res.success) {
+      tasks = res.data;
+      //
+      ganttChart = Highcharts.ganttChart('gantt', {
+        time: {
+          useUTC: false
+        },
+        chart: {
+          backgroundColor: "#F8F9FA",
+        },
+        // title: {
+        //     text: 'Talan PM',
+        //     margin: 2
+        // },
+        xAxis: [{
+          grid: {
+            enabled: true,
+            borderWidth: 0,
+            labels: {
+              indentation: 0,
+              distance: 0,
+              enabled: false
+            }
+          }
+        }],
+        yAxis: [{
+          grid: {
+            enabled: true,
+            borderWidth: 0,
+            labels: {
+              indentation: 0,
+              distance: 0,
+              enabled: false
+            },
+          },
+          staticScale: 30
+        }],
+        series: [{}]
+      });
+      //
+      updateTimeline();
+    }
+  });  
+
 }
 
 function updateTimeline() {
-  drawChart();
+  let data = [];
+  console.log(Date.UTC(2024, 10, 26));
+  console.log((new Date("2024-11-26 16:00:00 UTC+0200")).getTime());
+  //
+  const updateInterval = function(cInterval, newInterval) {
+    const result = {start: null, end: null};
+    // if (cInterval.start === null) {
+    //   result.start = new Date(newInterval.start);
+    // } else {
+    //   result.start = new Date( cInterval.start > newInterval.start ? newInterval.start : cInterval.start);
+    // }
+    // if (cInterval.end === null) {
+    //   cInterval.end = new Date(newInterval.end);
+    // } else {
+    //   result.end = new Date( cInterval.end < newInterval.end ? newInterval.end : cInterval.end);
+    // }
+    return result;
+  }
+  //
+  const processComponent = function(component, parentId) {
+    const id = component.relativePath ? component.relativePath : component.id;
+    let cInterval = {start: null, end: null};
+    const cIndex = data.push({
+      id: id,
+      name: component.id.toUpperCase(),
+      start: (new Date("2024-11-26 9:00:00 UTC+0200")).getTime(),
+      end: (new Date("2024-11-28 16:00:00 UTC+0200")).getTime(),
+      color: colors.timeline.component,
+      parent: parentId
+    });
+    //
+    const processTasks = function(tasks, parentId, interval) {
+      let index = 0;
+      const tData = []
+      for (let i = tasks.length; i--; ){
+        index++;
+        const t = tasks[i];
+      // for (const t of tasks){
+        if (t.deadline) {
+          console.log(t.id, t.deadline, getDeadlineDate(t.deadline));
+        }
+        const tId = parentId + '/' + (t.id ? t.id : index);
+        //
+        let tColor = colors.timeline.group;
+        if (t.tasks.length === 0) {
+          tColor = ({
+            '-': colors.timeline.backlog,
+            '>': colors.timeline.dev,
+            '?': colors.timeline.tbd,
+            '!': colors.timeline.blocked,
+            '+': colors.timeline.done,
+            'x': colors.timeline.dropped
+          })[t.status];
+        }
+        tData.push({
+          id: tId,
+          name: t.status + ' ' + t.title,
+          start: (new Date("2024-11-26 16:00:00 UTC+0200")).getTime(),
+          end: (new Date("2024-11-27 16:00:00 UTC+0200")).getTime(),
+          color: tColor,
+          parent: parentId
+        });
+        processTasks(t.tasks, tId);
+      }
+      data.push( ...tData.reverse() );
+    }
+    cInterval = updateInterval(cInterval, processTasks(component.tasks, id));
+    //
+    for (const c of component.components) {
+      cInterval = updateInterval(cInterval, processComponent(c, id));
+    }
+    //
+    return cInterval;
+  }
+  processComponent(tasks);
+  ganttChart.series[0].update({
+    name: 'Project 1',
+    data
+  }, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -371,7 +479,7 @@ function initTeam() {
       team = res.data;
       var list = $('#dashboard_team_list');
       list.empty();
-      team.forEach(function(m){
+      team.filter(function(m){ return m.fte > 0;}).forEach(function(m){
         list.append(getMember(m.id, m.name, m.email, m.fte));
       });
     }
