@@ -55,3 +55,7 @@
 }
 
 
+#gantt1 {
+  max-width: 1000px;
+  margin: 1em auto;
+}

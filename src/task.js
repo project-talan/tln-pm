@@ -16,7 +16,7 @@ class Task {
     this.source = source;
     this.parent = parent;
     this.indent = indent;
-    this.status = '-';
+    this.status = '';
     this.id = null;
     this.title = '';
     this.deadline = '';
@@ -55,7 +55,7 @@ class Task {
     this.links = links;
   }
 
-  async filter(options, alsoMe = false, alsoTags = false) {
+  async filter(options, alsoMe = false, alsoTags = false, statusToo = false) {
     //console.log('filter in', this.id);
     const {who, filter} = options;
     // check myself
@@ -65,7 +65,7 @@ class Task {
       { statuses: ['-', '?', '!'], flag: filter.status.backlog },
       { statuses: ['>'], flag: filter.status.dev },
       { statuses: ['+', 'x'], flag: filter.status.done },
-    ].find(v => v.flag && v.statuses.includes(this.status) );
+    ].find(v => v.flag && v.statuses.includes(this.status) ) || statusToo;
     //
     const tags = [this.deadline].concat(this.tags);
     const tg = (filter.tag.length ? filter.tag.find( t => tags.includes(t) ) : true) || alsoTags;
@@ -73,7 +73,11 @@ class Task {
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
-    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me, tg)))).filter(v => !!v);
+    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me, tg, st)))).filter(v => !!v);
+    let percentage = (this.status === '+' || this.status === 'x') ? 100 : 0;
+    if (this.tasks.length) {
+      percentage = Math.round(tasks.reduce((acc, t) => acc + t.percentage, 0) / tasks.length);
+    }
     //console.log(this.id, st, who.all, me, tg, sr, tasks.length);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
       //console.log('filter out', this.id);
@@ -81,6 +85,7 @@ class Task {
         status: this.status,
         id: this.id,
         title: this.title,
+        percentage,
         deadline: this.deadline,
         assignees: this.assignees,
         tags: this.tags,

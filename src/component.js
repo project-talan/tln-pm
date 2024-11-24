@@ -176,10 +176,16 @@ class Component {
   }
 
   async ls(options) {
-    const {depth, who, filter, hierarchy, indent, last} = options;
+    const {depth, who, filter} = options;
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
+    //
+    const ts = { 
+      id: this.id,
+      relativePath: this.getRelativePath(),
+      tasks: [],
+      components: []
+    };
     // tasks
-    const ts = { tasks: [] };
     for (const task of this.tasks) {
       const t = await task.filter({who: who2, filter});
       //console.log(t);
@@ -188,38 +194,19 @@ class Component {
       }
     };
     //
-    if (ts && ts.tasks.length) {
-      let ti = '  ';
-      if (hierarchy) {
-        ti = `${indent}${ti}`;
-        const title = (this.id) ? `${indent}${last?'└':'├'} ${this.id}` : '';
-        const summary = '45%';
-        this.logger.con(`${title} ${summary}`);
-      } else {
-        this.logger.con();
-        this.logger.con(`~ ${this.getRelativePath()}`);
-      }
-      const out = (task, indent) => {
-        if (task.title) {
-          const a = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
-          const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
-          const dl = task.deadline ? ` (${task.deadline})` : '';
-          const id = task.id ? ` ${task.id}:` : '';
-          this.logger.con(`${indent}${task.status}${id} ${task.title}${a}${tg}${dl}`);
-        }
-        for (const t of task.tasks) {
-          out(t, `${indent}  `);
-        }
-      }
-      out(ts, '');
-    }
-    // about components
+    // nested components
     if (depth) {
       const lng = this.components.length;
       for (let i = 0; i < lng; i++) {
-        const lc = (i === lng - 1);
-        await this.components[i].ls({depth: depth - 1, who: who2, filter, hierarchy, indent: indent + (last? '  ' : '│ '), last: lc});
+        const cp = await this.components[i].ls({depth: depth - 1, who: who2, filter});
+        if (cp) {
+          ts.components.push(cp);
+        }
       }
+    }
+    //
+    if (ts.tasks.length || ts.components.length) {
+      return ts;
     }
   }
 

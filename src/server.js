@@ -58,6 +58,14 @@ class Server {
       root.getTeam(team, true, true)
       res.send(this.makeResponce(team));
     })
+    ea.get('/tasks', async(req, res) => {
+      res.send(this.makeResponce( await app.ls({
+        component: null,
+        depth: 10,
+        who: { assignees: [], all: true },
+        filter: { tag: [], search: [], deadline: [], status: { backlog: true, dev: true, done: false } }
+      })));
+    })
     ea.get('/srs', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { srs: true } })));
     })
