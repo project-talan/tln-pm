@@ -11,9 +11,9 @@ One of the main USP is to provide estimates based on development speed captures 
 
 ## DSL
   
-`.tpm` files are used to define PM artifacts.
+`.tpm.yml` files are used to define PM artifacts.
 
-Here is example for `.todo` file at repository root
+Here is example for `.tpm.yml` file at repository root
   ```
   team:
     vlad.k:

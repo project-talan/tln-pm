@@ -182,6 +182,7 @@ class Component {
     const ts = { 
       id: this.id,
       relativePath: this.getRelativePath(),
+      name: this.project.length ? this.project[0].name : this.id,
       tasks: [],
       components: []
     };

@@ -19,7 +19,7 @@ const colors = {
     component: 'gray',
     group: '#20C997',
     dev: '#007BFF',
-    backlog: '#FFA500',
+    todo: '#FFA500',
     tbd: '#FFDF58',
     blocked: '#DC3545',
     done: '#28A745',
@@ -79,6 +79,46 @@ function getDeadlineDate(deadline) {
   );
   return result;
 }
+
+function getMillisecondsFromDuration(duraction) {
+  if (duraction) {
+    const tb = { 'years': 31536000000, 'months': 2592000000, 'days': 86400000, 'hours': 3600000, 'minutes': 60000, 'seconds': 1000};
+    return Object.keys(tb).reduce(
+      function(acc, key){
+        if (duraction[key]) {
+          return acc + tb[key] * duraction[key];
+        }
+        return acc;
+      },
+      0
+    );
+  }
+}
+
+function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours']) {
+  let releaseName = 'n/a';
+  let releaseDate = 'n/a';
+  let timeToRelease = 'n/a';
+  let releaseFeatures = 'n/a';
+  if (timeline.length) {
+    let minDuration = Number.MAX_SAFE_INTEGER;
+    timeline.forEach(function(t) {
+      const duration = dateFns.fp.intervalToDuration({start: new Date(), end: new Date(t.deadline)});
+      const ms = getMillisecondsFromDuration(duration);
+      if (ms > 0 && ms < minDuration) {
+        minDuration = ms;
+        releaseName = t.id;
+        releaseDate = t.deadline;
+        duration.minutes = null;
+        duration.seconds = null;
+        timeToRelease = dateFns.fp.formatDuration(duration, { format: ['months', 'weeks'], delimiter: ', ' });
+        releaseFeatures = t.features;
+      }
+    });
+  }
+  return {releaseName, releaseDate, timeToRelease, releaseFeatures};
+
+};
 //-----------------------------------------------------------------------------
 // Dashboard
 $("#dashboard-tab").click(function(){
@@ -91,14 +131,7 @@ function getProject(id, name, summary) {
   const diff = getStringFromInterval(lut);
   const lastUpdateTime = `Updated ${diff} ago`;
   //
-  let releaseName = 'n/a';
-  let timeToRelease = 'n/a';
-  if (summary.timeline.length) {
-    releaseName = summary.timeline[0].id;
-//    releaseDate = summary.timeline[0].date;
-    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].deadline)}));
-  }
-
+  const { releaseName, timeToRelease } = getClosestRelease(summary.timeline);
 
   // const rd = dateFns.fp.intervalToDuration({start: new Date(summary.release.date), end: new Date() });
   // console.log(rd);
@@ -107,7 +140,7 @@ function getProject(id, name, summary) {
   '<div class="col pb-4">' +
   ' <div class="card">' +
   '   <div class="card-header">' +
-  `     <span class="badge float-end rounded-pill text-bg-danger">${releaseName} in ${timeToRelease}</span>` +
+  `     <span class="badge float-end rounded-pill text-bg-warning">${releaseName} in ${timeToRelease}</span>` +
   `     <div class="card-title d-inline"><span class="fw-bold">${name}</span> (${id})</div>` +
   '   </div>' +
   '   <div class="card-body">' +
@@ -131,26 +164,19 @@ function getProject(id, name, summary) {
 function getProjectDetails(description, summary) {
   const r = {};
   // release
-  let releaseName = 'n/a';
-  let releaseDate = 'n/a';
-  let releaseFeatures = 'n/a';
-  if (summary.timeline.length) {
-    releaseName = summary.timeline[0].id;
-    releaseDate = summary.timeline[0].deadline;
-    releaseFeatures = summary.timeline[0].features;
-  }
+  const { releaseName, releaseDate, releaseFeatures } = getClosestRelease(summary.timeline);
+  //
   r.html = '' +
   '<div class="col pb-4">' +
   ' <div class="px-2 pb-4">' +
   `   <h5>${description}</h5>` +
   ' </div>' +
   ' <ul class="list-group">' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Release</li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
+  '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">' +
+  `     <span class="fst-italic">Release</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">date</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
+  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">features</span><span class="badge text-bg-secondary rounded-pill">${releaseFeatures}</span>` +
@@ -161,22 +187,22 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colors.rag.green}">${summary.tasks.dev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.rag.amber}">${summary.tasks.todo}</span>` +
+  `     <span class="fst-italic">todo</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.todo}">${summary.tasks.todo}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">tbd</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.tbd}</span>` +
+  `     <span class="fst-italic">tbd</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.tbd}">${summary.tasks.tbd}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.blocked}</span>` +
+  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.blocked}">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">done</span><span class="badge text-bg-info rounded-pill">${summary.tasks.done}</span>` +
+  `     <span class="fst-italic">done</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.done}">${summary.tasks.done}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colors.rag.red}">${summary.tasks.dropped}</span>` +
+  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dropped}">${summary.tasks.dropped}</span>` +
   '   </li>' +
   ' </ul>' +
   '</div>';
@@ -230,7 +256,7 @@ function initDashboard() {
               datasets: [
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colors.rag.green, colors.rag.amber, colors.rag.red],
+                  backgroundColor: [colors.timeline.dev, colors.timeline.todo, colors.timeline.blocked],
                   data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
@@ -295,18 +321,20 @@ function initDashboard() {
           });
           p.charts = [tasksChart, worloadChart];
         });
+        updateDashboard();
       } 
     }
   });
-  updateDashboard();
 }
 
 function updateDashboard() {
-  projects.forEach(function(p) {
-    p.charts.forEach(function(c) {
-      c.update();
+  if (projects) {
+    projects.forEach(function(p) {
+      p.charts.forEach(function(c) {
+        c.update();
+      });
     });
-  });
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -366,8 +394,8 @@ function initTimeline() {
 
 function updateTimeline() {
   let data = [];
-  console.log(Date.UTC(2024, 10, 26));
-  console.log((new Date("2024-11-26 16:00:00 UTC+0200")).getTime());
+  // console.log(Date.UTC(2024, 10, 26));
+  // console.log((new Date("2024-11-26 16:00:00 UTC+0200")).getTime());
   //
   const updateInterval = function(cInterval, newInterval) {
     const result = {start: null, end: null};
@@ -389,7 +417,7 @@ function updateTimeline() {
     let cInterval = {start: null, end: null};
     const cIndex = data.push({
       id: id,
-      name: component.id.toUpperCase(),
+      name: component.name.toUpperCase(),
       start: (new Date("2024-11-26 9:00:00 UTC+0200")).getTime(),
       end: (new Date("2024-11-28 16:00:00 UTC+0200")).getTime(),
       color: colors.timeline.component,
@@ -404,14 +432,14 @@ function updateTimeline() {
         const t = tasks[i];
       // for (const t of tasks){
         if (t.deadline) {
-          console.log(t.id, t.deadline, getDeadlineDate(t.deadline));
+          //console.log(t.id, t.deadline, getDeadlineDate(t.deadline));
         }
         const tId = parentId + '/' + (t.id ? t.id : index);
         //
         let tColor = colors.timeline.group;
         if (t.tasks.length === 0) {
           tColor = ({
-            '-': colors.timeline.backlog,
+            '-': colors.timeline.todo,
             '>': colors.timeline.dev,
             '?': colors.timeline.tbd,
             '!': colors.timeline.blocked,
@@ -421,7 +449,7 @@ function updateTimeline() {
         }
         tData.push({
           id: tId,
-          name: t.status + ' ' + t.title,
+          name: t.title,
           start: (new Date("2024-11-26 16:00:00 UTC+0200")).getTime(),
           end: (new Date("2024-11-27 16:00:00 UTC+0200")).getTime(),
           color: tColor,

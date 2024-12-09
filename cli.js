@@ -32,7 +32,7 @@ yargs(hideBin(process.argv))
   .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
   .option('verbose', { alias: 'v', count: true, default: 0 })
-  .option('include', { default: '**/.tpm', type: 'string' })
+  .option('include', { default: '**/.tpm.yml', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('depth', { describe: 'Scan depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
@@ -41,7 +41,7 @@ yargs(hideBin(process.argv))
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
 
-  .option('file', { describe: 'File name', default: '.tpm', type: 'string' })
+  .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('dev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
@@ -75,6 +75,7 @@ yargs(hideBin(process.argv))
         filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
       });
       //
+      const prefix = "";
       const hierarchy = argv.hierarchy;
       if (component) {
         if (argv.json || argv.yaml) {
@@ -102,8 +103,8 @@ yargs(hideBin(process.argv))
               a.logger.con(`${title} ${percentage}`);
             } else {
               if (c.tasks.length) {
-                a.logger.con();
-                a.logger.con(`~ ${c.relativePath} ${percentage}`);
+                a.logger.con(`${prefix}`);
+                a.logger.con(`${prefix}~ ${c.relativePath} ${percentage}`);
               }
             }
             // tasks
@@ -113,7 +114,7 @@ yargs(hideBin(process.argv))
                 const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
                 const dl = task.deadline ? ` (${task.deadline})` : '';
                 const id = task.id ? ` ${task.id}:` : '';
-                a.logger.con(`${indent}${task.status}${id} ${task.title}${g}${tg}${dl}`);
+                a.logger.con(`${prefix}${indent}${task.status}${id} ${task.title}${g}${tg}${dl}`);
               }
               // console.log(task);
               for (const t of task.tasks) {
