@@ -1,17 +1,30 @@
 //-----------------------------------------------------------------------------
 // Global variables
-google.charts.setOnLoadCallback(drawChart);
+//google.charts.setOnLoadCallback(drawChart);
 
 let projects = [];
 let timeline = {};
 let team = {};
+let tasks = {};
 let srs = {};
 let topics = {};
 
-const colorsRAG = {
-  red: '#c45850', //'#dc3545',
-  amber: '#e8c3b9', //'#ffc107',
-  green: '#3cba9f' //'#28a745'
+const colors = {
+  rag: {
+    red: '#c45850', //'#dc3545',
+    amber: '#e8c3b9', //'#ffc107',
+    green: '#3cba9f' //'#28a745'
+  },
+  timeline: {
+    component: 'gray',
+    group: '#20C997',
+    dev: '#007BFF',
+    todo: '#FFA500',
+    tbd: '#FFDF58',
+    blocked: '#DC3545',
+    done: '#28A745',
+    dropped: '#343A40'
+  }
 };
 //-----------------------------------------------------------------------------
 // Initialisation
@@ -23,9 +36,9 @@ $(document).ready(function(){
     }
   });
   //
+  initDashboard();
   initTeam(); updateTeam();
-  //initTimeline(); updateTimeline();
-  initDashboard(); updateDashboard();
+  initTimeline();
   initSrs(); updateSrs();
   //
 });
@@ -52,6 +65,60 @@ function getStringFromInterval(interval) {
   return diff;
 }
 
+function getDeadlineDate(deadline) {
+  //console.log(projects);
+  let result = new Date();
+  projects.forEach(
+    function(p) {
+      p.summary.timeline.forEach(function(t) {
+        if (t.id === deadline){
+          result = new Date(t.deadline);
+        }
+      })
+    }
+  );
+  return result;
+}
+
+function getMillisecondsFromDuration(duraction) {
+  if (duraction) {
+    const tb = { 'years': 31536000000, 'months': 2592000000, 'days': 86400000, 'hours': 3600000, 'minutes': 60000, 'seconds': 1000};
+    return Object.keys(tb).reduce(
+      function(acc, key){
+        if (duraction[key]) {
+          return acc + tb[key] * duraction[key];
+        }
+        return acc;
+      },
+      0
+    );
+  }
+}
+
+function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours']) {
+  let releaseName = 'n/a';
+  let releaseDate = 'n/a';
+  let timeToRelease = 'n/a';
+  let releaseFeatures = 'n/a';
+  if (timeline.length) {
+    let minDuration = Number.MAX_SAFE_INTEGER;
+    timeline.forEach(function(t) {
+      const duration = dateFns.fp.intervalToDuration({start: new Date(), end: new Date(t.deadline)});
+      const ms = getMillisecondsFromDuration(duration);
+      if (ms > 0 && ms < minDuration) {
+        minDuration = ms;
+        releaseName = t.id;
+        releaseDate = t.deadline;
+        duration.minutes = null;
+        duration.seconds = null;
+        timeToRelease = dateFns.fp.formatDuration(duration, { format: ['months', 'weeks'], delimiter: ', ' });
+        releaseFeatures = t.features;
+      }
+    });
+  }
+  return {releaseName, releaseDate, timeToRelease, releaseFeatures};
+
+};
 //-----------------------------------------------------------------------------
 // Dashboard
 $("#dashboard-tab").click(function(){
@@ -64,14 +131,7 @@ function getProject(id, name, summary) {
   const diff = getStringFromInterval(lut);
   const lastUpdateTime = `Updated ${diff} ago`;
   //
-  let releaseName = 'n/a';
-  let timeToRelease = 'n/a';
-  if (summary.timeline.length) {
-    releaseName = summary.timeline[0].id;
-//    releaseDate = summary.timeline[0].date;
-    timeToRelease = getStringFromInterval(dateFns.fp.intervalToDuration({start: new Date(), end: new Date(summary.timeline[0].deadline)}));
-  }
-
+  const { releaseName, timeToRelease } = getClosestRelease(summary.timeline);
 
   // const rd = dateFns.fp.intervalToDuration({start: new Date(summary.release.date), end: new Date() });
   // console.log(rd);
@@ -80,7 +140,7 @@ function getProject(id, name, summary) {
   '<div class="col pb-4">' +
   ' <div class="card">' +
   '   <div class="card-header">' +
-  `     <span class="badge float-end rounded-pill text-bg-danger">${releaseName} in ${timeToRelease}</span>` +
+  `     <span class="badge float-end rounded-pill text-bg-warning">${releaseName} in ${timeToRelease}</span>` +
   `     <div class="card-title d-inline"><span class="fw-bold">${name}</span> (${id})</div>` +
   '   </div>' +
   '   <div class="card-body">' +
@@ -104,26 +164,19 @@ function getProject(id, name, summary) {
 function getProjectDetails(description, summary) {
   const r = {};
   // release
-  let releaseName = 'n/a';
-  let releaseDate = 'n/a';
-  let releaseFeatures = 'n/a';
-  if (summary.timeline.length) {
-    releaseName = summary.timeline[0].id;
-    releaseDate = summary.timeline[0].deadline;
-    releaseFeatures = summary.timeline[0].features;
-  }
+  const { releaseName, releaseDate, releaseFeatures } = getClosestRelease(summary.timeline);
+  //
   r.html = '' +
   '<div class="col pb-4">' +
   ' <div class="px-2 pb-4">' +
   `   <h5>${description}</h5>` +
   ' </div>' +
   ' <ul class="list-group">' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Release</li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
+  '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">' +
+  `     <span class="fst-italic">Release</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">date</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
+  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">features</span><span class="badge text-bg-secondary rounded-pill">${releaseFeatures}</span>` +
@@ -134,22 +187,22 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.green}">${summary.tasks.dev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">backlog</span><span class="badge text-dark rounded-pill" style="background-color: ${colorsRAG.amber}">${summary.tasks.todo}</span>` +
+  `     <span class="fst-italic">todo</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.todo}">${summary.tasks.todo}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">tbd</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.tbd}</span>` +
+  `     <span class="fst-italic">tbd</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.tbd}">${summary.tasks.tbd}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.blocked}</span>` +
+  `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.blocked}">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">done</span><span class="badge text-bg-info rounded-pill">${summary.tasks.done}</span>` +
+  `     <span class="fst-italic">done</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.done}">${summary.tasks.done}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colorsRAG.red}">${summary.tasks.dropped}</span>` +
+  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dropped}">${summary.tasks.dropped}</span>` +
   '   </li>' +
   ' </ul>' +
   '</div>';
@@ -203,7 +256,7 @@ function initDashboard() {
               datasets: [
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colorsRAG.green, colorsRAG.amber, colorsRAG.red],
+                  backgroundColor: [colors.timeline.dev, colors.timeline.todo, colors.timeline.blocked],
                   data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
                 }
               ]
@@ -268,74 +321,157 @@ function initDashboard() {
           });
           p.charts = [tasksChart, worloadChart];
         });
+        updateDashboard();
       } 
     }
-  });  
+  });
 }
 
 function updateDashboard() {
-  projects.forEach(function(p) {
-    p.charts.forEach(function(c) {
-      c.update();
+  if (projects) {
+    projects.forEach(function(p) {
+      p.charts.forEach(function(c) {
+        c.update();
+      });
     });
-  });
+  }
 }
 
 //-----------------------------------------------------------------------------
 // Timeline
+let ganttChart = null;
+
 $("#timeline-tab").click(function(){
   updateTimeline();
 });
-var ganttChart = null;
-
-function daysToMilliseconds(days) {
-  return days * 24 * 60 * 60 * 1000;
-}
-function drawChart() {
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'Task ID');
-  data.addColumn('string', 'Task Name');
-  data.addColumn('date', 'Start Date');
-  data.addColumn('date', 'End Date');
-  data.addColumn('number', 'Duration');
-  data.addColumn('number', 'Percent Complete');
-  data.addColumn('string', 'Dependencies');
-
-  data.addRows([
-    ['Research', 'Find sources',
-     new Date(2015, 0, 1), new Date(2015, 0, 5), null,  100,  null],
-    ['Write', 'Write paper',
-     null, new Date(2015, 0, 9), daysToMilliseconds(3), 25, 'Research,Outline'],
-    ['Cite', 'Create bibliography',
-     null, new Date(2015, 0, 7), daysToMilliseconds(1), 20, 'Research'],
-    ['Complete', 'Hand in paper',
-     null, new Date(2015, 0, 10), daysToMilliseconds(1), 0, 'Cite,Write'],
-    ['Outline', 'Outline paper',
-     null, new Date(2015, 0, 6), daysToMilliseconds(1), 100, 'Research']
-  ]);
-
-  var options = {
-    height: 512,
-    gantt: {
-      labelStyle: {
-        fontName: 'Roboto',
-        fontSize: 16,
-        color: '#000'
-      }
-    }
-  };
-
-  if (!ganttChart) {
-    ganttChart = new google.visualization.Gantt(document.getElementById('timeline_gantt_chart'));
-  }
-  ganttChart.draw(data, options);
-}
-
 function initTimeline() {
+  $.getJSON("tasks", function(res, status){
+    if (res.success) {
+      tasks = res.data;
+      //
+      ganttChart = Highcharts.ganttChart('gantt', {
+        time: {
+          useUTC: false
+        },
+        chart: {
+          backgroundColor: "#F8F9FA",
+        },
+        // title: {
+        //     text: 'Talan PM',
+        //     margin: 2
+        // },
+        xAxis: [{
+          grid: {
+            enabled: true,
+            borderWidth: 0,
+            labels: {
+              indentation: 0,
+              distance: 0,
+              enabled: false
+            }
+          }
+        }],
+        yAxis: [{
+          grid: {
+            enabled: true,
+            borderWidth: 0,
+            labels: {
+              indentation: 0,
+              distance: 0,
+              enabled: false
+            },
+          },
+          staticScale: 30
+        }],
+        series: [{}]
+      });
+      //
+      updateTimeline();
+    }
+  });  
+
 }
 
 function updateTimeline() {
-  drawChart();
+  let data = [];
+  // console.log(Date.UTC(2024, 10, 26));
+  // console.log((new Date("2024-11-26 16:00:00 UTC+0200")).getTime());
+  //
+  const updateInterval = function(cInterval, newInterval) {
+    const result = {start: null, end: null};
+    // if (cInterval.start === null) {
+    //   result.start = new Date(newInterval.start);
+    // } else {
+    //   result.start = new Date( cInterval.start > newInterval.start ? newInterval.start : cInterval.start);
+    // }
+    // if (cInterval.end === null) {
+    //   cInterval.end = new Date(newInterval.end);
+    // } else {
+    //   result.end = new Date( cInterval.end < newInterval.end ? newInterval.end : cInterval.end);
+    // }
+    return result;
+  }
+  //
+  const processComponent = function(component, parentId) {
+    const id = component.relativePath ? component.relativePath : component.id;
+    let cInterval = {start: null, end: null};
+    const cIndex = data.push({
+      id: id,
+      name: component.name.toUpperCase(),
+      start: (new Date("2024-11-26 9:00:00 UTC+0200")).getTime(),
+      end: (new Date("2024-11-28 16:00:00 UTC+0200")).getTime(),
+      color: colors.timeline.component,
+      parent: parentId
+    });
+    //
+    const processTasks = function(tasks, parentId, interval) {
+      let index = 0;
+      const tData = []
+      for (let i = tasks.length; i--; ){
+        index++;
+        const t = tasks[i];
+      // for (const t of tasks){
+        if (t.deadline) {
+          //console.log(t.id, t.deadline, getDeadlineDate(t.deadline));
+        }
+        const tId = parentId + '/' + (t.id ? t.id : index);
+        //
+        let tColor = colors.timeline.group;
+        if (t.tasks.length === 0) {
+          tColor = ({
+            '-': colors.timeline.todo,
+            '>': colors.timeline.dev,
+            '?': colors.timeline.tbd,
+            '!': colors.timeline.blocked,
+            '+': colors.timeline.done,
+            'x': colors.timeline.dropped
+          })[t.status];
+        }
+        tData.push({
+          id: tId,
+          name: t.title,
+          start: (new Date("2024-11-26 16:00:00 UTC+0200")).getTime(),
+          end: (new Date("2024-11-27 16:00:00 UTC+0200")).getTime(),
+          color: tColor,
+          parent: parentId
+        });
+        processTasks(t.tasks, tId);
+      }
+      data.push( ...tData.reverse() );
+    }
+    cInterval = updateInterval(cInterval, processTasks(component.tasks, id));
+    //
+    for (const c of component.components) {
+      cInterval = updateInterval(cInterval, processComponent(c, id));
+    }
+    //
+    return cInterval;
+  }
+  processComponent(tasks);
+  ganttChart.series[0].update({
+    name: 'Project 1',
+    data
+  }, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -371,7 +507,7 @@ function initTeam() {
       team = res.data;
       var list = $('#dashboard_team_list');
       list.empty();
-      team.forEach(function(m){
+      team.filter(function(m){ return m.fte > 0;}).forEach(function(m){
         list.append(getMember(m.id, m.name, m.email, m.fte));
       });
     }

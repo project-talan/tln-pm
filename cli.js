@@ -10,6 +10,7 @@ const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const yaml = require('yaml');
+const { dump } = require('js-yaml');
 
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
@@ -31,7 +32,7 @@ yargs(hideBin(process.argv))
   .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
   .option('verbose', { alias: 'v', count: true, default: 0 })
-  .option('include', { default: '**/.tpm', type: 'string' })
+  .option('include', { default: '**/.tpm.yml', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('depth', { describe: 'Scan depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
@@ -40,7 +41,7 @@ yargs(hideBin(process.argv))
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
 
-  .option('file', { describe: 'File name', default: '.tpm', type: 'string' })
+  .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
   .option('dev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
@@ -53,6 +54,8 @@ yargs(hideBin(process.argv))
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
 
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
+  .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
+  .option('yaml', { describe: 'Output in yaml format', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
   // ls command aims to work exclusively with tasks
@@ -65,13 +68,72 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     getApp(argv, true, async (a) => {
       // console.log(argv);
-      await a.ls({
+      const component = await a.ls({
         component: argv.component,
         depth: argv.depth,
         who: { assignees: argv.assignee, all: argv.all },
-        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } },
-        hierarchy: argv.hierarchy
+        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
       });
+      //
+      const prefix = "";
+      const hierarchy = argv.hierarchy;
+      if (component) {
+        if (argv.json || argv.yaml) {
+          if (argv.json) {
+            a.logger.con(JSON.stringify(component));
+          } else {
+            a.logger.con(yaml.stringify(component));
+          }
+        } else {
+          const dump = (c, indent, last) => {
+            // title
+            let ti = `  `;
+            let percentage = '';
+            if (c.tasks.length) {
+              percentage = Math.round(c.tasks.reduce((acc, t) => acc + t.percentage, 0) / c.tasks.length);
+              if (percentage > 0) {
+                percentage = `(${percentage}%)`;
+              } else {
+                percentage = '';
+              }
+            }
+            if (hierarchy) {
+              ti = `${indent}` + ((last && c.components.length === 0) ? ' ' : '│')
+              const title = (c.id) ? `${indent}${last?'└':'├'} ${c.id}` : '';
+              a.logger.con(`${title} ${percentage}`);
+            } else {
+              if (c.tasks.length) {
+                a.logger.con(`${prefix}`);
+                a.logger.con(`${prefix}~ ${c.relativePath} ${percentage}`);
+              }
+            }
+            // tasks
+            const out = (task, indent) => {
+              if (task.title) {
+                const g = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
+                const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
+                const dl = task.deadline ? ` (${task.deadline})` : '';
+                const id = task.id ? ` ${task.id}:` : '';
+                a.logger.con(`${prefix}${indent}${task.status}${id} ${task.title}${g}${tg}${dl}`);
+              }
+              // console.log(task);
+              for (const t of task.tasks) {
+                out(t, `${indent}  `);
+              }
+            }
+            for (const t of c.tasks) {
+              out(t, ti);
+            }
+            // components
+            const lng = c.components.length;
+            for (let i = 0; i < lng; i++) {
+              const lc = (i === lng - 1);
+              dump(c.components[i], indent + (last? '  ' : '│ '), lc);
+            }
+          }
+          dump(component, '', true);
+        }
+      }
     });
   })
   //
