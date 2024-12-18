@@ -23,7 +23,7 @@ class Member {
     this.fte = fte;
   }
 
-  getDscription() {
+  getDescription() {
     return ({
       id: this.id,
       name: this.name,

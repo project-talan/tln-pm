@@ -504,7 +504,7 @@ function getMember(id, name, email, fte) {
 function initTeam() {
   $.getJSON("team", function(res, status){
     if (res.success) {
-      team = res.data;
+      team = res.data.team;
       var list = $('#dashboard_team_list');
       list.empty();
       team.filter(function(m){ return m.fte > 0;}).forEach(function(m){
