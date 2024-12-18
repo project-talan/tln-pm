@@ -269,7 +269,7 @@ class Component {
 
   getTeam(team, up, down) {
     for (const m of this.team) {
-      const desc = m.getDscription();
+      const desc = m.getDescription();
       if (!team.find( t => t.id === desc.id)) {
         team.push(desc);
       }

@@ -92,11 +92,25 @@ class App {
   async describe(options) {
     const {component, id, what} = options;
     const result = {};
-    // const c = await this.getCurrentComponent(component);
-    const c = this.rootComponent;
+    const c = await this.getCurrentComponent(component);
     if (c) {
       if (what.project) {
         result.projects = await c.describeProject();
+      }
+      if (what.team) {
+        const team = [];
+        c.getTeam(team, false, true);
+        team.forEach(m => {
+          m.summary = {
+            dev: 0,
+            todo: 0,
+            tbd: 0,
+            blocked: 0,
+            done: 0,
+            dropped: 0
+          };
+        });
+        result.team = team;
       }
       if (what.srs) {
         result.srs = await c.describeSrs();
