@@ -75,7 +75,7 @@ yargs(hideBin(process.argv))
         filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
       });
       //
-      const prefix = "";
+      const prefix = "'";
       const hierarchy = argv.hierarchy;
       if (component) {
         if (argv.json || argv.yaml) {
@@ -174,7 +174,13 @@ yargs(hideBin(process.argv))
         id: argv.id,
         what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
       });
-      a.logger.con(yaml.stringify(r));
+      if (argv.json || argv.yaml) {
+        if (argv.json) {
+          a.logger.con(JSON.stringify(r));
+        } else {
+          a.logger.con(yaml.stringify(r));
+        }
+      }
     });
   })
   //
