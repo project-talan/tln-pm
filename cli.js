@@ -75,7 +75,7 @@ yargs(hideBin(process.argv))
         filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
       });
       //
-      const prefix = "";
+      const prefix = "'";
       const hierarchy = argv.hierarchy;
       if (component) {
         if (argv.json || argv.yaml) {

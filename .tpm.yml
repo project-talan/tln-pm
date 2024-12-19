@@ -63,7 +63,7 @@ tasks: |
     [+] Create API using express
     [+] Implement web part: Dashboard
     [>] Implement web part: Timeline
-    [>] Implement web part: Team
+    [+] Implement web part: Team
   [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k
   [+:005:v0.4.0] Implement ls command for timeline @vlad.k
   [+:004:v0.4.0] Implement ls for team @vlad.k

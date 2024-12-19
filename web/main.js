@@ -480,22 +480,30 @@ $("#team-tab").click(function(){
   updateTeam();
 });
 
-function getMember(id, name, email, fte) {
+function getMember(id, name, email, fte, summary) {
   return '<tr>' +
   ` <th scope="row">${id}</th>` +
   ` <td class="">${name} (${email})</td>` +
   ` <td>${fte}</td>` +
+  ` <td>${summary.total}</td>` +
   ' <td class="align-middle">' +
   '  <div class="progress-stacked">' +
-  '    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-success">15</div>' +
-  '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment two" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-danger">30</div>' +
-  '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment three" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-warning">50</div>' +
-  '    </div>' +
+  [
+    [summary.dev, colors.timeline.dev],
+    [summary.todo, colors.timeline.todo],
+    [summary.tbd, colors.timeline.tbd],
+    [summary.blocked, colors.timeline.blocked],
+    [summary.done, colors.timeline.done],
+    [summary.dropped, colors.timeline.dropped],
+  ].map( t => {
+    const v = t[0];
+    const p = summary ? 100 * v/summary.total : 0;
+    const c = t[1];
+    return '' +
+    `    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: ${p}%">` +
+    `      <div class="progress-bar" style="background-color: ${c}">${v}</div>` +
+    '    </div>';
+  }).join('\n') +
   '  </div>' +
   ' </td>' +
   '</tr>';
@@ -504,11 +512,11 @@ function getMember(id, name, email, fte) {
 function initTeam() {
   $.getJSON("team", function(res, status){
     if (res.success) {
-      team = res.data.team;
+      team = res.data.team.filter(function(m){ return m.fte > 0;});
       var list = $('#dashboard_team_list');
       list.empty();
       team.filter(function(m){ return m.fte > 0;}).forEach(function(m){
-        list.append(getMember(m.id, m.name, m.email, m.fte));
+        list.append(getMember(m.id, m.name, m.email, m.fte, m.summary));
       });
     }
   });  
