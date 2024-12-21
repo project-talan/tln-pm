@@ -138,16 +138,16 @@ class App {
 
   //
   async config(options) {
-    const { sections, file, all, force } = options;
+    const { what, file, all, force } = options;
     //
     const fp = path.join(this.cwd, file);
     if (!fs.existsSync(fp) || force) {
-      const addProject = sections.includes('project');
-      const addTeam = sections.includes('team');
-      const addTimeline = sections.includes('timeline');
-      const addTasks = sections.includes('tasks');
-      const addSrs = sections.includes('srs');
-      const addComponents = sections.includes('components');
+      const addProject = what.project;
+      const addTeam = what.team;
+      const addTimeline = what.timeline;
+      const addTasks = what.tasks;
+      const addSrs = what.srs;
+      const addComponents = what.components;
       //
       const data = {};
       const dt = new Date();
@@ -158,13 +158,23 @@ class App {
       }
       if (all || addTeam) {
         data.team = {
-          "alice.d" : {"email": "alice.d@gmail.com"},
-          "bob.w" : {"email": "bob.w@gmail.com"},
+          "alice.d": {
+            email: "alice.d@gmail.com",
+            name: "Alice Doe",
+            fte: 1,
+          },
+          "bob.w": {
+            email: "bob.w@gmail.com",
+            name: "Bob White",
+            fte: 1,
+          },
         };
       }
       if (all || addTimeline) {
         data.timeline = {};
-        data.timeline[dl] = `${dt.getFullYear()}-${dt.getMonth()+1}-x`;
+        data.timeline[dl] = {
+          deadline: dt.toISOString(),
+        };
       }
       if (all || addTasks) {
         data.tasks = `[-:001:${dl}] Integrate auth library\n  [-] Add /iam/auth endpoint @alice.d\n  [-] Configure auth callbacks @alice.d\n`;

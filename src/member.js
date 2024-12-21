@@ -27,8 +27,12 @@ class Member {
     return ({
       id: this.id,
       name: this.name,
-      email: this.email,
-      fte: this.fte
+      bandwidth: [
+        {
+          email: this.email,
+          fte: this.fte
+        }
+      ]
     });
   }
 

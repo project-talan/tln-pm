@@ -227,7 +227,7 @@ class Component {
       this.getTeam(team, false, true)
       project.summary.team = team;
       project.summary.lastCommit = this.lastCommit;
-      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.fte, 0);
+      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.bandwidth[0].fte, 0);
       projects.push(project);
     }
     const prs = await Promise.all(this.components.map(async c => c.describeProject()));
@@ -270,7 +270,10 @@ class Component {
   getTeam(team, up, down) {
     for (const m of this.team) {
       const desc = m.getDescription();
-      if (!team.find( t => t.id === desc.id)) {
+      const tm = team.find( t => t.id === desc.id);
+      if (tm) {
+        tm.bandwidth.push(...desc.bandwidth);
+      } else {
         team.push(desc);
       }
     }

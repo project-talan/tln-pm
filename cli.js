@@ -52,6 +52,7 @@ yargs(hideBin(process.argv))
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+  .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
@@ -75,7 +76,7 @@ yargs(hideBin(process.argv))
         filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
       });
       //
-      const prefix = "'";
+      const prefix = "";
       const hierarchy = argv.hierarchy;
       if (component) {
         if (argv.json || argv.yaml) {
@@ -139,16 +140,11 @@ yargs(hideBin(process.argv))
   //
   .command('config [section...]', 'Show list of tasks', (yargs) => {
     return yargs
-    .positional('section', {
-      describe: 'Section to add',
-      default: ['tasks'],
-      type: 'array'
-    });
   }, async (argv) => {
     getApp(argv, false, async (a) => {
       // console.log(argv);
       await a.config({
-        sections: argv.section,
+        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         file: argv.file,
         all: argv.all,
         force: argv.force
