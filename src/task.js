@@ -68,7 +68,11 @@ class Task {
     ].find(v => v.flag && v.statuses.includes(this.status) ) || statusToo;
     //
     const tags = [this.deadline].concat(this.tags);
-    const tg = (filter.tag.length ? filter.tag.find( t => tags.includes(t) ) : true) || alsoTags;
+    //const tg = (filter.tag.length ? filter.tag.find( t => tags.includes(t) ) : true) || alsoTags;
+    const tg = (filter.tag.length ? filter.tag.length == (filter.tag.filter( t => tags.includes(t) )).length : true) || alsoTags;
+    if (tg) {
+      // console.log(filter.tag, this.title, tags, tg );
+    }
     //
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //

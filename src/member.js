@@ -23,12 +23,16 @@ class Member {
     this.fte = fte;
   }
 
-  getDscription() {
+  getDescription() {
     return ({
       id: this.id,
       name: this.name,
-      email: this.email,
-      fte: this.fte
+      bandwidth: [
+        {
+          email: this.email,
+          fte: this.fte
+        }
+      ]
     });
   }
 

@@ -37,7 +37,7 @@ $(document).ready(function(){
   });
   //
   initDashboard();
-  initTeam(); updateTeam();
+  initTeam();
   initTimeline();
   initSrs(); updateSrs();
   //
@@ -94,6 +94,21 @@ function getMillisecondsFromDuration(duraction) {
     );
   }
 }
+function formatDuration(duration) {
+  return Object.keys(duration).map(
+    function(key){
+      if (duration[key]) {
+        return `${duration[key]} ${key[0]}`;
+      }
+    }
+  ).slice(0, 2).join(' ');
+} 
+function getLocalISOString(date) {
+  const offset = date.getTimezoneOffset()
+  const offsetAbs = Math.abs(offset)
+  const isoString = new Date(date.getTime() - offset * 60 * 1000).toISOString()
+  return `${isoString.slice(0, -1)}${offset > 0 ? '-' : '+'}${String(Math.floor(offsetAbs / 60)).padStart(2, '0')}:${String(offsetAbs % 60).padStart(2, '0')}`
+}
 
 function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours']) {
   let releaseName = 'n/a';
@@ -102,16 +117,17 @@ function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours
   let releaseFeatures = 'n/a';
   if (timeline.length) {
     let minDuration = Number.MAX_SAFE_INTEGER;
+    const currentDateTime = new Date();
     timeline.forEach(function(t) {
-      const duration = dateFns.fp.intervalToDuration({start: new Date(), end: new Date(t.deadline)});
+      const deadline = new Date(t.deadline);
+      const duration = dateFns.fp.intervalToDuration({start: currentDateTime, end: deadline});
       const ms = getMillisecondsFromDuration(duration);
       if (ms > 0 && ms < minDuration) {
         minDuration = ms;
         releaseName = t.id;
-        releaseDate = t.deadline;
-        duration.minutes = null;
-        duration.seconds = null;
-        timeToRelease = dateFns.fp.formatDuration(duration, { format: ['months', 'weeks'], delimiter: ', ' });
+        releaseDate = deadline;
+        timeToRelease = formatDuration(duration);
+        //timeToRelease = dateFns.fp.formatDuration(duration, { format, delimiter: ', ', zero: false });
         releaseFeatures = t.features;
       }
     });
@@ -165,6 +181,10 @@ function getProjectDetails(description, summary) {
   const r = {};
   // release
   const { releaseName, releaseDate, releaseFeatures } = getClosestRelease(summary.timeline);
+  const ts = summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
+  const tst = summary.team.length;
+  const teamSizeTitle = ts === tst ? `team size` : `team size (total)`;
+  const teamSize = ts === tst ? `${ts}` : `${ts}/${tst}`;
   //
   r.html = '' +
   '<div class="col pb-4">' +
@@ -173,7 +193,7 @@ function getProjectDetails(description, summary) {
   ' </div>' +
   ' <ul class="list-group">' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">' +
-  `     <span class="fst-italic">Release</span><span class="badge text-bg-secondary rounded-pill">${releaseDate}</span>` +
+  `     <span class="fst-italic">Release</span><span class="badge text-bg-secondary rounded-pill">${getLocalISOString(releaseDate)}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
@@ -183,11 +203,11 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Workload & Bandwidth</li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">team size</span><span class="badge text-bg-secondary rounded-pill">${Object.keys(summary.team).length}</span>` +
+  `     <span class="fst-italic">${teamSizeTitle}</span><span class="badge text-bg-secondary rounded-pill">${teamSize}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
   `     <span class="fst-italic">todo</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.todo}">${summary.tasks.todo}</span>` +
@@ -256,8 +276,8 @@ function initDashboard() {
               datasets: [
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colors.timeline.dev, colors.timeline.todo, colors.timeline.blocked],
-                  data: [p.summary.tasks.dev,p.summary.tasks.todo,p.summary.tasks.tbd+p.summary.tasks.blocked]
+                  backgroundColor: [colors.timeline.dev, colors.timeline.todo, colors.timeline.tbd, colors.timeline.blocked],
+                  data: [p.summary.tasks.dev, p.summary.tasks.todo, p.summary.tasks.tbd, p.summary.tasks.blocked]
                 }
               ]
             },
@@ -480,41 +500,75 @@ $("#team-tab").click(function(){
   updateTeam();
 });
 
-function getMember(id, name, email, fte) {
-  return '<tr>' +
-  ` <th scope="row">${id}</th>` +
-  ` <td class="">${name} (${email})</td>` +
-  ` <td>${fte}</td>` +
-  ' <td class="align-middle">' +
-  '  <div class="progress-stacked">' +
-  '    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-success">15</div>' +
-  '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment two" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-danger">30</div>' +
-  '    </div>' +
-  '    <div class="progress" role="progressbar" aria-label="Segment three" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">' +
-  '      <div class="progress-bar bg-warning">50</div>' +
-  '    </div>' +
-  '  </div>' +
-  ' </td>' +
-  '</tr>';
+function getMember(member, showZeroFte = false) {
+  const emails = member.bandwidth.length > 1 ? 
+    member.bandwidth.map( b => `<small>${b.email} (${b.fte})</small>`).join('<br/>')
+    :
+    `<small>${member.bandwidth[0].email}</small>`
+  ;
+  const fte = member.bandwidth.reduce((acc, b) => acc + b.fte, 0);
+  if (fte || showZeroFte) {
+  return '<tr class="p-0">' +
+    ` <th scope="row">${member.id}</th>` +
+    ` <td class="">${member.name}<br/>${emails}</td>` +
+    ` <td class="align-middle">${fte}</td>` +
+    ` <td class="align-middle">${member.summary.total}</td>` +
+    ' <td class="align-middle">' +
+    '  <div class="progress-stacked">' +
+    [
+      [member.summary.dev, colors.timeline.dev, 'text-white'],
+      [member.summary.todo, colors.timeline.todo, 'text-dark'],
+      [member.summary.tbd, colors.timeline.tbd, 'text-dark'],
+      [member.summary.blocked, colors.timeline.blocked, 'text-white'],
+      [member.summary.done, colors.timeline.done, 'text-white'],
+      [member.summary.dropped, colors.timeline.dropped, 'text-white'],
+    ].map( t => {
+      const v = t[0];
+      const p = member.summary.total ? 100 * v / member.summary.total : 0;
+      const c = t[1];
+      const ct = t[2];
+      return '' +
+      `    <div class="progress" role="progressbar" aria-label="Segment one" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: ${p}%">` +
+      `      <div class="progress-bar ${ct}" style="background-color: ${c}">${v}</div>` +
+      '    </div>';
+    }).join('\n') +
+    '  </div>' +
+    ' </td>' +
+    '</tr>';
+  }
+  return '';
 }
 
 function initTeam() {
   $.getJSON("team", function(res, status){
     if (res.success) {
-      team = res.data;
-      var list = $('#dashboard_team_list');
-      list.empty();
-      team.filter(function(m){ return m.fte > 0;}).forEach(function(m){
-        list.append(getMember(m.id, m.name, m.email, m.fte));
-      });
+      team = res.data.team;
+      updateTeam();
     }
   });  
 }
 
 function updateTeam() {
+  var header = $('#dashboard_team_list_header');
+  header.empty();
+  header.append(
+    [
+      ['dev', 'text-white'],
+      [ 'todo', 'text-dark'],
+      [ 'tbd', 'text-dark'],
+      [ 'blocked', 'text-white'],
+      [ 'done', 'text-white'],
+      [ 'dropped', 'text-white']
+    ].map(function(s){
+      return `<span class="badge ${s[1]} rounded-pill" style="background-color: ${colors.timeline[s[0]]}">${s[0]}</span>`;
+    }).join(' ')
+  );
+  //
+  var list = $('#dashboard_team_list');
+  list.empty();
+  team.forEach(function(m){
+    list.append(getMember(m));
+  });
 }
 
 //-----------------------------------------------------------------------------
