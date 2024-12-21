@@ -128,7 +128,6 @@ function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours
         releaseDate = deadline;
         timeToRelease = formatDuration(duration);
         //timeToRelease = dateFns.fp.formatDuration(duration, { format, delimiter: ', ', zero: false });
-        console.log(timeToRelease);
         releaseFeatures = t.features;
       }
     });

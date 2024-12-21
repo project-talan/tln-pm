@@ -119,9 +119,11 @@ class App {
             }
           }
           const processComponent = (c) => {
-            processTasks(c.tasks);
-            for (const nc of c.components) {
-              processComponent(nc);
+            if (c) {
+              processTasks(c.tasks);
+              for (const nc of c.components) {
+                processComponent(nc);
+              }
             }
           }
           processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { backlog: true, dev: true, done: true } }}));
@@ -150,7 +152,8 @@ class App {
       const addComponents = what.components;
       //
       const data = {};
-      const dt = new Date();
+      const cdt = new Date();
+      const dt = new Date(cdt.getFullYear(), cdt.getMonth() + 1, 0, 20, 0, 0, 0);
       const dl = `v${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
       const source = sourceFactory.create(this.logger, fp);
       if (all || addProject) {
@@ -177,9 +180,9 @@ class App {
         };
       }
       if (all || addTasks) {
-        data.tasks = `[-:001:${dl}] Integrate auth library\n  [-] Add /iam/auth endpoint @alice.d\n  [-] Configure auth callbacks @alice.d\n`;
+        data.tasks = `[-:002:${dl}] Integrate auth library @alice.d\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @bob.w\n`;
         if (all || addSrs) {
-          data.tasks = `[-:002] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
+          data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }
       }
       if (all ||addSrs) {
@@ -193,10 +196,10 @@ class App {
       if (all || addComponents) {
         data.components = {
           backend: {
-            tasks: "[-:002] Integrate Sonarcloud\n[-:001] Add service skeleton + unit tests\n"
+            tasks: "[-:002] Integrate Sonarcloud\n[+:001] Add service skeleton + unit tests\n"
           },
           web: {
-            tasks: "[-:002] Integrate Sonarcloud\n[-:001] Add landing skeleton using Next.js\n"
+            tasks: "[-:002] Integrate Sonarcloud\n[>:001] Add landing skeleton using Next.js\n"
           }
         };
 
