@@ -33,6 +33,7 @@ timeline:
   v0.2.0:
     deadline: 2024-09-04T17:30:00+02:00
 tasks: |
+  [-:033:v0.13.0] Implement Timeline web part @vlad.k
   [-:032:v0.13.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
   [-:031:v0.13.0] Fix task output on hierarchy mode @vlad.k
@@ -52,17 +53,16 @@ tasks: |
   [+:017:v0.5.0] Add SRS section @vlad.k
   [-:016:v0.13.0] Add describe command with resolved links @vlad.k
   [x:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
-  [-:014:v0.12.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
+  [-:014:v0.13.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:v0.6.0] Add search @vlad.k
   [+:012:v0.6.0] Add CI/CD @vlad.k
   [+:011:v0.6.0] Add unit test framework @vlad.k
   [+:010:v0.6.0] Extract tags, timeline from task description @vlad.k
   [+:009:v0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [+:008:v0.6.0] Merge multiple descriptions from one file @vlad.k
-  [>:007:v0.12.0] Server command: express server + fs watch @vlad.k
+  [+:007:v0.12.0] Server command: express server + fs watch @vlad.k
     [+] Create API using express
     [+] Implement web part: Dashboard
-    [>] Implement web part: Timeline
     [+] Implement web part: Team
   [+:006:v0.4.0] Extract status, id, assingees from task description @vlad.k
   [+:005:v0.4.0] Implement ls command for timeline @vlad.k
