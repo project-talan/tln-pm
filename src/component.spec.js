@@ -11,7 +11,7 @@ const home = '/tmp';
 describe('Component entity', function () {
 
   it('can be created', function () {
-    expect(componentFactory.create(logger, null, home, null)).not.to.be.null;
+    expect(componentFactory.create(logger, home, null)).not.to.be.null;
   });
 
 });
