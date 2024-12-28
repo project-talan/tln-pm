@@ -33,6 +33,7 @@ timeline:
   v0.2.0:
     deadline: 2024-09-04T17:30:00+02:00
 tasks: |
+  [-:034:v0.13.0] Add task command --start --pause --resume --close --block --tbd to manupulate task state @vlad.k
   [-:033:v0.13.0] Implement Timeline web part @vlad.k
   [-:032:v0.13.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state

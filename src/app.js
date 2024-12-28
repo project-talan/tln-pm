@@ -20,6 +20,7 @@ class App {
     this.logger = logger;
     this.cwd = null;
     this.home = null;
+    this.sources = [];
     this.rootComponent = null;
   }
 
@@ -42,9 +43,14 @@ class App {
   async load(include, ignore) {
     this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
-    this.logger.info('entries to scan:', entries.length);
+    this.logger.info('Entries count:', entries.length);
+    this.logger.info('Entries to scan:', entries);
     for (const e of entries) {
-      await this.rootComponent.process(e);
+      const ids = e.split(path.sep); ids.pop();
+      const c = await this.rootComponent.find(ids, true);
+      const source = sourceFactory.create(this.logger, path.join(this.home, e));
+      this.sources.push(source);
+      await c.process(source);
     }
   }
 
@@ -136,6 +142,14 @@ class App {
       }
     }
     return result;
+  }
+
+  async update(options) {
+    const {component, id, status, git} = options;
+    const c = await this.getCurrentComponent(component);
+    if (c) {
+      return await c.update({id, status, git});
+    }
   }
 
   //

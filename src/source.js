@@ -13,6 +13,7 @@ class Source {
   constructor(logger, file) {
     this.logger = logger;
     this.file = file;
+    this.data = null;
   }
  
   async getFolder() {
@@ -29,13 +30,17 @@ class Source {
   }
 
   async load() {
-    let data = null;
-    try {
-        data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
-    } catch (e) {
-      this.logger.error('Yaml file has incorrect format:', this.file);
+    if (!this.data) {
+      try {
+        this.data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
+      } catch (e) {
+        this.logger.error('Yaml file has incorrect format:', this.file);
+      }
     }
-    return data;
+    return this.data;
+  }
+
+  async save() {
   }
 
 }

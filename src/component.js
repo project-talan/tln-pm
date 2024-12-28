@@ -6,7 +6,6 @@ const exec = require('child_process').execSync;
 
 const assign = require('assign-deep');
 
-const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
 const deadlineFactory = require('./deadline');
@@ -33,6 +32,14 @@ class Component {
     this.tasks = [];
     this.srs = [];
     this.components = [];
+    // check if component is git repo root
+    if (fs.existsSync(path.join(this.home, '.git'))) {
+      try {
+        this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      } catch (e) {
+        this.logger.warn('Could\'n read git repository', this.home, e);
+      }
+    }
   }
 
   isItMe(id) {
@@ -51,59 +58,28 @@ class Component {
     return path.relative(this.getRoot().getHome(), this.getHome());
   }
 
-  async find(components) {
-    if (components && components.length) {
-      const cpy = [...components];
-      const component = cpy.shift();
-      const n = this.components.find( c => c.isItMe(component));
-      if (n && cpy.length) {
-        return await n.find(cpy);
+  async find(ids, force) {
+    if (ids && ids.length) {
+      const cpy = [...ids];
+      const id = cpy.shift();
+      let c = this.components.find( c => c.isItMe(id));
+      if (!c && force) {
+        c = new Component(this.logger, this, path.join(this.home, id), id);
+        this.components.push(c);
       }
-      return n;
+      if (c && cpy.length) {
+        return await c.find(cpy, force);
+      }
+      return c;
     }
+    return this;
   }
 
-  async process(pathTo) {
-    let result = false;
-    // check if component is git repo root
-    if (this.checkRepo) {
-      this.checkRepo = false;
-      if (fs.existsSync(path.join(this.home, '.git'))) {
-        try {
-          this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-        } catch (e) {
-          this.logger.warn('Could\'n read git repository', this.home, e);
-        }
-      }
+  async process(source) {
+    const data = await source.load();
+    if (data) {
+      return await this.processData(data, source);
     }
-    //
-    const items = pathTo.split(path.sep);
-    if (items.length > 1) {
-      // dive into subdirectories
-      const id = items.shift();
-      let component = this.components.find( c => c.isItMe(id));
-      let needToAdd = false;
-      if (!component) {
-        needToAdd = true;
-        component = new Component(this.logger, this, path.join(this.home, id), id);
-      }
-      if (await component.process(items.join(path.sep))) {
-        if (needToAdd) {
-          this.components.push(component);
-        }
-        result = true;
-      }
-    } else {
-      // process file
-      const source = sourceFactory.create(this.logger, path.join(this.home, items[0]));
-      //
-      const data = await source.load();
-      if (data) {
-        this.sources.push(source);
-        result = await this.processData(data, source);
-      }
-    }
-    return result;
   }
 
   async processData(data, source) {
@@ -144,18 +120,9 @@ class Component {
     }
     if (data.components) {
       for (const id of Object.keys(data.components)) {
-        let component = this.components.find( c => c.isItMe(id));
-        let needToAdd = false;
-        if (!component) {
-          needToAdd = true;
-          component = new Component(this.logger, this, path.join(this.home, id), id);
-        }
-        if (await component.processData(data.components[id], source)) {
-          if (needToAdd) {
-            this.components.push(component);
-          }
-          result |= true;
-        }
+        const c = this.find( [id], true);
+        await c.processData(data.components[id], source);
+        result |= true;
       }
     }
     return result;
@@ -286,6 +253,13 @@ class Component {
       }
     }
   }
+
+  async update(options) {
+    const {id, status, git} = options;
+    const tasks = (await Promise.all(this.tasks.map(async t => t.find(id)))).filter(v => !!v);
+    return (await Promise.all(tasks.map(async t => t.update({status, git})))).flat();
+  }
+
 }
 
 module.exports.create = (logger, home, id) => {

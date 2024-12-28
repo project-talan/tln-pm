@@ -27,6 +27,46 @@ class Task {
     this.audit = {};
   }
 
+  async find(id) {
+    if (this.id === id) {
+      return this;
+    }
+    for (const task of this.tasks) {
+      const found = await task.find(id);
+      if (found) {
+        return found;
+      }
+    }
+  }
+
+  async update(options) {
+    const {relativePath, status, git} = options;
+    let commitMsg = '';
+    const cmds = [];
+    if (status.todo) {
+      this.status = '-';
+    } else if (status.dev) {
+      this.status = '>';
+      const checkoutBranch = (relativePath ? `${relativePath}/` : ``) + this.id;
+      cmds.push(`git checkout -b ${checkoutBranch}`);
+      //
+      commitMsg = 'feat' + (relativePath ? `(${relativePath})` : ``) + `: ${this.id} - ${this.title.substring(0, 20)}"`;
+    } else if (status.tbd) {
+      this.status = '?';
+    } else if (status.blocked) {
+      this.status = '!';
+    } else if (status.done) {
+      this.status = '+';
+    } else if (status.dropped) {
+      this.status = 'x';
+    }
+    console.log('update', this.id, this.status);
+    await this.source.save();
+    cmds.push(`git add -A`);
+    cmds.push(`git commit -m"${commitMsg}"`);
+    return git ? cmds : [];
+  }
+
   async parse(descs, index) {
     let i = index;
     for (;i < descs.length;) {
@@ -62,9 +102,12 @@ class Task {
     // console.log(who, this.assignees);
     const me = who.assignees.some( r => this.assignees.includes(r)) || alsoMe;
     const st = [
-      { statuses: ['-', '?', '!'], flag: filter.status.backlog },
+      { statuses: ['-'], flag: filter.status.todo },
       { statuses: ['>'], flag: filter.status.dev },
-      { statuses: ['+', 'x'], flag: filter.status.done },
+      { statuses: ['?'], flag: filter.status.tbd },
+      { statuses: ['!'], flag: filter.status.blocked },
+      { statuses: ['+'], flag: filter.status.done },
+      { statuses: ['x'], flag: filter.status.dropped },
     ].find(v => v.flag && v.statuses.includes(this.status) ) || statusToo;
     //
     const tags = [this.deadline].concat(this.tags);
