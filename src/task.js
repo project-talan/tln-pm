@@ -29,9 +29,9 @@ class Task {
     if (this.source.isItMe(source)) {
       const id = this.id ? `:${this.id}` : '';
       const deadline = this.deadline ? `:${this.deadline}` : '';
-      const assignees = this.assignees.length ? this.assignees.map( a => ` @${a}`).join() : '';
-      const tags = this.tags.length ? this.tags.map( t => ` #${t}`).join() : '';
-      const links = this.links.length ? this.links.map( l => ` (${l})`).join() : '';
+      const assignees = this.assignees.length ? this.assignees.map( a => ` @${a}`).join('') : '';
+      const tags = this.tags.length ? this.tags.map( t => ` #${t}`).join('') : '';
+      const links = this.links.length ? this.links.map( l => ` (${l})`).join('') : '';
       return [`${indent}[${this.status}${id}${deadline}] ${this.title}${assignees}${tags}${links}`]
         .concat(...await Promise.all(this.tasks.map(async t => t.reconstruct(source, indent + '  '))));
     }

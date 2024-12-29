@@ -144,6 +144,19 @@ class Component {
         data.team = team;
       }
     }
+    // timeline
+    if (this.timeline.length) {
+      const timeline = {};
+      for (const d of this.timeline) {
+        const deadline = await d.reconstruct(source);
+        if (deadline) {
+          timeline[d.id] = deadline;
+        }
+      } 
+      if (Object.keys(timeline).length) {
+        data.timeline = timeline;
+      }
+    }
     // tasks
     const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
     if (tasks.length) {
