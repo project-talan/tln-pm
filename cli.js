@@ -9,8 +9,7 @@ const fs = require('fs');
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
-const yaml = require('yaml');
-const { dump } = require('js-yaml');
+const yaml = require('js-yaml');
 
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
@@ -101,7 +100,7 @@ yargs(hideBin(process.argv))
           if (argv.json) {
             a.logger.con(JSON.stringify(component));
           } else {
-            a.logger.con(yaml.stringify(component));
+            a.logger.con(yaml.dump(component, {lineWidth: -1}));
           }
         } else {
           const dump = (c, indent, last) => {
@@ -192,7 +191,7 @@ yargs(hideBin(process.argv))
         if (argv.json) {
           a.logger.con(JSON.stringify(r));
         } else {
-          a.logger.con(yaml.stringify(r));
+          a.logger.con(yaml.dump(r, {lineWidth: -1}));
         }
       }
     });

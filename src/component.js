@@ -25,7 +25,6 @@ class Component {
     this.id = id;
     this.checkRepo = true;
     this.lastCommit = null;
-    this.sources = [];
     this.project = [];
     this.team = [];
     this.timeline = [];
@@ -108,9 +107,11 @@ class Component {
       const task = taskFactory.create(this.logger, source);
       await task.parse(data.tasks.split('\n').filter(t => t.trim().length), 0);
       if (task.tasks.length) {
-        this.tasks.push(task);
+        task.tasks.forEach( t => t.parent = null);
+        this.tasks.push(...task.tasks);
         result |= true;
       }
+      //this.logger.con(this.tasks);
     }
     if (data.srs) {
       const srs = srsFactory.create(this.logger, source);
@@ -126,6 +127,17 @@ class Component {
       }
     }
     return result;
+  }
+
+  async reconstruct(source) {
+    const data = {};
+    //
+    const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
+    if (tasks.length) {
+      data.tasks = tasks.join('\n');
+    }
+    //
+    return data;
   }
 
   async getAssignees(assignees) {
@@ -156,9 +168,8 @@ class Component {
     // tasks
     for (const task of this.tasks) {
       const t = await task.filter({who: who2, filter});
-      //console.log(t);
-      if (t && t.tasks.length) {
-        ts.tasks.push(...t.tasks);
+      if (t) {
+        ts.tasks.push(t);
       }
     };
     //

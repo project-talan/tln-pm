@@ -2,8 +2,6 @@
 const path = require('path');
 const fs = require('fs');
 
-const yaml = require('yaml');
-
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
 const componentFactory = require('./component');
@@ -48,7 +46,7 @@ class App {
     for (const e of entries) {
       const ids = e.split(path.sep); ids.pop();
       const c = await this.rootComponent.find(ids, true);
-      const source = sourceFactory.create(this.logger, path.join(this.home, e));
+      const source = sourceFactory.create(this.logger, path.join(this.home, e), c);
       this.sources.push(source);
       await c.process(source);
     }

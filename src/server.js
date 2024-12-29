@@ -6,8 +6,6 @@ const os = require('os');
 
 const express = require('express');
 const fg = require('fast-glob');
-const yaml = require('js-yaml');
-
 
 const utils = require('./utils');
 const {version} = require('../package.json');
