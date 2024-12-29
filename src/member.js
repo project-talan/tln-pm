@@ -15,6 +15,16 @@ class Member {
     this.fte = null;
   }
 
+  async reconstruct(source) {
+    if (this.source.isItMe(source)) {
+      return ({
+        email: this.email,
+        name: this.name,
+        fte: this.fte
+      });
+    }
+  }
+
   async load(id, data) {
     const {name, email, fte} = data;
     this.id = id;

@@ -131,7 +131,20 @@ class Component {
 
   async reconstruct(source) {
     const data = {};
-    //
+    // team
+    if (this.team.length) {
+      const team = {};
+      for (const m of this.team) {
+        const member = await m.reconstruct(source);
+        if (member) {
+          team[m.id] = member;
+        }
+      } 
+      if (Object.keys(team).length) {
+        data.team = team;
+      }
+    }
+    // tasks
     const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
     if (tasks.length) {
       data.tasks = tasks.join('\n');
