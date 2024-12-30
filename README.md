@@ -37,6 +37,16 @@ One of the main USP is to provide estimates based on development speed captures 
       [?] Configure auth callbacks
     [>:001:v24.12.0] Create project structure @alice.c
   ```
+* Now you can start managing your project using cli and git
+  | Command | Description |
+  | ------------- | -------------
+  | tpm ls -g alice.c | Display tasks in developmenr were assigned to the Alice |
+  | tpm ls -g alice.c --backlog | List of tasks are in Alice backlog |
+* Next command will give you "eagle view" inside browser **http://localhost:5445**
+  ```
+  tln serve
+  ```
+  !()[tpm-01.png]
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
