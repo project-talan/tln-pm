@@ -9,6 +9,35 @@ One of the main USP is to provide estimates based on development speed captures 
 
 ## Quick start
 
+* Install tpm
+  ```
+  npm i -g tln-pm@0.13.0
+  ```
+* Goto you project git repository root folder and create initial config
+  ```
+  tpm config --project --team --timeline --tasks
+  ```
+* Update **.tpm.yml** with project information, team structure, timeline and tasks
+  ```
+  project:
+    id: myproject
+    name: My Project
+    description: My project description
+  team:
+    alice.c:
+      email: alice.c@gmail.com
+      name: Alice Clarke
+      fte: 1
+  timeline:
+    v24.12.0:
+      deadline: '2024-12-31T18:00:00.000Z'
+  tasks: |
+    [-:002:v24.12.0] Integrate auth library @alice.c
+      [!] Add /iam/auth endpoint
+      [?] Configure auth callbacks
+    [>:001:v24.12.0] Create project structure @alice.c
+  ```
+
 ## DSL
   
 `.tpm.yml` files are used to define PM artifacts.
