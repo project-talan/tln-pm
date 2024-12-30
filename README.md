@@ -40,7 +40,7 @@
   | tpm ls -g alice.c --backlog | List of tasks are in Alice backlog |
 * Next command will give you project "eagle view" inside browser **http://localhost:5445**
   ```
-  tln serve
+  tpm serve
   ```
   ![Dashboard](tpm-01.png)
   ![Team](tpm-02.png)
