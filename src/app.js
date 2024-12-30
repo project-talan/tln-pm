@@ -2,8 +2,6 @@
 const path = require('path');
 const fs = require('fs');
 
-const yaml = require('yaml');
-
 const exec = require('child_process').execSync;
 const fg = require('fast-glob');
 const componentFactory = require('./component');
@@ -20,6 +18,7 @@ class App {
     this.logger = logger;
     this.cwd = null;
     this.home = null;
+    this.sources = [];
     this.rootComponent = null;
   }
 
@@ -42,9 +41,14 @@ class App {
   async load(include, ignore) {
     this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
     const entries = await fg(include, { cwd: this.home, dot: true, ignore });
-    this.logger.info('entries to scan:', entries.length);
+    this.logger.info('Entries count:', entries.length);
+    this.logger.info('Entries to scan:', entries);
     for (const e of entries) {
-      await this.rootComponent.process(e);
+      const ids = e.split(path.sep); ids.pop();
+      const c = await this.rootComponent.find(ids, true);
+      const source = sourceFactory.create(this.logger, path.join(this.home, e), c);
+      this.sources.push(source);
+      await c.process(source);
     }
   }
 
@@ -138,6 +142,14 @@ class App {
     return result;
   }
 
+  async update(options) {
+    const {component, id, status, git} = options;
+    const c = await this.getCurrentComponent(component);
+    if (c) {
+      return await c.update({id, status, git});
+    }
+  }
+
   //
   async config(options) {
     const { what, file, all, force } = options;
@@ -161,14 +173,9 @@ class App {
       }
       if (all || addTeam) {
         data.team = {
-          "alice.d": {
-            email: "alice.d@gmail.com",
-            name: "Alice Doe",
-            fte: 1,
-          },
-          "bob.w": {
-            email: "bob.w@gmail.com",
-            name: "Bob White",
+          "alice.c": {
+            email: "alice.c@gmail.com",
+            name: "Alice Clarke",
             fte: 1,
           },
         };
@@ -180,7 +187,7 @@ class App {
         };
       }
       if (all || addTasks) {
-        data.tasks = `[-:002:${dl}] Integrate auth library @alice.d\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @bob.w\n`;
+        data.tasks = `[-:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @alice.c\n`;
         if (all || addSrs) {
           data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }

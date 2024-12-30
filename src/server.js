@@ -6,8 +6,6 @@ const os = require('os');
 
 const express = require('express');
 const fg = require('fast-glob');
-const yaml = require('js-yaml');
-
 
 const utils = require('./utils');
 const {version} = require('../package.json');
@@ -61,7 +59,7 @@ class Server {
         component: null,
         depth: 10,
         who: { assignees: [], all: true },
-        filter: { tag: [], search: [], deadline: [], status: { backlog: true, dev: true, done: false } }
+        filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, tbd: true, blocked: true, done: true, dropped: true } }
       })));
     })
     ea.get('/srs', async(req, res) => {

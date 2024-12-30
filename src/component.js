@@ -6,12 +6,11 @@ const exec = require('child_process').execSync;
 
 const assign = require('assign-deep');
 
-const sourceFactory = require('./source');
 const projectFactory = require('./project');
 const memberFactory = require('./member');
 const deadlineFactory = require('./deadline');
 const taskFactory = require('./task');
-const srsFactory = require('./srs');
+const topicFactory = require('./topic');
 
 class Component {
 
@@ -26,13 +25,20 @@ class Component {
     this.id = id;
     this.checkRepo = true;
     this.lastCommit = null;
-    this.sources = [];
     this.project = [];
     this.team = [];
     this.timeline = [];
     this.tasks = [];
     this.srs = [];
     this.components = [];
+    // check if component is git repo root
+    if (fs.existsSync(path.join(this.home, '.git'))) {
+      try {
+        this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      } catch (e) {
+        this.logger.warn('Could\'n read git repository', this.home, e);
+      }
+    }
   }
 
   isItMe(id) {
@@ -51,59 +57,28 @@ class Component {
     return path.relative(this.getRoot().getHome(), this.getHome());
   }
 
-  async find(components) {
-    if (components && components.length) {
-      const cpy = [...components];
-      const component = cpy.shift();
-      const n = this.components.find( c => c.isItMe(component));
-      if (n && cpy.length) {
-        return await n.find(cpy);
+  async find(ids, force) {
+    if (ids && ids.length) {
+      const cpy = [...ids];
+      const id = cpy.shift();
+      let c = this.components.find( c => c.isItMe(id));
+      if (!c && force) {
+        c = new Component(this.logger, this, path.join(this.home, id), id);
+        this.components.push(c);
       }
-      return n;
+      if (c && cpy.length) {
+        return await c.find(cpy, force);
+      }
+      return c;
     }
+    return this;
   }
 
-  async process(pathTo) {
-    let result = false;
-    // check if component is git repo root
-    if (this.checkRepo) {
-      this.checkRepo = false;
-      if (fs.existsSync(path.join(this.home, '.git'))) {
-        try {
-          this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-        } catch (e) {
-          this.logger.warn('Could\'n read git repository', this.home, e);
-        }
-      }
+  async process(source) {
+    const data = await source.load();
+    if (data) {
+      return await this.processData(data, source);
     }
-    //
-    const items = pathTo.split(path.sep);
-    if (items.length > 1) {
-      // dive into subdirectories
-      const id = items.shift();
-      let component = this.components.find( c => c.isItMe(id));
-      let needToAdd = false;
-      if (!component) {
-        needToAdd = true;
-        component = new Component(this.logger, this, path.join(this.home, id), id);
-      }
-      if (await component.process(items.join(path.sep))) {
-        if (needToAdd) {
-          this.components.push(component);
-        }
-        result = true;
-      }
-    } else {
-      // process file
-      const source = sourceFactory.create(this.logger, path.join(this.home, items[0]));
-      //
-      const data = await source.load();
-      if (data) {
-        this.sources.push(source);
-        result = await this.processData(data, source);
-      }
-    }
-    return result;
   }
 
   async processData(data, source) {
@@ -132,33 +107,78 @@ class Component {
       const task = taskFactory.create(this.logger, source);
       await task.parse(data.tasks.split('\n').filter(t => t.trim().length), 0);
       if (task.tasks.length) {
-        this.tasks.push(task);
+        task.tasks.forEach( t => t.parent = null);
+        this.tasks.push(...task.tasks);
+        result |= true;
+      }
+      //this.logger.con(this.tasks);
+    }
+    if (data.srs) {
+      for( const t of Object.keys(data.srs)) {
+        const topic = topicFactory.create(this.logger, source);
+        await topic.load(t, data.srs[t]);
+        this.srs.push(topic);
         result |= true;
       }
     }
-    if (data.srs) {
-      const srs = srsFactory.create(this.logger, source);
-      await srs.load(data.srs);
-      this.srs.push(srs);
-      result |= true;
-    }
     if (data.components) {
       for (const id of Object.keys(data.components)) {
-        let component = this.components.find( c => c.isItMe(id));
-        let needToAdd = false;
-        if (!component) {
-          needToAdd = true;
-          component = new Component(this.logger, this, path.join(this.home, id), id);
-        }
-        if (await component.processData(data.components[id], source)) {
-          if (needToAdd) {
-            this.components.push(component);
-          }
-          result |= true;
-        }
+        const c = await this.find( [id], true);
+        await c.processData(data.components[id], source);
+        result |= true;
       }
     }
     return result;
+  }
+
+  async reconstruct(source) {
+    const data = {};
+    // team
+    if (this.team.length) {
+      const team = {};
+      for (const m of this.team) {
+        const member = await m.reconstruct(source);
+        if (member) {
+          team[m.id] = member;
+        }
+      } 
+      if (Object.keys(team).length) {
+        data.team = team;
+      }
+    }
+    // timeline
+    if (this.timeline.length) {
+      const timeline = {};
+      for (const d of this.timeline) {
+        const deadline = await d.reconstruct(source);
+        if (deadline) {
+          timeline[d.id] = deadline;
+        }
+      } 
+      if (Object.keys(timeline).length) {
+        data.timeline = timeline;
+      }
+    }
+    // tasks
+    const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
+    if (tasks.length) {
+      data.tasks = tasks.join('\n');
+    }
+    // srs
+    if (this.srs.length) {
+      const srs = {};
+      for (const t of this.srs) {
+        const topic = await t.reconstruct(source);
+        if (topic) {
+          srs[t.id] = topic;
+        }
+      } 
+      if (Object.keys(srs).length) {
+        data.srs = srs;
+      }
+    }
+    //
+    return data;
   }
 
   async getAssignees(assignees) {
@@ -189,9 +209,8 @@ class Component {
     // tasks
     for (const task of this.tasks) {
       const t = await task.filter({who: who2, filter});
-      //console.log(t);
-      if (t && t.tasks.length) {
-        ts.tasks.push(...t.tasks);
+      if (t) {
+        ts.tasks.push(t);
       }
     };
     //
@@ -237,7 +256,7 @@ class Component {
 
   async describeSrs(options) {
     let srs = {};
-    (await Promise.all(this.srs.map(async c => c.getSummary()))).forEach( s => srs = assign(srs, s));
+    await Promise.all(this.srs.map(async t => srs[t.id] = await t.getSummary()));
     const components = (await Promise.all(this.components.map(async c => c.describeSrs()))).filter(c => !!c);
     if (Object.keys(srs).length > 0 || components.length > 0) {
      return {
@@ -286,6 +305,13 @@ class Component {
       }
     }
   }
+
+  async update(options) {
+    const {id, status, git} = options;
+    const tasks = (await Promise.all(this.tasks.map(async t => t.find(id)))).filter(v => !!v);
+    return (await Promise.all(tasks.map(async t => t.update({status, git})))).flat();
+  }
+
 }
 
 module.exports.create = (logger, home, id) => {

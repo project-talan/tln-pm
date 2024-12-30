@@ -9,8 +9,7 @@ const fs = require('fs');
 const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
-const yaml = require('yaml');
-const { dump } = require('js-yaml');
+const yaml = require('js-yaml');
 
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
@@ -44,8 +43,12 @@ yargs(hideBin(process.argv))
   .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
-  .option('dev', { describe: 'Show tasks in development (>)', default: true, type: 'boolean' })
-  .option('done', { describe: 'Show done tasks (+,x)', default: false, type: 'boolean' })
+  .option('todo', { describe: 'Tasks in todo state (-)', default: false, type: 'boolean' })
+  .option('dev', { describe: 'Tasks in dev state (>)', default: false, type: 'boolean' })
+  .option('tbd', { describe: 'Tasks in tbd state (?)', default: false, type: 'boolean' })
+  .option('blocked', { describe: 'Tasks in blocked state (!)', default: false, type: 'boolean' })
+  .option('done', { describe: 'Tasks in done state (+)', default: false, type: 'boolean' })
+  .option('dropped', { describe: 'Show done tasks (x)', default: false, type: 'boolean' })
 
   .option('project', { describe: 'Include project section', default: false, type: 'boolean' })
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
@@ -54,6 +57,7 @@ yargs(hideBin(process.argv))
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
   .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
+  .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
   .option('yaml', { describe: 'Output in yaml format', default: false, type: 'boolean' })
@@ -69,11 +73,24 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     getApp(argv, true, async (a) => {
       // console.log(argv);
+      const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.tbd || argv.blocked || argv.done || argv.dropped);
       const component = await a.ls({
         component: argv.component,
         depth: argv.depth,
         who: { assignees: argv.assignee, all: argv.all },
-        filter: { tag: argv.tag, search: argv.search, deadline: argv.deadline, status: { backlog: argv.backlog, dev: argv.dev, done: argv.done } }
+        filter: {
+          tag: argv.tag,
+          search: argv.search,
+          deadline: argv.deadline,
+          status: {
+            todo: argv.todo || argv.backlog,
+            dev: argv.dev || argv.backlog || defaultStatus,
+            tbd: argv.tbd || argv.backlog,
+            blocked: argv.blocked || argv.backlog,
+            done: argv.done,
+            dropped: argv.dropped
+          }
+        }
       });
       //
       const prefix = "";
@@ -83,7 +100,7 @@ yargs(hideBin(process.argv))
           if (argv.json) {
             a.logger.con(JSON.stringify(component));
           } else {
-            a.logger.con(yaml.stringify(component));
+            a.logger.con(yaml.dump(component, {lineWidth: -1}));
           }
         } else {
           const dump = (c, indent, last) => {
@@ -138,11 +155,11 @@ yargs(hideBin(process.argv))
     });
   })
   //
-  .command('config [section...]', 'Show list of tasks', (yargs) => {
+  .command('config', 'Generate .tpm.yml skeleton', (yargs) => {
     return yargs
   }, async (argv) => {
+    // console.log(argv);
     getApp(argv, false, async (a) => {
-      // console.log(argv);
       await a.config({
         what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         file: argv.file,
@@ -174,7 +191,27 @@ yargs(hideBin(process.argv))
         if (argv.json) {
           a.logger.con(JSON.stringify(r));
         } else {
-          a.logger.con(yaml.stringify(r));
+          a.logger.con(yaml.dump(r, {lineWidth: -1}));
+        }
+      }
+    });
+  })
+  //
+  .command('update [component] [id]', 'Update task', (yargs) => {
+    return yargs;
+  }, async (argv) => {
+    getApp(argv, true, async (a) => {
+      // console.log(argv);
+      const cmds = await a.update({
+        component: argv.component,
+        id: argv.id,
+        status: { todo: argv.todo, dev: argv.dev, tbd: argv.tbd, blocked: argv.blocked, done: argv.done, dropped: argv.dropped },
+        git: argv.git,
+      });
+      //
+      if (cmds) {
+        for (const cmd of cmds) {
+          a.logger.con(cmd);
         }
       }
     });

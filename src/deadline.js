@@ -11,6 +11,14 @@ class Deadline {
     this.deadline = null;
   }
 
+  async reconstruct(source) {
+    if (this.source.isItMe(source)) {
+      return ({
+        deadline: this.deadline
+      });
+    }
+  }
+
   async load(id, data) {
     const {deadline} = data;
     this.id = id;

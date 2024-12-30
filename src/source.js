@@ -10,18 +10,24 @@ class Source {
   *
   * params:
   */
-  constructor(logger, file) {
+  constructor(logger, file, component) {
     this.logger = logger;
     this.file = file;
+    this.component = component;
+    this.data = null;
   }
  
+  isItMe(source) {
+    return (this.file === source.file);
+  }
+
   async getFolder() {
     return path.dirname(this.file);
   }
 
   async flush(data) {
     try {
-      fs.writeFileSync(this.file, `${(require('yaml')).stringify(data)}`);
+      fs.writeFileSync(this.file, yaml.dump(data, {lineWidth: -1}));
       this.logger.con(`File was generated`, this.file);
     } catch (err) {
       this.logger.error(err);
@@ -29,17 +35,25 @@ class Source {
   }
 
   async load() {
-    let data = null;
-    try {
-        data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
-    } catch (e) {
-      this.logger.error('Yaml file has incorrect format:', this.file);
+    if (!this.data) {
+      try {
+        this.data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
+      } catch (e) {
+        this.logger.error('Yaml file has incorrect format:', this.file, e);
+      }
     }
-    return data;
+    return this.data;
+  }
+
+  async save() {
+    const data = await this.component.reconstruct(this);
+    // console.log(data);
+    this.logger.con(yaml.dump(data, {lineWidth: -1}));
+    // fs.writeFileSync(this.file, yaml.stringify(data), { encoding: "utf8" });
   }
 
 }
 
-module.exports.create = (logger, file) => {
-  return new Source(logger, file);
+module.exports.create = (logger, file, component) => {
+  return new Source(logger, file, component);
 }
