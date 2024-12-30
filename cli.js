@@ -155,11 +155,11 @@ yargs(hideBin(process.argv))
     });
   })
   //
-  .command('config [section...]', 'Show list of tasks', (yargs) => {
+  .command('config', 'Generate .tpm.yml skeleton', (yargs) => {
     return yargs
   }, async (argv) => {
+    // console.log(argv);
     getApp(argv, false, async (a) => {
-      // console.log(argv);
       await a.config({
         what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
         file: argv.file,

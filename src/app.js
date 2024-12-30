@@ -173,14 +173,9 @@ class App {
       }
       if (all || addTeam) {
         data.team = {
-          "alice.d": {
-            email: "alice.d@gmail.com",
-            name: "Alice Doe",
-            fte: 1,
-          },
-          "bob.w": {
-            email: "bob.w@gmail.com",
-            name: "Bob White",
+          "alice.c": {
+            email: "alice.c@gmail.com",
+            name: "Alice Clarke",
             fte: 1,
           },
         };
@@ -192,7 +187,7 @@ class App {
         };
       }
       if (all || addTasks) {
-        data.tasks = `[-:002:${dl}] Integrate auth library @alice.d\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @bob.w\n`;
+        data.tasks = `[-:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @alice.c\n`;
         if (all || addSrs) {
           data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }

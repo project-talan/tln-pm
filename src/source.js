@@ -27,7 +27,7 @@ class Source {
 
   async flush(data) {
     try {
-      fs.writeFileSync(this.file, yaml.stringify(data));
+      fs.writeFileSync(this.file, yaml.dump(data, {lineWidth: -1}));
       this.logger.con(`File was generated`, this.file);
     } catch (err) {
       this.logger.error(err);
