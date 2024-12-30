@@ -1,11 +1,7 @@
 # Project Management as Code - TPM
-The goal of the utility is to make the git repository the single source of truth for project planning and execution, minimize daily routine, and extend project management activities beyond one person.
-
-It scans your repository for specific file(.tpm) get hierarchy of tasks, statuses, assignments, timeline, srs & project description.
-
-Based on history of commits, TPM can provide up to date project's statistic like average tasks development time, blocked status resolution timeout etc.
-
-One of the main USP is to provide estimates based on development speed captures from repository commits.
+  * uses Git **repository** as **single point of truth** for all PM activities
+  * **minimizes work-about-work** activities: project structure duplication inside external PM tools, tasks' statuses synchronization, documentation replication etc.
+  * provides **up-to-date** project status up to the **latest commit**
 
 ## Quick start
 
@@ -42,11 +38,13 @@ One of the main USP is to provide estimates based on development speed captures 
   | ------------- | -------------
   | tpm ls -g alice.c | Display tasks in developmenr were assigned to the Alice |
   | tpm ls -g alice.c --backlog | List of tasks are in Alice backlog |
-* Next command will give you "eagle view" inside browser **http://localhost:5445**
+* Next command will give you project "eagle view" inside browser **http://localhost:5445**
   ```
   tln serve
   ```
-  !()[tpm-01.png]
+  ![Dashboard](tpm-01.png)
+  asdasdasd
+  ![Team](tpm-02.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
