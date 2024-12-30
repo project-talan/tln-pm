@@ -123,7 +123,7 @@ class Component {
     }
     if (data.components) {
       for (const id of Object.keys(data.components)) {
-        const c = this.find( [id], true);
+        const c = await this.find( [id], true);
         await c.processData(data.components[id], source);
         result |= true;
       }
