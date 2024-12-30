@@ -74,3 +74,9 @@ tasks: |
   [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:v0.2.0] Update README.md @vlad.k
   [+:001:v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
+
+srs:
+  ups: |
+    The main project's USPs are:
+      * 1
+      * 2

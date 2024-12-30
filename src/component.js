@@ -10,7 +10,7 @@ const projectFactory = require('./project');
 const memberFactory = require('./member');
 const deadlineFactory = require('./deadline');
 const taskFactory = require('./task');
-const srsFactory = require('./srs');
+const topicFactory = require('./topic');
 
 class Component {
 
@@ -114,10 +114,12 @@ class Component {
       //this.logger.con(this.tasks);
     }
     if (data.srs) {
-      const srs = srsFactory.create(this.logger, source);
-      await srs.load(data.srs);
-      this.srs.push(srs);
-      result |= true;
+      for( const t of Object.keys(data.srs)) {
+        const topic = topicFactory.create(this.logger, source);
+        await topic.load(t, data.srs[t]);
+        this.srs.push(topic);
+        result |= true;
+      }
     }
     if (data.components) {
       for (const id of Object.keys(data.components)) {
@@ -161,6 +163,19 @@ class Component {
     const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
     if (tasks.length) {
       data.tasks = tasks.join('\n');
+    }
+    // srs
+    if (this.srs.length) {
+      const srs = {};
+      for (const t of this.srs) {
+        const topic = await t.reconstruct(source);
+        if (topic) {
+          srs[t.id] = topic;
+        }
+      } 
+      if (Object.keys(srs).length) {
+        data.srs = srs;
+      }
     }
     //
     return data;
@@ -241,7 +256,7 @@ class Component {
 
   async describeSrs(options) {
     let srs = {};
-    (await Promise.all(this.srs.map(async c => c.getSummary()))).forEach( s => srs = assign(srs, s));
+    await Promise.all(this.srs.map(async t => srs[t.id] = await t.getSummary()));
     const components = (await Promise.all(this.components.map(async c => c.describeSrs()))).filter(c => !!c);
     if (Object.keys(srs).length > 0 || components.length > 0) {
      return {
