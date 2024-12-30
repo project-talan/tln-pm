@@ -43,7 +43,6 @@
   tln serve
   ```
   ![Dashboard](tpm-01.png)
-  asdasdasd
   ![Team](tpm-02.png)
 
 ## Task statuses & attributes
