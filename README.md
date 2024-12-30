@@ -9,7 +9,7 @@
   ```
   npm i -g tln-pm@0.13.0
   ```
-* Goto you project git repository root folder and create initial config
+* Go to your project git repository root folder and create initial config
   ```
   tpm config --project --team --timeline --tasks
   ```
