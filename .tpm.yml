@@ -1,7 +1,7 @@
 project:
   id: tpm
-  name: "Talan PM"
-  description: "Project Management as Code"
+  name: Talan PM
+  description: Project Management as Code
 team:
   vlad.k:
     email: vladislav.kurmaz@gmail.com
@@ -9,34 +9,34 @@ team:
     fte: 0.1
 timeline:
   v0.14.0:
-    deadline: 2025-01-05T10:00:00+02:00
+    deadline: 2025-01-05T08:00:00.000Z
   v0.13.0:
-    deadline: 2024-12-30T16:00:00+02:00
+    deadline: 2024-12-30T14:00:00.000Z
   v0.12.0:
-    deadline: 2024-12-21T21:00:00+02:00
+    deadline: 2024-12-21T19:00:00.000Z
   v0.11.0:
-    deadline: 2024-12-09T10:00:00+02:00
+    deadline: 2024-12-09T08:00:00.000Z
   v0.10.0:
-    deadline: 2024-11-17T23:40:00+02:00
+    deadline: 2024-11-17T21:40:00.000Z
   v0.9.0:
-    deadline: 2024-11-10T23:00:00+02:00
+    deadline: 2024-11-10T21:00:00.000Z
   v0.8.0:
-    deadline: 2024-11-03T14:00:00+02:00
+    deadline: 2024-11-03T12:00:00.000Z
   v0.7.0:
-    deadline: 2024-10-28T23:55:00+02:00
+    deadline: 2024-10-28T21:55:00.000Z
   v0.6.0:
-    deadline: 2024-10-22T17:30:00+02:00
+    deadline: 2024-10-22T15:30:00.000Z
   v0.5.0:
-    deadline: 2024-09-23T17:30:00+02:00
+    deadline: 2024-09-23T15:30:00.000Z
   v0.4.0:
-    deadline: 2024-09-15T17:30:00+02:00
+    deadline: 2024-09-15T15:30:00.000Z
   v0.3.0:
-    deadline: 2024-09-12T17:30:00+02:00
+    deadline: 2024-09-12T15:30:00.000Z
   v0.2.0:
-    deadline: 2024-09-04T17:30:00+02:00
-tasks: |
+    deadline: 2024-09-04T15:30:00.000Z
+tasks: |-
   [-:035:v0.14.0] Dump datetime in local time during update command @vlad.k
-  [-:034:v0.14.0] Add task command --start --pause --resume --close --block --tbd to manupulate task state @vlad.k
+  [>:034:v0.14.0] Add update command --todo --dev --tbd --blocked --dropped to change task state @vlad.k
   [-:033:v0.14.0] Implement Timeline web part @vlad.k
   [-:032:v0.14.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
@@ -47,7 +47,7 @@ tasks: |
   [+:027:v0.10.0] Implement team/member section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k
-  [>:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
+  [-:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
   [+:023:v0.9.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
@@ -74,7 +74,6 @@ tasks: |
   [+:003:v0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:v0.2.0] Update README.md @vlad.k
   [+:001:v0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
-
 srs:
   ups: |
     The main project's USPs are:

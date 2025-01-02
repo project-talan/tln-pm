@@ -32,7 +32,7 @@ class Task {
       const assignees = this.assignees.length ? this.assignees.map( a => ` @${a}`).join('') : '';
       const tags = this.tags.length ? this.tags.map( t => ` #${t}`).join('') : '';
       const links = this.links.length ? this.links.map( l => ` (${l})`).join('') : '';
-      return [`${indent}[${this.status}${id}${deadline}] ${this.title}${assignees}${tags}${links}`]
+      return [`${indent}[${this.status}${id}${deadline}] ${this.title}${tags}${links}${assignees}`]
         .concat(...await Promise.all(this.tasks.map(async t => t.reconstruct(source, indent + '  '))));
     }
   }
@@ -70,7 +70,6 @@ class Task {
     } else if (status.dropped) {
       this.status = 'x';
     }
-    console.log('update', this.id, this.status);
     await this.source.save();
     cmds.push(`git add -A`);
     cmds.push(`git commit -m"${commitMsg}"`);
