@@ -47,9 +47,8 @@ class Source {
 
   async save() {
     const data = await this.component.reconstruct(this);
-    // console.log(data);
-    this.logger.con(yaml.dump(data, {lineWidth: -1}));
-    // fs.writeFileSync(this.file, yaml.stringify(data), { encoding: "utf8" });
+    // this.logger.con(yaml.dump(data, {lineWidth: -1}));
+    fs.writeFileSync(this.file, yaml.dump(data, {lineWidth: -1}), { encoding: "utf8" });
   }
 
 }
