@@ -84,7 +84,9 @@ class Component {
   async processData(data, source) {
     let result = false;
     if (data.project) {
-      this.project.push(assign({}, data.project));
+      const project = projectFactory.create(this.logger, source);
+      await project.load(data.project);
+      this.project.push(project);
       result |= true;
     }
     if (data.team) {
@@ -133,6 +135,12 @@ class Component {
 
   async reconstruct(source) {
     const data = {};
+    // project
+    if (this.project.length) {
+      for (const p of this.project) {
+        data.project = assign(data.project, await p.reconstruct(source));
+      }
+    }
     // team
     if (this.team.length) {
       const team = {};
@@ -235,7 +243,7 @@ class Component {
     if (this.project.length > 0) {
       let project = {};
       this.project.forEach( p => {
-        project = assign(project, p);
+        project = assign(project, {id: p.id, name: p.name, description: p.description});
       });
       let summary = {
         tasks: { todo: 0, dev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
