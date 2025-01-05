@@ -103,10 +103,21 @@ class Task {
     }
   }
 
-  async normalise(options) {
-    const {id} = options;
+  async normalise(options, statuses = {'-': 0, '>': 0, '!': 0, '+': 0}) {
+    const {id, prefix} = options;
     if (!id || this.id === id) {
-      return this.source;
+      if (this.tasks.length) {
+        const subTaskStatuses = {'-': 0, '>': 0, '!': 0, '+': 0};
+        await Promise.all(this.tasks.map(async t => t.normalise({prefix}, subTaskStatuses)));
+        const newStatus = this.getNormaliseStatus(subTaskStatuses);
+        if (this.status !== newStatus) {
+          this.logger.con(` Normalise task: [${prefix} ] ${this.id} ${this.title} '${this.status}' -> '${newStatus}'`);
+          this.status = newStatus;
+          return this.source;
+        }
+      } else {
+        statuses[this.status]++;
+      }
     }
   }
 

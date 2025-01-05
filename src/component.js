@@ -322,7 +322,8 @@ class Component {
 
   async normalise(options) {
     const {id} = options;
-    const sources = (await Promise.all(this.tasks.map(async t => t.normalise({id})))).filter(v => !!v);
+    const prefix = this.getRelativePath()
+    const sources = (await Promise.all(this.tasks.map(async t => t.normalise({id, prefix})))).filter(v => !!v);
     // nested components
     return sources.concat((await Promise.all(this.components.map(async c => c.normalise({id})))).flat());
   }

@@ -149,7 +149,7 @@ class App {
   }
 
   async normalise(options) {
-    const {component, id} = options;
+    const {component, id, save} = options;
     const c = await this.getCurrentComponent(component);
     if (c) {
       const sources = await c.normalise({id});
@@ -161,11 +161,12 @@ class App {
           processed.push(s.file);
         }
       }
-      console.log('normalise sources', sources.length);
-      console.log('normalise unique', unique.length);
-      console.log('normalise processed', processed.length);
-      await Promise.all(unique.map(async s => console.log(s.file)));
-      // await Promise.all(sources.map(async s => await s.save() ));
+      this.logger.con();
+      this.logger.con('Next file(s) will be mofified:');
+      await Promise.all(unique.map(async s => this.logger.con(' -', s.file)));
+      if (save) {
+        await Promise.all(sources.map(async s => await s.save()));
+      }
     }
   }
 

@@ -42,7 +42,7 @@ yargs(hideBin(process.argv))
 
   .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
 
-  .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
+  .option('backlog', { describe: 'Show tasks in backelog (-,>,!)', default: false, type: 'boolean' })
   .option('todo', { describe: 'Tasks in todo state (-)', default: false, type: 'boolean' })
   .option('dev', { describe: 'Tasks in dev state (>)', default: false, type: 'boolean' })
   .option('blocked', { describe: 'Tasks in blocked state (!)', default: false, type: 'boolean' })
@@ -55,6 +55,7 @@ yargs(hideBin(process.argv))
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
   .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
+  .option('save', { describe: 'Save modifications', default: false, type: 'boolean' })
   .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
@@ -220,7 +221,8 @@ yargs(hideBin(process.argv))
       // console.log(argv);
       await a.normalise({
         component: argv.component,
-        id: argv.id
+        id: argv.id,
+        save: argv.save
       });
     });
   })
