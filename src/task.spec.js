@@ -30,78 +30,13 @@ describe('Task entity', function () {
     expect(task.tasks[0].tasks[0].tasks[1].tasks.length).to.be.equal(0);
     expect(task.tasks[0].tasks[0].tasks[2].tasks.length).to.be.equal(0);
     expect(task.tasks[1].tasks.length).to.be.equal(0);
-    
   });
 
   it('can be normalised', function () {
     const task = taskFactory.create();
-    /*
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 0, '+': 0, 'x': 1})).to.be.equal('x');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 0, '+': 1, 'x': 0})).to.be.equal('+');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 0, '+': 1, 'x': 1})).to.be.equal('+');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 1, '+': 0, 'x': 0})).to.be.equal('!');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 1, '+': 0, 'x': 1})).to.be.equal('!');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 1, '+': 1, 'x': 0})).to.be.equal('!');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 0, '!': 1, '+': 1, 'x': 1})).to.be.equal('!');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 0, '+': 0, 'x': 0})).to.be.equal('?');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 0, '+': 0, 'x': 1})).to.be.equal('?');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 0, '+': 1, 'x': 0})).to.be.equal('?');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 0, '+': 1, 'x': 1})).to.be.equal('?');
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 0, '?': 1, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 0, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 0, '>': 1, '?': 1, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 0, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 0, '?': 1, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 0, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 0, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 0, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 0, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 0, '+': 1, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 1, '+': 0, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 1, '+': 0, 'x': 1})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 1, '+': 1, 'x': 0})).to.be.equal(undefined);
-    expect(task.getNormaliseStatus({'-': 1, '>': 1, '?': 1, '!': 1, '+': 1, 'x': 1})).to.be.equal(undefined);
-    */
-    
+    taskFactory.taskTransformer.forEach( tt => {
+      expect(task.getNormaliseStatus(tt.in)).to.be.equal(tt.out);
+    });
   });
 
 });

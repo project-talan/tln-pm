@@ -7,6 +7,25 @@ const fg = require('fast-glob');
 
 const utils = require('./utils');
 
+const taskTransformer = [
+  { in: {'-': 0, '>': 0, '!': 0, '+': 0}, out: undefined }, 
+  { in: {'-': 0, '>': 0, '!': 0, '+': 1}, out: '+' },
+  { in: {'-': 0, '>': 0, '!': 1, '+': 0}, out: '!' },
+  { in: {'-': 0, '>': 0, '!': 1, '+': 1}, out: '!' },
+  { in: {'-': 0, '>': 1, '!': 0, '+': 0}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 0, '+': 1}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 1, '+': 0}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 1, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 0, '!': 0, '+': 0}, out:'-' },
+  { in: {'-': 1, '>': 0, '!': 0, '+': 1}, out:'-' },
+  { in: {'-': 1, '>': 0, '!': 1, '+': 0}, out:'!' },
+  { in: {'-': 1, '>': 0, '!': 1, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 0, '+': 0}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 0, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 1, '+': 0}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 1, '+': 1}, out: '>' }
+];
+
 class Task {
 
   constructor(logger, source, parent, indent) {
@@ -73,6 +92,15 @@ class Task {
   }
 
   getNormaliseStatus(statuses) {
+    for(let tt of taskTransformer) {
+      let match = true;
+      Object.keys(tt.in).forEach( s => {
+        match = match && ((!!statuses[s]) == (!!tt.in[s]));
+      });
+      if (match) {
+        return tt.out;
+      }
+    }
   }
 
   async normalise(options) {
@@ -181,3 +209,5 @@ class Task {
 module.exports.create = (logger, source) => {
   return new Task(logger, source, null, -1);
 }
+
+module.exports.taskTransformer = taskTransformer;
