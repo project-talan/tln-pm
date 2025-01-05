@@ -47,7 +47,7 @@ tasks: |-
   [+:027:v0.10.0] Implement team/member section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k
-  [>:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
+  [+:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
   [+:023:v0.9.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
