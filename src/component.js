@@ -246,7 +246,7 @@ class Component {
         project = assign(project, {id: p.id, name: p.name, description: p.description});
       });
       let summary = {
-        tasks: { todo: 0, dev: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 },
+        tasks: { todo: 0, dev: 0, blocked: 0, done: 0 },
         timeline: []
       };
       project.summary = await this.getSummary(summary);
@@ -318,6 +318,14 @@ class Component {
     const {id, status, git} = options;
     const tasks = (await Promise.all(this.tasks.map(async t => t.find(id)))).filter(v => !!v);
     return (await Promise.all(tasks.map(async t => t.update({status, git})))).flat();
+  }
+
+  async normalise(options) {
+    const {id} = options;
+    const prefix = this.getRelativePath()
+    const sources = (await Promise.all(this.tasks.map(async t => t.normalise({id, prefix})))).filter(v => !!v);
+    // nested components
+    return sources.concat((await Promise.all(this.components.map(async c => c.normalise({id})))).flat());
   }
 
 }

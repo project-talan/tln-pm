@@ -18,12 +18,10 @@ const colors = {
   timeline: {
     component: 'gray',
     group: '#20C997',
-    dev: '#007BFF',
     todo: '#FFA500',
-    tbd: '#FFDF58',
+    dev: '#007BFF',
     blocked: '#DC3545',
-    done: '#28A745',
-    dropped: '#343A40'
+    done: '#28A745'
   }
 };
 //-----------------------------------------------------------------------------
@@ -207,22 +205,16 @@ function getProjectDetails(description, summary) {
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center py-0 bg-secondary-subtle fw-bold">Tasks</li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <div class="fst-italic">dev</div><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
-  '   </li>' +
-  `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
   `     <span class="fst-italic">todo</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.todo}">${summary.tasks.todo}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
-  `     <span class="fst-italic">tbd</span><span class="badge text-dark rounded-pill" style="background-color: ${colors.timeline.tbd}">${summary.tasks.tbd}</span>` +
+  `     <div class="fst-italic">dev</div><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dev}">${summary.tasks.dev}</span>` +
   '   </li>' +
   `   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">` +
   `     <span class="fst-italic">blocked</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.blocked}">${summary.tasks.blocked}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">done</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.done}">${summary.tasks.done}</span>` +
-  '   </li>' +
-  '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">dropped</span><span class="badge text-white rounded-pill" style="background-color: ${colors.timeline.dropped}">${summary.tasks.dropped}</span>` +
   '   </li>' +
   ' </ul>' +
   '</div>';
@@ -276,8 +268,8 @@ function initDashboard() {
               datasets: [
                 {
                   // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colors.timeline.dev, colors.timeline.todo, colors.timeline.tbd, colors.timeline.blocked],
-                  data: [p.summary.tasks.dev, p.summary.tasks.todo, p.summary.tasks.tbd, p.summary.tasks.blocked]
+                  backgroundColor: [colors.timeline.todo, colors.timeline.dev, colors.timeline.blocked],
+                  data: [p.summary.tasks.todo, p.summary.tasks.dev, p.summary.tasks.blocked]
                 }
               ]
             },
@@ -288,7 +280,7 @@ function initDashboard() {
               },              
               plugins: {
                 textInCenter: {
-                  text: p.summary.tasks.done+p.summary.tasks.dropped,
+                  text: p.summary.tasks.done,
                   color: '#000',
                   font: '30px Arial'
                 },
@@ -461,10 +453,8 @@ function updateTimeline() {
           tColor = ({
             '-': colors.timeline.todo,
             '>': colors.timeline.dev,
-            '?': colors.timeline.tbd,
             '!': colors.timeline.blocked,
             '+': colors.timeline.done,
-            'x': colors.timeline.dropped
           })[t.status];
         }
         tData.push({
@@ -516,12 +506,10 @@ function getMember(member, showZeroFte = false) {
     ' <td class="align-middle">' +
     '  <div class="progress-stacked">' +
     [
-      [member.summary.dev, colors.timeline.dev, 'text-white'],
       [member.summary.todo, colors.timeline.todo, 'text-dark'],
-      [member.summary.tbd, colors.timeline.tbd, 'text-dark'],
+      [member.summary.dev, colors.timeline.dev, 'text-white'],
       [member.summary.blocked, colors.timeline.blocked, 'text-white'],
       [member.summary.done, colors.timeline.done, 'text-white'],
-      [member.summary.dropped, colors.timeline.dropped, 'text-white'],
     ].map( t => {
       const v = t[0];
       const p = member.summary.total ? 100 * v / member.summary.total : 0;
@@ -553,12 +541,10 @@ function updateTeam() {
   header.empty();
   header.append(
     [
+      ['todo', 'text-dark'],
       ['dev', 'text-white'],
-      [ 'todo', 'text-dark'],
-      [ 'tbd', 'text-dark'],
-      [ 'blocked', 'text-white'],
-      [ 'done', 'text-white'],
-      [ 'dropped', 'text-white']
+      ['blocked', 'text-white'],
+      ['done', 'text-white'],
     ].map(function(s){
       return `<span class="badge ${s[1]} rounded-pill" style="background-color: ${colors.timeline[s[0]]}">${s[0]}</span>`;
     }).join(' ')

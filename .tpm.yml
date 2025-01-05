@@ -9,7 +9,7 @@ team:
     fte: 0.1
 timeline:
   v0.14.0:
-    deadline: 2025-01-05T08:00:00.000Z
+    deadline: 2025-01-05T18:00:00.000Z
   v0.13.0:
     deadline: 2024-12-30T14:00:00.000Z
   v0.12.0:
@@ -36,7 +36,7 @@ timeline:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
   [-:035:v0.14.0] Dump datetime in local time during update command @vlad.k
-  [+:034:v0.14.0] Add update command --todo --dev --tbd --blocked --dropped to change task state @vlad.k
+  [+:034:v0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
   [-:033:v0.14.0] Implement Timeline web part @vlad.k
   [-:032:v0.14.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
@@ -47,7 +47,7 @@ tasks: |-
   [+:027:v0.10.0] Implement team/member section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k
-  [-:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
+  [+:024:v0.14.0] Tweak task status based on child tasks (normalise) @vlad.k
   [+:023:v0.9.0] Implement project, team, srs section as classes @vlad.k
   [+:022:v0.7.0] Describe command - project @vlad.k
   [+:021:v0.6.0] Add project description section @vlad.k
@@ -56,7 +56,7 @@ tasks: |-
   [-:018:v0.14.0] Generate snapshot @vlad.k
   [+:017:v0.5.0] Add SRS section @vlad.k
   [-:016:v0.14.0] Add describe command with resolved links @vlad.k
-  [x:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots @vlad.k
+  [+:015:v0.5.0] Integrate .tpm folder at repository root level to store snapshots #invalid @vlad.k
   [+:014:v0.13.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:v0.6.0] Add search @vlad.k
   [+:012:v0.6.0] Add CI/CD @vlad.k

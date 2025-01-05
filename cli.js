@@ -42,13 +42,11 @@ yargs(hideBin(process.argv))
 
   .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
 
-  .option('backlog', { describe: 'Show tasks in backelog (-,?,!)', default: false, type: 'boolean' })
+  .option('backlog', { describe: 'Show tasks in backelog (-,>,!)', default: false, type: 'boolean' })
   .option('todo', { describe: 'Tasks in todo state (-)', default: false, type: 'boolean' })
   .option('dev', { describe: 'Tasks in dev state (>)', default: false, type: 'boolean' })
-  .option('tbd', { describe: 'Tasks in tbd state (?)', default: false, type: 'boolean' })
   .option('blocked', { describe: 'Tasks in blocked state (!)', default: false, type: 'boolean' })
   .option('done', { describe: 'Tasks in done state (+)', default: false, type: 'boolean' })
-  .option('dropped', { describe: 'Show done tasks (x)', default: false, type: 'boolean' })
 
   .option('project', { describe: 'Include project section', default: false, type: 'boolean' })
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
@@ -57,6 +55,7 @@ yargs(hideBin(process.argv))
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
   .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
+  .option('save', { describe: 'Save modifications', default: false, type: 'boolean' })
   .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
@@ -73,7 +72,7 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     getApp(argv, true, async (a) => {
       // console.log(argv);
-      const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.tbd || argv.blocked || argv.done || argv.dropped);
+      const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.blocked || argv.done);
       const component = await a.ls({
         component: argv.component,
         depth: argv.depth,
@@ -85,10 +84,8 @@ yargs(hideBin(process.argv))
           status: {
             todo: argv.todo || argv.backlog,
             dev: argv.dev || argv.backlog || defaultStatus,
-            tbd: argv.tbd || argv.backlog,
             blocked: argv.blocked || argv.backlog,
-            done: argv.done,
-            dropped: argv.dropped
+            done: argv.done
           }
         }
       });
@@ -205,7 +202,7 @@ yargs(hideBin(process.argv))
       const cmds = await a.update({
         component: argv.component,
         id: argv.id,
-        status: { todo: argv.todo, dev: argv.dev, tbd: argv.tbd, blocked: argv.blocked, done: argv.done, dropped: argv.dropped },
+        status: { todo: argv.todo, dev: argv.dev, blocked: argv.blocked, done: argv.done },
         git: argv.git,
       });
       //
@@ -214,6 +211,19 @@ yargs(hideBin(process.argv))
           a.logger.con(cmd);
         }
       }
+    });
+  })
+  //
+  .command('normalise [component] [id]', 'Normalise task status', (yargs) => {
+    return yargs;
+  }, async (argv) => {
+    getApp(argv, true, async (a) => {
+      // console.log(argv);
+      await a.normalise({
+        component: argv.component,
+        id: argv.id,
+        save: argv.save
+      });
     });
   })
   //

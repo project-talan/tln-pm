@@ -105,7 +105,7 @@ class App {
         const team = [];
         c.getTeam(team, false, true);
         await Promise.all(team.map(async m => {
-          m.summary = { dev: 0, todo: 0, tbd: 0, blocked: 0, done: 0, dropped: 0 };
+          m.summary = { todo: 0, dev: 0, blocked: 0, done: 0 };
           const processTasks = (tasks) => {
             for (const nt of tasks) {
               if (nt.tasks.length) {
@@ -114,10 +114,8 @@ class App {
                 switch (nt.status) {
                   case '-': m.summary.todo++; break;
                   case '>': m.summary.dev++; break;
-                  case '?': m.summary.tbd++; break;
                   case '!': m.summary.blocked++; break;
                   case '+': m.summary.done++; break;
-                  case 'x': m.summary.dropped++; break;
                 }
               }
             }
@@ -130,7 +128,7 @@ class App {
               }
             }
           }
-          processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { backlog: true, dev: true, done: true } }}));
+          processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }}));
           m.summary.total = Object.keys(m.summary).reduce((acc, key) => acc + m.summary[key], 0);
         }));
         result.team = team;
@@ -150,7 +148,28 @@ class App {
     }
   }
 
-  //
+  async normalise(options) {
+    const {component, id, save} = options;
+    const c = await this.getCurrentComponent(component);
+    if (c) {
+      const sources = await c.normalise({id});
+      const unique = [];
+      const processed = [];
+      for (const s of sources) {
+        if (processed.indexOf(s.file) < 0) {
+          unique.push(s);
+          processed.push(s.file);
+        }
+      }
+      this.logger.con();
+      this.logger.con('Next file(s) will be mofified:');
+      await Promise.all(unique.map(async s => this.logger.con(' -', s.file)));
+      if (save) {
+        await Promise.all(sources.map(async s => await s.save()));
+      }
+    }
+  }
+
   async config(options) {
     const { what, file, all, force } = options;
     //
@@ -187,7 +206,7 @@ class App {
         };
       }
       if (all || addTasks) {
-        data.tasks = `[-:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [?] Configure auth callbacks\n[>:001:${dl}] Create project structure @alice.c\n`;
+        data.tasks = `[-:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [>] Configure auth callbacks\n[>:001:${dl}] Create project structure @alice.c\n`;
         if (all || addSrs) {
           data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }

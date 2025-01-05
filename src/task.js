@@ -7,6 +7,25 @@ const fg = require('fast-glob');
 
 const utils = require('./utils');
 
+const taskTransformer = [
+  { in: {'-': 0, '>': 0, '!': 0, '+': 0}, out: undefined }, 
+  { in: {'-': 0, '>': 0, '!': 0, '+': 1}, out: '+' },
+  { in: {'-': 0, '>': 0, '!': 1, '+': 0}, out: '!' },
+  { in: {'-': 0, '>': 0, '!': 1, '+': 1}, out: '!' },
+  { in: {'-': 0, '>': 1, '!': 0, '+': 0}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 0, '+': 1}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 1, '+': 0}, out: '>' },
+  { in: {'-': 0, '>': 1, '!': 1, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 0, '!': 0, '+': 0}, out:'-' },
+  { in: {'-': 1, '>': 0, '!': 0, '+': 1}, out:'-' },
+  { in: {'-': 1, '>': 0, '!': 1, '+': 0}, out:'!' },
+  { in: {'-': 1, '>': 0, '!': 1, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 0, '+': 0}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 0, '+': 1}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 1, '+': 0}, out: '>' },
+  { in: {'-': 1, '>': 1, '!': 1, '+': 1}, out: '>' }
+];
+
 class Task {
 
   constructor(logger, source, parent, indent) {
@@ -61,19 +80,45 @@ class Task {
       cmds.push(`git checkout -b ${checkoutBranch}`);
       //
       commitMsg = 'feat' + (relativePath ? `(${relativePath})` : ``) + `: ${this.id} - ${this.title.substring(0, 20)}"`;
-    } else if (status.tbd) {
-      this.status = '?';
     } else if (status.blocked) {
       this.status = '!';
     } else if (status.done) {
       this.status = '+';
-    } else if (status.dropped) {
-      this.status = 'x';
     }
     await this.source.save();
     cmds.push(`git add -A`);
     cmds.push(`git commit -m"${commitMsg}"`);
     return git ? cmds : [];
+  }
+
+  getNormaliseStatus(statuses) {
+    for(let tt of taskTransformer) {
+      let match = true;
+      Object.keys(tt.in).forEach( s => {
+        match = match && ((!!statuses[s]) == (!!tt.in[s]));
+      });
+      if (match) {
+        return tt.out;
+      }
+    }
+  }
+
+  async normalise(options, statuses = {'-': 0, '>': 0, '!': 0, '+': 0}) {
+    const {id, prefix} = options;
+    if (!id || this.id === id) {
+      if (this.tasks.length) {
+        const subTaskStatuses = {'-': 0, '>': 0, '!': 0, '+': 0};
+        await Promise.all(this.tasks.map(async t => t.normalise({prefix}, subTaskStatuses)));
+        const newStatus = this.getNormaliseStatus(subTaskStatuses);
+        if (this.status !== newStatus) {
+          this.logger.con(` Normalise task: [${prefix} ] ${this.id} ${this.title} '${this.status}' -> '${newStatus}'`);
+          this.status = newStatus;
+          return this.source;
+        }
+      } else {
+        statuses[this.status]++;
+      }
+    }
   }
 
   async parse(descs, index) {
@@ -113,10 +158,8 @@ class Task {
     const st = [
       { statuses: ['-'], flag: filter.status.todo },
       { statuses: ['>'], flag: filter.status.dev },
-      { statuses: ['?'], flag: filter.status.tbd },
       { statuses: ['!'], flag: filter.status.blocked },
       { statuses: ['+'], flag: filter.status.done },
-      { statuses: ['x'], flag: filter.status.dropped },
     ].find(v => v.flag && v.statuses.includes(this.status) ) || statusToo;
     //
     const tags = [this.deadline].concat(this.tags);
@@ -160,10 +203,8 @@ class Task {
       switch (this.status) {
         case '-': tasksSummary.todo++; break;
         case '>': tasksSummary.dev++; break;
-        case '?': tasksSummary.tbd++; break;
         case '!': tasksSummary.blocked++; break;
         case '+': tasksSummary.done++; break;
-        case 'x': tasksSummary.dropped++; break;
       }
     }
     return tasksSummary;
@@ -179,3 +220,5 @@ class Task {
 module.exports.create = (logger, source) => {
   return new Task(logger, source, null, -1);
 }
+
+module.exports.taskTransformer = taskTransformer;
