@@ -61,19 +61,25 @@ class Task {
       cmds.push(`git checkout -b ${checkoutBranch}`);
       //
       commitMsg = 'feat' + (relativePath ? `(${relativePath})` : ``) + `: ${this.id} - ${this.title.substring(0, 20)}"`;
-    } else if (status.tbd) {
-      this.status = '?';
     } else if (status.blocked) {
       this.status = '!';
     } else if (status.done) {
       this.status = '+';
-    } else if (status.dropped) {
-      this.status = 'x';
     }
     await this.source.save();
     cmds.push(`git add -A`);
     cmds.push(`git commit -m"${commitMsg}"`);
     return git ? cmds : [];
+  }
+
+  getNormaliseStatus(statuses) {
+  }
+
+  async normalise(options) {
+    const {id} = options;
+    if (!id || this.id === id) {
+      return this.source;
+    }
   }
 
   async parse(descs, index) {
@@ -113,10 +119,8 @@ class Task {
     const st = [
       { statuses: ['-'], flag: filter.status.todo },
       { statuses: ['>'], flag: filter.status.dev },
-      { statuses: ['?'], flag: filter.status.tbd },
       { statuses: ['!'], flag: filter.status.blocked },
       { statuses: ['+'], flag: filter.status.done },
-      { statuses: ['x'], flag: filter.status.dropped },
     ].find(v => v.flag && v.statuses.includes(this.status) ) || statusToo;
     //
     const tags = [this.deadline].concat(this.tags);
@@ -160,10 +164,8 @@ class Task {
       switch (this.status) {
         case '-': tasksSummary.todo++; break;
         case '>': tasksSummary.dev++; break;
-        case '?': tasksSummary.tbd++; break;
         case '!': tasksSummary.blocked++; break;
         case '+': tasksSummary.done++; break;
-        case 'x': tasksSummary.dropped++; break;
       }
     }
     return tasksSummary;

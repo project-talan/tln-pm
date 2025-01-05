@@ -30,7 +30,7 @@
   tasks: |
     [-:002:v24.12.0] Integrate auth library @alice.c
       [!] Add /iam/auth endpoint
-      [?] Configure auth callbacks
+      [>] Configure auth callbacks
     [>:001:v24.12.0] Create project structure @alice.c
   ```
 * Now you can start managing your project using cli and git
@@ -58,10 +58,8 @@
     | ---    | ---             |
     | -      | todo            |
     | >      | in development  |
-    | ?      | to be discussed |
     | !      | blocked         |
     | +      | done            |
-    | x      | dropped         |
   * Optionally, after colon, task can have identifier (may be used to reference this task from other components)
   * Plus, optionally, deadline can be specified after second colon 
 
@@ -106,7 +104,7 @@ tasks: |
   [-:003] Add CI/CD skeleton (srs/cicd)
   [-:002:v24.12.0] Integrate auth library @alice.c
     [!] Add /iam/auth endpoint
-    [?] Configure auth callbacks
+    [>] Configure auth callbacks
   [>:001:v24.12.0] Create project structure @alice.c
 srs:
   cicd: |-
