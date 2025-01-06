@@ -20,6 +20,10 @@ class App {
     this.home = null;
     this.sources = [];
     this.rootComponent = null;
+    //
+    if (!logger) {
+      throw new Error('Logger is required');
+    }
   }
 
   //

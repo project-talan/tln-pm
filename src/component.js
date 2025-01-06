@@ -39,6 +39,10 @@ class Component {
         this.logger.warn('Could\'n read git repository', this.home, e);
       }
     }
+    //
+    if (!logger) {
+      throw new Error('Logger is required');
+    }
   }
 
   isItMe(id) {
