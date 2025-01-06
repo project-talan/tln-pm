@@ -22,8 +22,8 @@ describe('Utils lib', function () {
   it('should capture status', function () {
     expect(utils.parseTask('[-] Task')).to.be.eql({...emptyTask, status: '-', title: 'Task'});
     expect(utils.parseTask('[>] Task')).to.be.eql({...emptyTask, status: '>', title: 'Task'});
-    expect(utils.parseTask('[!] Task')). to.be.eql({...emptyTask, status: '!', title: 'Task'});
-    expect(utils.parseTask('[+] Task')). to.be.eql({...emptyTask, status: '+', title: 'Task'});
+    expect(utils.parseTask('[!] Task')).to.be.eql({...emptyTask, status: '!', title: 'Task'});
+    expect(utils.parseTask('[+] Task')).to.be.eql({...emptyTask, status: '+', title: 'Task'});
   });
 
   it('should capture id', function () {
