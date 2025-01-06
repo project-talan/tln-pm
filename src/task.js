@@ -111,13 +111,27 @@ class Task {
         await Promise.all(this.tasks.map(async t => t.normalise({prefix}, subTaskStatuses)));
         const newStatus = this.getNormaliseStatus(subTaskStatuses);
         if (this.status !== newStatus) {
-          this.logger.con(` Normalise task: [${prefix} ] ${this.id} ${this.title} '${this.status}' -> '${newStatus}'`);
+          this.logger.con(` Normalise task: [${prefix}] ${this.id} ${this.title}: '${this.status}' -> '${newStatus}'`);
           this.status = newStatus;
           return this.source;
         }
       } else {
         statuses[this.status]++;
       }
+    }
+  }
+
+  async spillOver(options) {
+    const {id, prefix, from, to} = options;
+    if (!id || this.id === id) {
+      let source = null;
+      if (this.deadline === from) {
+        this.logger.con(` Spill over task: [${prefix}] ${this.id} ${this.title}: '${this.deadline}' -> '${to}'`);
+        this.deadline = to;
+        source = this.source;
+      }
+      await Promise.all(this.tasks.map(async t => t.normalise({prefix, from, to})));
+      return source;
     }
   }
 
