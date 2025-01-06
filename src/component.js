@@ -39,6 +39,10 @@ class Component {
         this.logger.warn('Could\'n read git repository', this.home, e);
       }
     }
+    //
+    if (!logger) {
+      throw new Error('Logger is required');
+    }
   }
 
   isItMe(id) {
@@ -320,12 +324,27 @@ class Component {
     return (await Promise.all(tasks.map(async t => t.update({status, git})))).flat();
   }
 
-  async normalise(options) {
-    const {id} = options;
-    const prefix = this.getRelativePath()
-    const sources = (await Promise.all(this.tasks.map(async t => t.normalise({id, prefix})))).filter(v => !!v);
+  async modify(options, taskCallback, componentCallback) {
+    const prefix = this.getRelativePath() || '.';
+    const sources = (await Promise.all(this.tasks.map(async t => await taskCallback(t, {...options, prefix})))).filter(v => !!v);
     // nested components
-    return sources.concat((await Promise.all(this.components.map(async c => c.normalise({id})))).flat());
+    return sources.concat((await Promise.all(this.components.map(async c => await componentCallback(c, options)))).flat());
+  }
+
+  async normalise(options) {
+    return await this.modify(
+      options,
+      async (t, options) => await t.normalise(options),
+      async (c, options) => await c.normalise(options)
+    );
+  }
+
+  async spillOver(options) {
+    return await this.modify(
+      options,
+      async (t, options) => await t.spillOver(options),
+      async (c, options) => await c.spillOver(options)
+    );
   }
 
 }

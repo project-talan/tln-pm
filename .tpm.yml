@@ -9,7 +9,7 @@ team:
     fte: 0.1
 timeline:
   v0.14.0:
-    deadline: 2025-01-05T18:00:00.000Z
+    deadline: 2025-01-07T18:00:00.000Z
   v0.13.0:
     deadline: 2024-12-30T14:00:00.000Z
   v0.12.0:
@@ -43,7 +43,7 @@ tasks: |-
   [-:031:v0.14.0] Fix task output on hierarchy mode @vlad.k
   [+:030:v0.10.0] Implement deadline class @vlad.k
   [-:029:v0.14.0] Implement config command via source class @vlad.k
-  [-:028:v0.14.0] Tasks spill over batch mode @vlad.k
+  [+:028:v0.14.0] Tasks spill over batch mode @vlad.k
   [+:027:v0.10.0] Implement team/member section as classes @vlad.k
   [+:026:v0.9.0] Implement srs section as classes @vlad.k
   [+:025:v0.9.0] Show SRS in UI @vlad.k

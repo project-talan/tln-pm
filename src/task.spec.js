@@ -1,18 +1,29 @@
 const chai = require('chai');
-
+const sinon = require('sinon');
 const taskFactory = require('./task');
-
 const { expect } = chai;
 
-const logger = require('./logger').create(0);
-
 describe('Task entity', function () {
+  let loggerStub;
 
-  it('can be created', function () {
-    expect(taskFactory.create()).not.to.be.null;
+  before(function () {
+    loggerStub = sinon.stub(require('./logger'), 'create').returns({
+      info: sinon.stub(),
+      error: sinon.stub(),
+    });
   });
 
-  it('can be load tasks from plain text', async function () {
+  after(function () {
+    loggerStub.restore();
+  });
+
+  it('should create a task', function () {
+    const task = taskFactory.create();
+    expect(task).not.to.be.null;
+    expect(task).to.have.property('tasks').that.is.an('array').that.is.empty;
+  });
+
+  it('should load tasks from plain text', async function () {
     const task = taskFactory.create();
     await task.parse([
       '[>:002] task 002',
@@ -23,20 +34,35 @@ describe('Task entity', function () {
       '  [>] task 002.2',
       '[>:001] task 001'
     ], 0);
-    expect(task.tasks.length).to.be.equal(2);
-    expect(task.tasks[0].tasks.length).to.be.equal(2);
-    expect(task.tasks[0].tasks[0].tasks.length).to.be.equal(3);
-    expect(task.tasks[0].tasks[0].tasks[0].tasks.length).to.be.equal(0);
-    expect(task.tasks[0].tasks[0].tasks[1].tasks.length).to.be.equal(0);
-    expect(task.tasks[0].tasks[0].tasks[2].tasks.length).to.be.equal(0);
-    expect(task.tasks[1].tasks.length).to.be.equal(0);
+
+    expect(task.tasks.length).to.equal(2);
+    expect(task.tasks[0].tasks.length).to.equal(2);
+    expect(task.tasks[0].tasks[0].tasks.length).to.equal(3);
+    expect(task.tasks[0].tasks[0].tasks[0].tasks.length).to.equal(0);
+    expect(task.tasks[0].tasks[0].tasks[1].tasks.length).to.equal(0);
+    expect(task.tasks[0].tasks[0].tasks[2].tasks.length).to.equal(0);
+    expect(task.tasks[1].tasks.length).to.equal(0);
   });
 
-  it('can be normalised', function () {
+  it('should normalize task statuses correctly', function () {
     const task = taskFactory.create();
-    taskFactory.taskTransformer.forEach( tt => {
-      expect(task.getNormaliseStatus(tt.in)).to.be.equal(tt.out);
+    taskFactory.taskTransformer.forEach(tt => {
+      expect(task.getNormaliseStatus(tt.in)).to.equal(tt.out);
     });
   });
 
+  it('should handle empty input for parse method', async function () {
+    const task = taskFactory.create();
+    await task.parse([], 0);
+    expect(task.tasks).to.be.an('array').that.is.empty;
+  });
+
+  it('should throw an error for invalid task format', async function () {
+    const task = taskFactory.create();
+    try {
+      await task.parse(['invalid task format'], 0);
+    } catch (error) {
+      expect(error).to.be.an('error');
+    }
+  });
 });

@@ -55,6 +55,7 @@ yargs(hideBin(process.argv))
   .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
   .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
+  .option('deadlines', { describe: 'Deadline for tasks spill over <from>:<to>', default: null, type: 'string' })
   .option('save', { describe: 'Save modifications', default: false, type: 'boolean' })
   .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
@@ -214,7 +215,7 @@ yargs(hideBin(process.argv))
     });
   })
   //
-  .command('normalise [component] [id]', 'Normalise task status', (yargs) => {
+  .command('normalise [component] [id] [--save]', 'Normalise task status', (yargs) => {
     return yargs;
   }, async (argv) => {
     getApp(argv, true, async (a) => {
@@ -226,6 +227,29 @@ yargs(hideBin(process.argv))
       });
     });
   })
+  //
+  .command('spillover [component] [id] [--save]', 'Spill over task(s)',
+    (yargs) => {
+      return yargs;
+    },
+    async (argv) => {
+      getApp(argv, true, async (a) => {
+        // console.log(argv);
+        if (argv.deadlines) {
+          const [from, to] = argv.deadlines.split(':');
+          await a.spillOver({
+            component: argv.component,
+            id: argv.id,
+            from,
+            to,
+            save: argv.save
+          });
+        } else {
+          a.logger.error('Please provide "--deadlines from:to" for spill over');
+        }
+      });
+    }
+  )
   //
   .command('save', 'Store current status in the file', (yargs) => {
     return yargs

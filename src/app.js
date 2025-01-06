@@ -20,6 +20,10 @@ class App {
     this.home = null;
     this.sources = [];
     this.rootComponent = null;
+    //
+    if (!logger) {
+      throw new Error('Logger is required');
+    }
   }
 
   //
@@ -148,11 +152,11 @@ class App {
     }
   }
 
-  async normalise(options) {
+  async modify(options, callback) {
     const {component, id, save} = options;
     const c = await this.getCurrentComponent(component);
     if (c) {
-      const sources = await c.normalise({id});
+      const sources = await callback(c, options);
       const unique = [];
       const processed = [];
       for (const s of sources) {
@@ -168,6 +172,20 @@ class App {
         await Promise.all(sources.map(async s => await s.save()));
       }
     }
+  }
+
+  async normalise(options) {
+    await this.modify(options, async (c, options) => {
+      const {id} = options;
+      return await c.normalise({id});
+    });
+  }
+
+  async spillOver(options) {
+    await this.modify(options, async (c, options) => {
+      const {id, from, to} = options;
+      return await c.spillOver({id, from, to});
+    });
   }
 
   async config(options) {
