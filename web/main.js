@@ -359,6 +359,7 @@ let ganttChart = null;
 $("#timeline-tab").click(function(){
   updateTimeline();
 });
+
 function initTimeline() {
   $.getJSON("tasks", function(res, status){
     if (res.success) {
@@ -501,10 +502,12 @@ function getMember(member, showZeroFte = false) {
   ;
   const fte = member.bandwidth.reduce((acc, b) => acc + b.fte, 0);
   if (fte || showZeroFte) {
+    const total = member.summary.todo + member.summary.dev + member.summary.blocked;
   return '<tr class="p-0">' +
     ` <th scope="row">${member.id}</th>` +
     ` <td class="">${member.name}<br/>${emails}</td>` +
     ` <td class="align-middle">${fte}</td>` +
+    ` <td class="align-middle">${member.summary.done}</td>` +
     ` <td class="align-middle">${member.summary.total}</td>` +
     ' <td class="align-middle">' +
     '  <div class="progress-stacked">' +
@@ -512,10 +515,9 @@ function getMember(member, showZeroFte = false) {
       [member.summary.todo, colors.timeline.todo, 'text-dark'],
       [member.summary.dev, colors.timeline.dev, 'text-white'],
       [member.summary.blocked, colors.timeline.blocked, 'text-white'],
-      [member.summary.done, colors.timeline.done, 'text-white'],
     ].map( t => {
       const v = t[0];
-      const p = member.summary.total ? 100 * v / member.summary.total : 0;
+      const p = total ? 100 * v / total : 0;
       const c = t[1];
       const ct = t[2];
       return '' +
@@ -547,7 +549,6 @@ function updateTeam() {
       ['todo', 'text-dark'],
       ['dev', 'text-white'],
       ['blocked', 'text-white'],
-      ['done', 'text-white'],
     ].map(function(s){
       return `<span class="badge ${s[1]} rounded-pill" style="background-color: ${colors.timeline[s[0]]}">${s[0]}</span>`;
     }).join(' ')

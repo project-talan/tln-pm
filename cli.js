@@ -159,9 +159,14 @@ yargs(hideBin(process.argv))
     // console.log(argv);
     getApp(argv, false, async (a) => {
       await a.config({
-        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        what: {
+          project: argv.project || argv.all,
+          team: argv.team || argv.all,
+          timeline: argv.timeline || argv.all,
+          tasks: argv.tasks || argv.all,
+          srs: argv.srs || argv.all
+        },
         file: argv.file,
-        all: argv.all,
         force: argv.force
       });
     });

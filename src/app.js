@@ -189,26 +189,23 @@ class App {
   }
 
   async config(options) {
-    const { what, file, all, force } = options;
+    const { what, file, force } = options;
     //
     const fp = path.join(this.cwd, file);
     if (!fs.existsSync(fp) || force) {
-      const addProject = what.project;
-      const addTeam = what.team;
-      const addTimeline = what.timeline;
-      const addTasks = what.tasks;
-      const addSrs = what.srs;
-      const addComponents = what.components;
-      //
       const data = {};
       const cdt = new Date();
       const dt = new Date(cdt.getFullYear(), cdt.getMonth() + 1, 0, 20, 0, 0, 0);
       const dl = `v${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
       const source = sourceFactory.create(this.logger, fp);
-      if (all || addProject) {
-        data.project = {"id": "myproject", "name" : "My Project", "description": "My project description"};
+      if (what.project) {
+        data.project = {
+          "id": "myproject",
+          "name" : "My Project",
+          "description": "My project description"
+        };
       }
-      if (all || addTeam) {
+      if (what.team) {
         data.team = {
           "alice.c": {
             email: "alice.c@gmail.com",
@@ -217,19 +214,19 @@ class App {
           },
         };
       }
-      if (all || addTimeline) {
+      if (what.timeline) {
         data.timeline = {};
         data.timeline[dl] = {
           deadline: dt.toISOString(),
         };
       }
-      if (all || addTasks) {
+      if (what.tasks) {
         data.tasks = `[>:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [>] Configure auth callbacks\n[-:001:${dl}] Create project structure @alice.c\n`;
-        if (all || addSrs) {
+        if (what.srs) {
           data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }
       }
-      if (all ||addSrs) {
+      if (what.srs) {
         data.srs = {"cicd": [
           "Skeleton should implement four main scenarios: pr build, push build, nightly build, dispamch run.",
           "All steps should be implemented in a single yaml file (base.yml).",
@@ -237,7 +234,7 @@ class App {
           ].join('\n')
         };
       }
-      if (all || addComponents) {
+      if (what.components) {
         data.components = {
           backend: {
             tasks: "[-:002] Integrate Sonarcloud\n[+:001] Add service skeleton + unit tests\n"
