@@ -109,15 +109,16 @@ class Task {
       if (this.tasks.length) {
         const subTaskStatuses = {'-': 0, '>': 0, '!': 0, '+': 0};
         await Promise.all(this.tasks.map(async t => t.normalise({prefix}, subTaskStatuses)));
+        // console.log('subTaskStatuses', this.title, subTaskStatuses);
         const newStatus = this.getNormaliseStatus(subTaskStatuses);
         if (this.status !== newStatus) {
           this.logger.con(` Normalise task: [${prefix}] ${this.id} ${this.title}: '${this.status}' -> '${newStatus}'`);
           this.status = newStatus;
+          statuses[this.status]++;
           return this.source;
         }
-      } else {
-        statuses[this.status]++;
       }
+      statuses[this.status]++;
     }
   }
 
