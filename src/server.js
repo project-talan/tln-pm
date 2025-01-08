@@ -59,7 +59,7 @@ class Server {
         component: null,
         depth: 10,
         who: { assignees: [], all: true },
-        filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }
+        filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: false } }
       })));
     })
     ea.get('/srs', async(req, res) => {
