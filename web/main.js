@@ -102,10 +102,13 @@ function formatDuration(duration) {
   ).slice(0, 2).join(' ');
 } 
 function getLocalISOString(date) {
-  const offset = date.getTimezoneOffset()
-  const offsetAbs = Math.abs(offset)
-  const isoString = new Date(date.getTime() - offset * 60 * 1000).toISOString()
-  return `${isoString.slice(0, -1)}${offset > 0 ? '-' : '+'}${String(Math.floor(offsetAbs / 60)).padStart(2, '0')}:${String(offsetAbs % 60).padStart(2, '0')}`
+  if (date != 'n/a') {
+    const offset = date.getTimezoneOffset()
+    const offsetAbs = Math.abs(offset)
+    const isoString = new Date(date.getTime() - offset * 60 * 1000).toISOString()
+    return `${isoString.slice(0, -1)}${offset > 0 ? '-' : '+'}${String(Math.floor(offsetAbs / 60)).padStart(2, '0')}:${String(offsetAbs % 60).padStart(2, '0')}`
+  }
+  return date;
 }
 
 function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours']) {

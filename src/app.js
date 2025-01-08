@@ -224,7 +224,7 @@ class App {
         };
       }
       if (all || addTasks) {
-        data.tasks = `[-:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [>] Configure auth callbacks\n[>:001:${dl}] Create project structure @alice.c\n`;
+        data.tasks = `[>:002:${dl}] Integrate auth library @alice.c\n  [!] Add /iam/auth endpoint\n  [>] Configure auth callbacks\n[-:001:${dl}] Create project structure @alice.c\n`;
         if (all || addSrs) {
           data.tasks = `[-:003] Add CI/CD skeleton (srs/cicd)\n${data.tasks}`;
         }
