@@ -308,18 +308,20 @@ function initDashboard() {
           });
 
           const numberofDays = 14;
+          const base = 0.5 * (Math.random() + 1);
+          const diff = (1 - base) * p.summary.totalFte;
           const worloadChart = new Chart(document.getElementById(proj.ids.workload), {
             type: 'line',
             data: {
               labels: Array(numberofDays).fill(""),
               datasets: [{ 
-                data: Array(numberofDays).fill(p.summary.totalFte),
-                label: "Europe",
-                borderColor: "#3cba9f",
-                fill: false
+                  data: Array(numberofDays).fill(p.summary.totalFte),
+                  label: "Total",
+                  borderColor: "#3cba9f",
+                  fill: false
                 }, { 
-                  data: Array(numberofDays).fill(0),
-                  label: "Africa",
+                  data: Array(numberofDays).fill(0).map( (v) =>  p.summary.totalFte * base + (Math.random() * 2 * diff - diff)),
+                  label: "Actual",
                   borderColor: "#3e95cd",
                   fill: false
                 }
@@ -331,7 +333,24 @@ function initDashboard() {
                 legend: {
                     display: false
                 }
-              }
+              },
+              scales: {
+                x: {
+                  display: true,
+                  title: {
+                    display: true
+                  }
+                },
+                y: {
+                  display: true,
+                  title: {
+                    display: true,
+                    text: 'Value'
+                  },
+                  suggestedMin: 0,
+                  suggestedMax: p.summary.totalFte * 1.1
+                }
+              }              
             }
           });
           p.charts = [tasksChart, worloadChart];
