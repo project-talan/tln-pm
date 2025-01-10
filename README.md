@@ -1,7 +1,8 @@
-# Project Management as Code - TPM
-  * uses Git **repository** as **single point of truth** for all PM activities
-  * **minimizes work-about-work** activities: project structure duplication inside external PM tools, tasks' statuses synchronization, documentation replication etc.
-  * provides **up-to-date** project status up to the **latest commit**
+# Project Management as Code
+The tool, **tpm**, tackles several challenges faced in modern software development:
+  * Development and project management tools are often housed in separate systems like GitHub and Jira. This separation can result in wasted development resources due to the need for continuous synchronization. **tpm** expands GiOps to include project management, offering a **single source of truth** for all software development lifecycle activities.
+  * Keeping project status up-to-date can be challenging and often requires setting up and maintaining a BI subsystem within the project management system. **tpm** automatically generates all reports and statistics directly from the repository, up to the **latest commit**
+  * Managing multiple software projects, especially when resources are shared, is inherently challenging and often causes numerous issues with timelines and estimates. **tpm** offers a comprehensive overview, or "eagle's view," of any number of projects.
 
 ## Quick start
 
@@ -13,7 +14,7 @@
   ```
   tpm config --project --team --timeline --tasks
   ```
-* Update **.tpm.yml** with project information, team structure, timeline and tasks
+* Update **.tpm.yml** with project information, team structure, timeline and tasks. Use the same emails for tpm configuration which were used as part of git configuration.
   ```
   project:
     id: myproject
@@ -25,18 +26,19 @@
       name: Alice Clarke
       fte: 1
   timeline:
-    v24.12.0:
-      deadline: '2024-12-31T18:00:00.000Z'
+    25.1.0:
+      deadline: '2025-01-31T18:00:00.000Z'
   tasks: |
-    [-:002:v24.12.0] Integrate auth library @alice.c
+    [>:002:v25.1.0] Integrate auth library @alice.c
       [!] Add /iam/auth endpoint
       [>] Configure auth callbacks
-    [>:001:v24.12.0] Create project structure @alice.c
+    [-:001:v25.1.0] Create project structure @alice.c
   ```
 * Now you can start managing your project using cli and git
   | Command | Description |
   | ------------- | -------------
-  | tpm ls -g alice.c | Display tasks in developmenr were assigned to the Alice |
+  | tpm ls --backlog | Display tasks are in backlog for current git user (you) |
+  | tpm ls -g alice.c | Display tasks in development were assigned to the Alice |
   | tpm ls -g alice.c --backlog | List of tasks are in Alice backlog |
 * Next command will give you project "eagle view" inside browser **http://localhost:5445**
   ```
