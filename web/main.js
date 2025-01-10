@@ -24,6 +24,21 @@ const colors = {
     done: '#28A745'
   }
 };
+
+const state = {
+  ui: {
+    dashboard: {
+      showGraph: true,
+      showList: true
+    },
+    timeline: {
+    },
+    team: {
+    },
+    srs: {
+    }
+  }
+};
 //-----------------------------------------------------------------------------
 // Initialisation
 $(document).ready(function(){
@@ -38,11 +53,11 @@ $(document).ready(function(){
   initTeam();
   initTimeline();
   initSrs(); updateSrs();
-  //
 });
 
 //-----------------------------------------------------------------------------
 // Utils
+
 function getStringFromInterval(interval) {
   let diff = '?';
   if (interval) {
@@ -137,9 +152,43 @@ function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours
 
 };
 //-----------------------------------------------------------------------------
+// Toolbar
+$("#dashboard-tab").click(function(){
+  updateDashboard();
+  updateToolbar();
+});
+
+$("#toolbar_full").click(function(){
+  state.ui.dashboard.showGraph = true;
+  state.ui.dashboard.showList = true;
+  updateToolbar();
+});
+$("#toolbar_graph").click(function(){
+  state.ui.dashboard.showGraph = true;
+  state.ui.dashboard.showList = false;
+  updateToolbar();
+});
+$("#toolbar_list").click(function(){
+  state.ui.dashboard.showGraph = false;
+  state.ui.dashboard.showList = true;
+  updateToolbar();
+});
+
+function updateToolbar() {
+  console.log(state);
+  // update dashboard
+  state.ui.dashboard.showGraph ? $('.project-graph').show() : $('.project-graph').hide();
+  state.ui.dashboard.showList ? $('.project-list').show() : $('.project-list').hide();
+  // update timeline
+  // update team
+  // update srs
+}
+
+//-----------------------------------------------------------------------------
 // Dashboard
 $("#dashboard-tab").click(function(){
   updateDashboard();
+  updateToolbar();
 });
 
 function getProject(id, name, summary) {
@@ -154,7 +203,7 @@ function getProject(id, name, summary) {
   // console.log(rd);
 
   r.html = '' +
-  '<div class="col pb-4">' +
+  '<div class="col pb-4 project-graph">' +
   ' <div class="card">' +
   '   <div class="card-header">' +
   `     <span class="badge float-end rounded-pill text-bg-warning">${releaseName} in ${timeToRelease}</span>` +
@@ -188,7 +237,7 @@ function getProjectDetails(description, summary) {
   const teamSize = ts === tst ? `${ts}` : `${ts}/${tst}`;
   //
   r.html = '' +
-  '<div class="col pb-4">' +
+  '<div class="col pb-4 project-list">' +
   ' <div class="px-2 pb-4">' +
   `   <h5>${description}</h5>` +
   ' </div>' +
@@ -308,18 +357,20 @@ function initDashboard() {
           });
 
           const numberofDays = 14;
+          const base = 0.5 * (Math.random() + 1);
+          const diff = (1 - base) * p.summary.totalFte;
           const worloadChart = new Chart(document.getElementById(proj.ids.workload), {
             type: 'line',
             data: {
               labels: Array(numberofDays).fill(""),
               datasets: [{ 
-                data: Array(numberofDays).fill(p.summary.totalFte),
-                label: "Europe",
-                borderColor: "#3cba9f",
-                fill: false
+                  data: Array(numberofDays).fill(p.summary.totalFte),
+                  label: "Total",
+                  borderColor: "#3cba9f",
+                  fill: false
                 }, { 
-                  data: Array(numberofDays).fill(0),
-                  label: "Africa",
+                  data: Array(numberofDays).fill(0).map( (v) =>  p.summary.totalFte * base + (Math.random() * 2 * diff - diff)),
+                  label: "Actual",
                   borderColor: "#3e95cd",
                   fill: false
                 }
@@ -331,7 +382,24 @@ function initDashboard() {
                 legend: {
                     display: false
                 }
-              }
+              },
+              scales: {
+                x: {
+                  display: true,
+                  title: {
+                    display: true
+                  }
+                },
+                y: {
+                  display: true,
+                  title: {
+                    display: true,
+                    text: 'Value'
+                  },
+                  suggestedMin: 0,
+                  suggestedMax: p.summary.totalFte * 1.1
+                }
+              }              
             }
           });
           p.charts = [tasksChart, worloadChart];
@@ -359,6 +427,7 @@ let ganttChart = null;
 $("#timeline-tab").click(function(){
   updateTimeline();
 });
+
 function initTimeline() {
   $.getJSON("tasks", function(res, status){
     if (res.success) {
@@ -501,10 +570,12 @@ function getMember(member, showZeroFte = false) {
   ;
   const fte = member.bandwidth.reduce((acc, b) => acc + b.fte, 0);
   if (fte || showZeroFte) {
+    const total = member.summary.todo + member.summary.dev + member.summary.blocked;
   return '<tr class="p-0">' +
     ` <th scope="row">${member.id}</th>` +
     ` <td class="">${member.name}<br/>${emails}</td>` +
     ` <td class="align-middle">${fte}</td>` +
+    ` <td class="align-middle">${member.summary.done}</td>` +
     ` <td class="align-middle">${member.summary.total}</td>` +
     ' <td class="align-middle">' +
     '  <div class="progress-stacked">' +
@@ -512,10 +583,9 @@ function getMember(member, showZeroFte = false) {
       [member.summary.todo, colors.timeline.todo, 'text-dark'],
       [member.summary.dev, colors.timeline.dev, 'text-white'],
       [member.summary.blocked, colors.timeline.blocked, 'text-white'],
-      [member.summary.done, colors.timeline.done, 'text-white'],
     ].map( t => {
       const v = t[0];
-      const p = member.summary.total ? 100 * v / member.summary.total : 0;
+      const p = total ? 100 * v / total : 0;
       const c = t[1];
       const ct = t[2];
       return '' +
@@ -547,7 +617,6 @@ function updateTeam() {
       ['todo', 'text-dark'],
       ['dev', 'text-white'],
       ['blocked', 'text-white'],
-      ['done', 'text-white'],
     ].map(function(s){
       return `<span class="badge ${s[1]} rounded-pill" style="background-color: ${colors.timeline[s[0]]}">${s[0]}</span>`;
     }).join(' ')

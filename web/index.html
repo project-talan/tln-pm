@@ -45,35 +45,33 @@
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="srs-tab" data-bs-toggle="tab" data-bs-target="#srs-tab-pane" type="button" role="tab" aria-controls="srs-tab-pane" aria-selected="false">SRS</button>
             </li>
-            <!--li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Dropdown
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Action</a></li>
-                <li><a class="dropdown-item" href="#">Another action</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Something else here</a></li>
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled">Disabled</a>
-            </li-->
           </ul>
-          <!--form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form-->
         </div>
       </div>
     </nav>
-    <div class="container pt-4">
+    <div class="container">
+      <div class="row bg-warning1 pt-2 pb-3">
+        <div class="col-8 bg-danger1">
+          
+          <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+            <input type="radio" class="btn-check" name="btnradio" id="toolbar_full" autocomplete="off" checked>
+            <label class="btn btn-sm btn-outline-secondary" for="toolbar_full"><i class="bi bi-pie-chart"></i> <i class="bi bi-card-list"></i></label>
+            <input type="radio" class="btn-check" name="btnradio" id="toolbar_graph" autocomplete="off">
+            <label class="btn btn-sm btn-outline-secondary" for="toolbar_graph"><i class="bi bi-pie-chart"></i></label>
+            <input type="radio" class="btn-check" name="btnradio" id="toolbar_list" autocomplete="off">
+            <label class="btn btn-sm btn-outline-secondary" for="toolbar_list"><i class="bi bi-card-list"></i></label>
+          </div>          
+        </div>
+        <div class="col-4 bg-success1">
+          <input type="test" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="search">
+        </div>
+      </div>
       <!-- Tabs -->
       <div class="tab-content row" id="myTabContent">
         <!-- Dashboard -->
         <div class="tab-pane fade show active" id="dashboard-tab-pane" role="tabpanel" aria-labelledby="dashboard-tab" tabindex="0">
           <div class="album">
-            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 g-3 pt-4" id="dashboard_project_list"></div>
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2" id="dashboard_project_list"></div>
           </div>
         </div>
         <!-- Timeline -->
@@ -87,8 +85,9 @@
             <thead>
               <tr role="row">
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">id</th>
-                <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">name / email</th>
+                <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">name/email</th>
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">fte</th>
+                <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">done</th>
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;">total</th>
                 <th colspan="1" role="columnheader" title="Toggle SortBy" class="sortable" style="cursor: pointer;" id="dashboard_team_list_header">
                 </th>

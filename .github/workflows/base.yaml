@@ -41,11 +41,18 @@ jobs:
       - name: Init
         run: |
           npm i
+          cd app && npm i
+
+      - name: Build
+        if: ${{ inputs.build }}
+        run: |
+          cd app && npm run test
 
       - name: Format & Unit test
         if: ${{ contains(inputs.tests, 'unit') }}
         run: |
-          npm test
+          npm run test
+          cd app && npm run test:ci
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4.2.1
@@ -54,10 +61,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: "https://sonarcloud.io"
 
-      - name: Build
-        if: ${{ inputs.build }}
-        run: |
-          #npm build
 
       - name: Package and Upload
         if: ${{ inputs.package-n-upload }}
