@@ -24,6 +24,21 @@ const colors = {
     done: '#28A745'
   }
 };
+
+const state = {
+  ui: {
+    dashboard: {
+      showGraph: true,
+      showList: true
+    },
+    timeline: {
+    },
+    team: {
+    },
+    srs: {
+    }
+  }
+};
 //-----------------------------------------------------------------------------
 // Initialisation
 $(document).ready(function(){
@@ -38,11 +53,11 @@ $(document).ready(function(){
   initTeam();
   initTimeline();
   initSrs(); updateSrs();
-  //
 });
 
 //-----------------------------------------------------------------------------
 // Utils
+
 function getStringFromInterval(interval) {
   let diff = '?';
   if (interval) {
@@ -137,9 +152,43 @@ function getClosestRelease(timeline, format = ['years', 'months', 'days', 'hours
 
 };
 //-----------------------------------------------------------------------------
+// Toolbar
+$("#dashboard-tab").click(function(){
+  updateDashboard();
+  updateToolbar();
+});
+
+$("#toolbar_full").click(function(){
+  state.ui.dashboard.showGraph = true;
+  state.ui.dashboard.showList = true;
+  updateToolbar();
+});
+$("#toolbar_graph").click(function(){
+  state.ui.dashboard.showGraph = true;
+  state.ui.dashboard.showList = false;
+  updateToolbar();
+});
+$("#toolbar_list").click(function(){
+  state.ui.dashboard.showGraph = false;
+  state.ui.dashboard.showList = true;
+  updateToolbar();
+});
+
+function updateToolbar() {
+  console.log(state);
+  // update dashboard
+  state.ui.dashboard.showGraph ? $('.project-graph').show() : $('.project-graph').hide();
+  state.ui.dashboard.showList ? $('.project-list').show() : $('.project-list').hide();
+  // update timeline
+  // update team
+  // update srs
+}
+
+//-----------------------------------------------------------------------------
 // Dashboard
 $("#dashboard-tab").click(function(){
   updateDashboard();
+  updateToolbar();
 });
 
 function getProject(id, name, summary) {
@@ -154,7 +203,7 @@ function getProject(id, name, summary) {
   // console.log(rd);
 
   r.html = '' +
-  '<div class="col pb-4">' +
+  '<div class="col pb-4 project-graph">' +
   ' <div class="card">' +
   '   <div class="card-header">' +
   `     <span class="badge float-end rounded-pill text-bg-warning">${releaseName} in ${timeToRelease}</span>` +
@@ -188,7 +237,7 @@ function getProjectDetails(description, summary) {
   const teamSize = ts === tst ? `${ts}` : `${ts}/${tst}`;
   //
   r.html = '' +
-  '<div class="col pb-4">' +
+  '<div class="col pb-4 project-list">' +
   ' <div class="px-2 pb-4">' +
   `   <h5>${description}</h5>` +
   ' </div>' +

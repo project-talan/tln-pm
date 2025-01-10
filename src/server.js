@@ -28,22 +28,10 @@ class Server {
   async serve(app, root, options) {
     const {port, readOnly} = options;
     //
-    const getLocalContent = (file) => {
-      return fs.readFileSync(path.join(__dirname, '..', 'web', file), {encoding: 'utf8'});
-    }
-    //
     const ea = express();
     ea.use(express.static(path.join(__dirname, '..', 'web')));
+    // ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
 
-    // ea.get('/', (req, res) => {
-    //   res.send(getLocalContent('index.html'));
-    // })
-    // ea.get('/styles.css', (req, res) => {
-    //   res.send(getLocalContent('styles.css'));
-    // })
-    // ea.get('/main.js', (req, res) => {
-    //   res.send(getLocalContent('main.js'));
-    // })
     // API
     ea.get('/info', (req, res) => {
       res.send(this.makeResponce({version}));
