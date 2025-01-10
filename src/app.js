@@ -196,7 +196,7 @@ class App {
       const data = {};
       const cdt = new Date();
       const dt = new Date(cdt.getFullYear(), cdt.getMonth() + 1, 0, 20, 0, 0, 0);
-      const dl = `v${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
+      const dl = `${dt.getFullYear().toString().substring(2,4)}.${dt.getMonth()+1}.0`;
       const source = sourceFactory.create(this.logger, fp);
       if (what.project) {
         data.project = {
