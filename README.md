@@ -100,19 +100,13 @@ team:
     name: Alice Clarke
     fte: 1
 timeline:
-  v24.12.0:
-    deadline: '2024-12-31T18:00:00.000Z'
+  25.1.0:
+    deadline: '2025-01-31T18:00:00.000Z'
 tasks: |
-  [-:003] Add CI/CD skeleton (srs/cicd)
-  [-:002:v24.12.0] Integrate auth library @alice.c
+  [>:002:25.1.0] Integrate auth library @alice.c
     [!] Add /iam/auth endpoint
     [>] Configure auth callbacks
-  [>:001:v24.12.0] Create project structure @alice.c
-srs:
-  cicd: |-
-    Skeleton should implement four main scenarios: pr build, push build, nightly build, dispamch run.
-    All steps should be implemented in a single yaml file (base.yml).
-    Every scenario should be implemented as a separate yaml file and should use parameters to define which step needs to be run.
+  [-:001:25.1.0] Create project structure @alice.c
 components:
   backend:
     tasks: |
