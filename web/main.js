@@ -247,7 +247,7 @@ function getProjectDetails(description, summary) {
   `     <span class="fst-italic">Release</span><span class="badge text-bg-secondary rounded-pill">${getLocalISOString(releaseDate)}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
-  `     <span class="fst-italic">name</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
+  `     <span class="fst-italic">version</span><span class="badge text-bg-secondary rounded-pill">${releaseName}</span>` +
   '   </li>' +
   '   <li class="list-group-item d-flex justify-content-between align-items-center ps-4">' +
   `     <span class="fst-italic">features</span><span class="badge text-bg-secondary rounded-pill">${releaseFeatures}</span>` +
