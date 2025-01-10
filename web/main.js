@@ -29,7 +29,8 @@ const state = {
   ui: {
     dashboard: {
       showGraph: true,
-      showList: true
+      showList: true,
+      showClosest: true
     },
     timeline: {
     },
