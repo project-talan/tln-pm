@@ -7,7 +7,7 @@
 
 * Install tpm
   ```
-  npm i -g tln-pm@0.13.0
+  npm i -g tln-pm@0.14.0
   ```
 * Go to your project git repository root folder and create initial config
   ```
