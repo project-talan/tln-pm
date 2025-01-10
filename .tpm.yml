@@ -37,6 +37,17 @@ timeline:
   v0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:041:v0.15.0] Add UI controls @vlad.k
+    [-] SRS
+      [-] Search editbox
+  [-:040:v0.15.0] Add UI controls @vlad.k
+    [-] Team
+      [-] Search editbox
+      [-] Sort by statuses
+  [-:039:v0.15.0] Add UI controls @vlad.k
+    [-] Timeline
+      [-] Tasks filter by statuses
+      [-] Sort by deadline
   [-:038:v0.15.0] Switch to Highcharts @vlad.k
   [-:037:v0.15.0] Recreate web part using React @vlad.k
   [>:036:v0.14.0] Add UI controls @vlad.k
@@ -44,14 +55,6 @@ tasks: |-
     [-] Dashboard
       [-] Checkbox for brief/full mode
       [-] Sort by deadline
-    [-] Timeline
-      [-] Tasks filter by statuses
-      [-] Sort by deadline
-    [-] Team
-      [-] Search editbox
-      [-] Sort by statuses
-    [-] SRS
-      [-] Search editbox
   [-:035:v0.14.0] Dump datetime in local time during update command @vlad.k
   [+:034:v0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
   [-:033:v0.14.0] Implement Timeline web part @vlad.k
