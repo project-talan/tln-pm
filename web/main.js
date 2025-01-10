@@ -176,7 +176,6 @@ $("#toolbar_list").click(function(){
 });
 
 function updateToolbar() {
-  console.log(state);
   // update dashboard
   state.ui.dashboard.showGraph ? $('.project-graph').show() : $('.project-graph').hide();
   state.ui.dashboard.showList ? $('.project-list').show() : $('.project-list').hide();
@@ -277,142 +276,142 @@ function getProjectDetails(description, summary) {
 function initDashboard() {
   $.getJSON("projects", function(res, status){
     if (res.success) {
-      var list = $('#dashboard_project_list');
-      list.empty();
       projects = res.data.projects;
-      if (projects) {
-        projects.forEach(function(p) {
-          const proj = getProject(p.id, p.name, p.summary);
-          list.append(proj.html);
-          const details = getProjectDetails(p.description, p.summary);
-          list.append(details.html);
-          //
-          const plugin = {
-            id: 'emptyDoughnut',
-            afterDraw(chart, args, options) {
-              const {datasets} = chart.data;
-              const {color, width, radiusDecrease} = options;
-              let hasData = false;
-          
-              for (let i = 0; i < datasets.length; i += 1) {
-                const dataset = datasets[i];
-                hasData |= dataset.data.length > 0;
-              }
-          
-              if (!hasData) {
-                const {chartArea: {left, top, right, bottom}, ctx} = chart;
-                const centerX = (left + right) / 2;
-                const centerY = (top + bottom) / 2;
-                const r = Math.min(right - left, bottom - top) / 2;
-          
-                ctx.beginPath();
-                ctx.lineWidth = width || 2;
-                ctx.strokeStyle = color || 'rgba(255, 128, 0, 0.5)';
-                ctx.arc(centerX, centerY, (r - radiusDecrease || 0), 0, 2 * Math.PI);
-                ctx.stroke();
-              }
-            }
-          };
-          //
-          const tasksCanvas = document.getElementById(proj.ids.tasks);
-          const tasksChart = new Chart(tasksCanvas, {
-            type: 'doughnut',
-            data: {
-              datasets: [
-                {
-                  // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
-                  backgroundColor: [colors.timeline.todo, colors.timeline.dev, colors.timeline.blocked],
-                  data: [p.summary.tasks.todo, p.summary.tasks.dev, p.summary.tasks.blocked]
-                }
-              ]
-            },
-            options: {
-              title: {
-                display: true,
-                text: 'Tasks\' statuses'
-              },              
-              plugins: {
-                textInCenter: {
-                  text: p.summary.tasks.done,
-                  color: '#000',
-                  font: '30px Arial'
-                },
-                emptyDoughnut: {
-                  color: 'rgba(255, 128, 0, 0.5)',
-                  width: 2,
-                  radiusDecrease: 20
-                }                
-              }              
-            },
-            plugins: [plugin, {
-              id: 'textInCenter',
-              afterDraw: function (chart, args, options) {
-                const canvasBounds = tasksCanvas.getBoundingClientRect();
-                const fontSz = Math.floor( canvasBounds.height * 0.15 ) ;
-                chart.ctx.textBaseline = 'middle';
-                chart.ctx.textAlign = 'center';
-                chart.ctx.font = fontSz+'px Arial';
-                chart.ctx.fillText(options.text, canvasBounds.width/2, canvasBounds.height*0.54 )
-              }
-            }]
-          });
-
-          const numberofDays = 14;
-          const base = 0.5 * (Math.random() + 1);
-          const diff = (1 - base) * p.summary.totalFte;
-          const worloadChart = new Chart(document.getElementById(proj.ids.workload), {
-            type: 'line',
-            data: {
-              labels: Array(numberofDays).fill(""),
-              datasets: [{ 
-                  data: Array(numberofDays).fill(p.summary.totalFte),
-                  label: "Total",
-                  borderColor: "#3cba9f",
-                  fill: false
-                }, { 
-                  data: Array(numberofDays).fill(0).map( (v) =>  p.summary.totalFte * base + (Math.random() * 2 * diff - diff)),
-                  label: "Actual",
-                  borderColor: "#3e95cd",
-                  fill: false
-                }
-              ]
-            },
-            options: {
-              aspectRatio: 1,
-              plugins: {
-                legend: {
-                    display: false
-                }
-              },
-              scales: {
-                x: {
-                  display: true,
-                  title: {
-                    display: true
-                  }
-                },
-                y: {
-                  display: true,
-                  title: {
-                    display: true,
-                    text: 'Value'
-                  },
-                  suggestedMin: 0,
-                  suggestedMax: p.summary.totalFte * 1.1
-                }
-              }              
-            }
-          });
-          p.charts = [tasksChart, worloadChart];
-        });
-        updateDashboard();
-      } 
+      updateDashboard();
     }
   });
 }
 
 function updateDashboard() {
   if (projects) {
+    var list = $('#dashboard_project_list');
+    list.empty();
+    if (projects) {
+      projects.forEach(function(p) {
+        const proj = getProject(p.id, p.name, p.summary);
+        list.append(proj.html);
+        const details = getProjectDetails(p.description, p.summary);
+        list.append(details.html);
+        //
+        const plugin = {
+          id: 'emptyDoughnut',
+          afterDraw(chart, args, options) {
+            const {datasets} = chart.data;
+            const {color, width, radiusDecrease} = options;
+            let hasData = false;
+        
+            for (let i = 0; i < datasets.length; i += 1) {
+              const dataset = datasets[i];
+              hasData |= dataset.data.length > 0;
+            }
+        
+            if (!hasData) {
+              const {chartArea: {left, top, right, bottom}, ctx} = chart;
+              const centerX = (left + right) / 2;
+              const centerY = (top + bottom) / 2;
+              const r = Math.min(right - left, bottom - top) / 2;
+        
+              ctx.beginPath();
+              ctx.lineWidth = width || 2;
+              ctx.strokeStyle = color || 'rgba(255, 128, 0, 0.5)';
+              ctx.arc(centerX, centerY, (r - radiusDecrease || 0), 0, 2 * Math.PI);
+              ctx.stroke();
+            }
+          }
+        };
+        //
+        const tasksCanvas = document.getElementById(proj.ids.tasks);
+        const tasksChart = new Chart(tasksCanvas, {
+          type: 'doughnut',
+          data: {
+            datasets: [
+              {
+                // backgroundColor: ["#3cba9f", "#3e95cd", "#8e5ea2"],
+                backgroundColor: [colors.timeline.todo, colors.timeline.dev, colors.timeline.blocked],
+                data: [p.summary.tasks.todo, p.summary.tasks.dev, p.summary.tasks.blocked]
+              }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Tasks\' statuses'
+            },              
+            plugins: {
+              textInCenter: {
+                text: p.summary.tasks.done,
+                color: '#000',
+                font: '30px Arial'
+              },
+              emptyDoughnut: {
+                color: 'rgba(255, 128, 0, 0.5)',
+                width: 2,
+                radiusDecrease: 20
+              }                
+            }              
+          },
+          plugins: [plugin, {
+            id: 'textInCenter',
+            afterDraw: function (chart, args, options) {
+              const canvasBounds = tasksCanvas.getBoundingClientRect();
+              const fontSz = Math.floor( canvasBounds.height * 0.15 ) ;
+              chart.ctx.textBaseline = 'middle';
+              chart.ctx.textAlign = 'center';
+              chart.ctx.font = fontSz+'px Arial';
+              chart.ctx.fillText(options.text, canvasBounds.width/2, canvasBounds.height*0.54 )
+            }
+          }]
+        });
+
+        const numberofDays = 14;
+        const base = 0.5 * (Math.random() + 1);
+        const diff = (1 - base) * p.summary.totalFte;
+        const worloadChart = new Chart(document.getElementById(proj.ids.workload), {
+          type: 'line',
+          data: {
+            labels: Array(numberofDays).fill(""),
+            datasets: [{ 
+                data: Array(numberofDays).fill(p.summary.totalFte),
+                label: "Total",
+                borderColor: "#3cba9f",
+                fill: false
+              }, { 
+                data: Array(numberofDays).fill(0).map( (v) =>  p.summary.totalFte * base + (Math.random() * 2 * diff - diff)),
+                label: "Actual",
+                borderColor: "#3e95cd",
+                fill: false
+              }
+            ]
+          },
+          options: {
+            aspectRatio: 1,
+            plugins: {
+              legend: {
+                  display: false
+              }
+            },
+            scales: {
+              x: {
+                display: true,
+                title: {
+                  display: true
+                }
+              },
+              y: {
+                display: true,
+                title: {
+                  display: true,
+                  text: 'Value'
+                },
+                suggestedMin: 0,
+                suggestedMax: p.summary.totalFte * 1.1
+              }
+            }              
+          }
+        });
+        p.charts = [tasksChart, worloadChart];
+      });
+    } 
     projects.forEach(function(p) {
       p.charts.forEach(function(c) {
         c.update();

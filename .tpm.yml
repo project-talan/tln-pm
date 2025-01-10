@@ -50,11 +50,11 @@ tasks: |-
       [-] Sort by deadline
   [-:038:0.15.0] Switch to Highcharts @vlad.k
   [-:037:0.15.0] Recreate web part using React @vlad.k
-  [>:036:0.14.0] Add UI controls @vlad.k
-    [>] Toolbar
-    [-] Dashboard
-      [-] Checkbox for brief/full mode
-      [-] Sort by deadline
+  [+:036:0.14.0] Add UI controls @vlad.k
+    [+] Toolbar
+    [+] Dashboard
+      [+] Checkbox for brief/full mode
+      [+] Sort by deadline
   [-:035:0.14.0] Dump datetime in local time during update command @vlad.k
   [+:034:0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
   [-:033:0.14.0] Implement Timeline web part @vlad.k
