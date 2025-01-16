@@ -126,7 +126,7 @@ class Task {
     const {id, prefix, from, to} = options;
     if (!id || this.id === id) {
       let source = null;
-      if (this.deadline === from) {
+      if ((this.deadline === from) && (this.status !== '+')) {
         this.logger.con(` Spill over task: [${prefix}] ${this.id} ${this.title}: '${this.deadline}' -> '${to}'`);
         this.deadline = to;
         source = this.source;
