@@ -49,7 +49,7 @@ tasks: |-
       [-] Tasks filter by statuses
       [-] Sort by deadline
   [-:038:0.15.0] Switch to Highcharts @vlad.k
-  [-:037:0.15.0] Recreate web part using React @vlad.k
+  [>:037:0.15.0] Recreate web part using React @vlad.k
   [+:036:0.14.0] Add UI controls @vlad.k
     [+] Toolbar
     [+] Dashboard
