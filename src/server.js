@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 
 const express = require('express');
+var cors = require('cors')
 const fg = require('fast-glob');
 
 const utils = require('./utils');
@@ -29,6 +30,7 @@ class Server {
     const {port, readOnly} = options;
     //
     const ea = express();
+    ea.use(cors());
     ea.use(express.static(path.join(__dirname, '..', 'web')));
     // ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
 
