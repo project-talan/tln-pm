@@ -46,7 +46,7 @@ jobs:
       - name: Build
         if: ${{ inputs.build }}
         run: |
-          cd app && npm run test
+          cd app && npm run build
 
       - name: Format & Unit test
         if: ${{ contains(inputs.tests, 'unit') }}
