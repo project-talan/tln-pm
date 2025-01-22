@@ -7,7 +7,6 @@ import StateContext from './StateContext';
 import Header from './Components/Header';
 import Dashboard from './Components/Dashboard';
 import Team from './Components/Team';
-import { backdropClasses } from '@mui/material';
 
 const theme = createTheme({
   palette: {
@@ -41,7 +40,7 @@ function App() {
     <StateContext.Provider value={{ config }}>
       <ThemeProvider theme={theme}>
         <Header />
-        {/*<Dashboard />*/}
+        {<Dashboard />}
         <Team />
       </ThemeProvider>
     </StateContext.Provider>
