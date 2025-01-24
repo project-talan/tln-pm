@@ -41,7 +41,7 @@ class Server {
     ea.get('/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
-    ea.get('/team', async (req, res) => {
+    ea.get('/teams', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
     })
     ea.get('/tasks', async(req, res) => {

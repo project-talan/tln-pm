@@ -4,9 +4,10 @@ import React from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey, purple } from '@mui/material/colors';
 import StateContext from './StateContext';
-import Header from './Components/Header';
-import Dashboard from './Components/Dashboard';
-import Team from './Components/Team';
+import Header from './components/Header';
+import Dashboard from './components/Dashboard';
+import Timeline from './components/Timeline';
+import Team from './components/Team';
 
 const theme = createTheme({
   palette: {
@@ -17,19 +18,35 @@ const theme = createTheme({
   },
   tasks: {
     todo: {
-      backgroundColor: '#FFA500',
+      backgroundColor: '#fac858',
+      color: 'black',
     },
     dev: {
-      backgroundColor: '#007BFF',
+      backgroundColor: '#5470c6',
+      color: 'white',
     },
     blocked: {
-      backgroundColor: '#DC3545',
+      backgroundColor: '#ee6666',
+      color: 'black',
     },
     done: {
       backgroundColor: '#28A745',
+      color: 'black',
     },
   },
 });
+
+/*
+0: #5470c6
+1: #91cc75
+2: #fac858
+3: #ee6666
+4: #73c0de
+5: #3ba272
+6: #fc8452
+7: #9a60b4
+8: #ea7ccc
+*/
 
 function App() {
   const [config] = React.useState({
@@ -40,7 +57,8 @@ function App() {
     <StateContext.Provider value={{ config }}>
       <ThemeProvider theme={theme}>
         <Header />
-        {<Dashboard />}
+        <Dashboard />
+        <Timeline />
         <Team />
       </ThemeProvider>
     </StateContext.Provider>

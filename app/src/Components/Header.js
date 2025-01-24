@@ -10,7 +10,7 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import StateContext from './../StateContext';
+import StateContext from '../StateContext';
 
 const pages = ['Dashboard', 'Timeline', 'Team', 'SRS'];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -53,7 +53,7 @@ function Header() {
   };
   React.useEffect(() => {
     fetchData();
-  });  
+  }, []);  
 
   return (
     <AppBar position="static">

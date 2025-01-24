@@ -15,7 +15,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useTheme } from '@mui/material/styles';
 
-import StateContext from './../StateContext';
+import StateContext from '../StateContext';
 
 
 const columns = [
@@ -35,7 +35,7 @@ function Team() {
   const [rows, setRows] = React.useState([]);
   const fetchData = async () => {
     try {
-      const response = await fetch(`${config.apiBaseUrl}/team`);
+      const response = await fetch(`${config.apiBaseUrl}/teams`);
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
@@ -59,11 +59,11 @@ function Team() {
           done: m.summary.done,
           total: m.summary.total,
           status: (
-            <Container sx={{display: 'flex', flexDirection: 'row', color: 'white'}}>
-              <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor}}>{m.summary.todo}</Box>
-              <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor}}>{m.summary.dev}</Box>
-              <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor}}>{m.summary.blocked}</Box>
-            </Container>
+            <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
+              <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
+              <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
+              <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
+            </Box>
           )
         });
       }));
@@ -76,7 +76,7 @@ function Team() {
   //
   React.useEffect(() => {
     fetchData();
-  });
+  }, []);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
