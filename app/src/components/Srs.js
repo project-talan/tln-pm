@@ -1,13 +1,13 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { useTheme } from '@mui/material/styles';
+// import { useTheme } from '@mui/material/styles';
 
-import StateContext from '../StateContext';
+// import StateContext from '../StateContext';
 
 function Srs() {
-  const { config } = React.useContext(StateContext);
-  const theme = useTheme();
+  // const { config } = React.useContext(StateContext);
+  // const theme = useTheme();
   // const [tasks, setTasks] = React.useState([]);
   // const fetchData = async () => {
   //   try {

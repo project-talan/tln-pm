@@ -33,50 +33,50 @@ function Team() {
   const [showZeroFte, setShowZeroFte] = React.useState(false);
   const [, setTeam] = React.useState('');
   const [rows, setRows] = React.useState([]);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/teams`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-      const data = await response.json();
-      setTeam(data.data);
-      setRows(data.data.team.map((m) => {
-        const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
-        // const name = m.name;
-        const total = m.summary.todo + m.summary.dev + m.summary.blocked;
-        const persents = [m.summary.todo, m.summary.dev, m.summary.blocked].map((b) => {
-          return total > 0 ? Math.round(100*b/total) + '%' : '0%';
-        });
-        return ({
-          id: m.id,
-          name: (
-            <>{m.name}<br/>{
-              m.bandwidth.length > 1 ? m.bandwidth.map(b => (<>{b.email} ({b.fte})<br/></>)) : m.bandwidth[0].email
-            }</>
-          ),
-          fte,
-          done: m.summary.done,
-          total: m.summary.total,
-          status: (
-            <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
-              <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
-              <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
-              <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
-            </Box>
-          )
-        });
-      }));
-      // setLoading(false);
-    } catch (error) {
-      // setError(error.message);
-      // setLoading(false);
-    }
-  };
   //
   React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/teams`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        setTeam(data.data);
+        setRows(data.data.team.map((m) => {
+          const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
+          // const name = m.name;
+          const total = m.summary.todo + m.summary.dev + m.summary.blocked;
+          const persents = [m.summary.todo, m.summary.dev, m.summary.blocked].map((b) => {
+            return total > 0 ? Math.round(100*b/total) + '%' : '0%';
+          });
+          return ({
+            id: m.id,
+            name: (
+              <>{m.name}<br/>{
+                m.bandwidth.length > 1 ? m.bandwidth.map(b => (<>{b.email} ({b.fte})<br/></>)) : m.bandwidth[0].email
+              }</>
+            ),
+            fte,
+            done: m.summary.done,
+            total: m.summary.total,
+            status: (
+              <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
+                <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
+                <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
+                <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
+              </Box>
+            )
+          });
+        }));
+        // setLoading(false);
+      } catch (error) {
+        // setError(error.message);
+        // setLoading(false);
+      }
+    };
     fetchData();
-  }, []);
+  }, [config.apiBaseUrl, theme]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 

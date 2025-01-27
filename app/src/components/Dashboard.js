@@ -190,32 +190,32 @@ function Dashboard() {
   const theme = useTheme();
   
   const [projects, setProjects ] = React.useState([]);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/projects`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-      const data = await response.json();
-      setProjects(data.data.projects.map((p) => {
-        const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
-        const total = p.summary.team.length;
-        return ({
-          ...p,
-          release: getClosestRelease(p.summary.timeline),
-          team: { size, total },
-          lastUpdateTime: getLastUpdateTime(p.summary)});
-      }));
-      // setLoading(false);
-    } catch (error) {
-      // setError(error.message);
-      // setLoading(false);
-    }
-  };
   //
   React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/projects`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        setProjects(data.data.projects.map((p) => {
+          const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
+          const total = p.summary.team.length;
+          return ({
+            ...p,
+            release: getClosestRelease(p.summary.timeline),
+            team: { size, total },
+            lastUpdateTime: getLastUpdateTime(p.summary)});
+        }));
+        // setLoading(false);
+      } catch (error) {
+        // setError(error.message);
+        // setLoading(false);
+      }
+    };
     fetchData();
-  }, []);
+  }, [config.apiBaseUrl]);
   //
   // const [mode, setMode] = React.useState('full');
   // const handleMode = (event, newMode) => {

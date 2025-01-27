@@ -291,25 +291,25 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
 function Timeline() {
   const { config } = React.useContext(StateContext);
   const theme = useTheme();
-  const [tasks, setTasks] = React.useState([]);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/tasks`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-      const data = await response.json();
-      setTasks(data.data.tasks);
-      // setLoading(false);
-    } catch (error) {
-      // setError(error.message);
-      // setLoading(false);
-    }
-  };
+  const [/*tasks*/, setTasks] = React.useState([]);
   //
   React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/tasks`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        setTasks(data.data.tasks);
+        // setLoading(false);
+      } catch (error) {
+        // setError(error.message);
+        // setLoading(false);
+      }
+    };
     fetchData();
-  }, []);
+  }, [config.apiBaseUrl]);
 
   return (
     <Container maxWidth="xl" sx={{pt: 2}}>

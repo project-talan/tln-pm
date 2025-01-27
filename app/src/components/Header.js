@@ -37,23 +37,23 @@ function Header() {
   //
   const { config } = React.useContext(StateContext);
   const [version, setVersion] = React.useState('');
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/info`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-      const data = await response.json();
-      setVersion(data.data.version);
-      // setLoading(false);
-    } catch (error) {
-      // setError(error.message);
-      // setLoading(false);
-    }
-  };
   React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${config.apiBaseUrl}/info`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const data = await response.json();
+        setVersion(data.data.version);
+        // setLoading(false);
+      } catch (error) {
+        // setError(error.message);
+        // setLoading(false);
+      }
+    };
     fetchData();
-  }, []);  
+  }, [config.apiBaseUrl]);
 
   return (
     <AppBar position="static">
