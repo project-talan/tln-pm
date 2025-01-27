@@ -2,36 +2,27 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import ToggleButton from '@mui/material/ToggleButton';
-import MultilineChartIcon from '@mui/icons-material/MultilineChart';
-import SummarizeOutlinedIcon from '@mui/icons-material/SummarizeOutlined';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import IconButton from '@mui/material/IconButton';
-import CommentIcon from '@mui/icons-material/Comment';
-import InboxIcon from '@mui/icons-material/Inbox';
 import Divider from '@mui/material/Divider';
 
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 
-import { compareAsc, format } from "date-fns";
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
 import StateContext from '../StateContext';
 import { getLocalISOString, getClosestRelease, getLastUpdateTime } from '../shared/utils';
 
-const TableValue = styled('Typography')(({ theme }) => ({
+const TableValue = styled('div')(({ theme }) => ({
   color: theme.palette.primary.main,
   fontSize: 14,
   fontStyle: 'italic',
-  fontWeight: 'bold',
+  fontWeight: 'bold'
 }));
 
 const getPieOptions = (theme, tasks) => ({
@@ -226,10 +217,10 @@ function Dashboard() {
     fetchData();
   }, []);
   //
-  const [mode, setMode] = React.useState('full');
-  const handleMode = (event, newMode) => {
-    setMode(newMode);
-  };  
+  // const [mode, setMode] = React.useState('full');
+  // const handleMode = (event, newMode) => {
+  //   setMode(newMode);
+  // };  
 
   const style = {
     py: 0,
@@ -279,53 +270,52 @@ function Dashboard() {
                 </Typography>
                 <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>{p.description}</Typography>
                 <Box sx={{px: 4 }}>
-                <List sx={style}>
-                  <ListItem
-                    secondaryAction={
-                      <TableValue>in {p.release.timeToRelease}</TableValue>
-                    }
-                  >
-                    <ListItemText primary={<Typography><b>Release</b></Typography>}/>
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                  <ListItem
-                    sx={{pl: 4}}
-                    secondaryAction={
-                      <TableValue>{p.release.releaseName}</TableValue>
-                    }
-                  >
-                    <ListItemText primary="Version" />
-                  </ListItem>
-                  <ListItem
-                    sx={{pl: 4}}
-                    secondaryAction={
-                      <TableValue>{getLocalISOString(p.release.releaseDate)}</TableValue>
-                    }
-                  >
-                    <ListItemText primary="Date" />
-                  </ListItem>
-                  <ListItem sx={{pl: 4}}
-                    secondaryAction={
-                      <TableValue>{p.release.releaseFeatures}</TableValue>
-                    }
-                  >
-                    <ListItemText primary="Features" />
-                  </ListItem>
-                  <Divider component="li" />
-                  <ListItem>
-                    <ListItemText primary={<Typography><b>Workload & Bandwidth</b></Typography>} />
-                  </ListItem>
-                  <Divider variant="inset" component="li" />
-                  <ListItem sx={{pl: 4}}
-                    secondaryAction={
-                      <TableValue>{p.team.size}({p.team.total})</TableValue>
-                    }
-                  >
-                    <ListItemText primary="Team size (total)" />
-                  </ListItem>
-                </List>
-
-                </Box>     
+                  <List sx={style}>
+                    <ListItem
+                      secondaryAction={
+                        <TableValue >in {p.release.timeToRelease}</TableValue>
+                      }
+                    >
+                      <ListItemText primary={<Typography>Release</Typography>}/>
+                    </ListItem>
+                    <Divider variant="inset" component="li" />
+                    <ListItem
+                      sx={{pl: 4}}
+                      secondaryAction={
+                        <TableValue>{p.release.releaseName}</TableValue>
+                      }
+                    >
+                      <ListItemText primary="Version" />
+                    </ListItem>
+                    <ListItem
+                      sx={{pl: 4}}
+                      secondaryAction={
+                        <TableValue>{getLocalISOString(p.release.releaseDate)}</TableValue>
+                      }
+                    >
+                      <ListItemText primary="Date" />
+                    </ListItem>
+                    <ListItem sx={{pl: 4}}
+                      secondaryAction={
+                        <TableValue>{p.release.releaseFeatures}</TableValue>
+                      }
+                    >
+                      <ListItemText primary="Features" />
+                    </ListItem>
+                    <Divider component="li" />
+                    <ListItem>
+                      <ListItemText primary={<Typography><b>Workload & Bandwidth</b></Typography>} />
+                    </ListItem>
+                    <Divider variant="inset" component="li" />
+                    <ListItem sx={{pl: 4}}
+                      secondaryAction={
+                        <TableValue>{p.team.size}({p.team.total})</TableValue>
+                      }
+                    >
+                      <ListItemText primary="Team size (total)" />
+                    </ListItem>
+                  </List>
+                </Box>
               </Box>
               <Box>
               <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>

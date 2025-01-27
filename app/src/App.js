@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import Timeline from './components/Timeline';
 import Team from './components/Team';
+import Srs from './components/Srs';
 
 const theme = createTheme({
   palette: {
@@ -60,6 +61,7 @@ function App() {
         <Dashboard />
         <Timeline />
         <Team />
+        <Srs />
       </ThemeProvider>
     </StateContext.Provider>
   );
