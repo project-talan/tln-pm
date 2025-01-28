@@ -43,7 +43,7 @@ function Team() {
         }
         const data = await response.json();
         setTeam(data.data);
-        setRows(data.data.team.map((m) => {
+        setRows(data.data.team.map((m, index) => {
           const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
           // const name = m.name;
           const total = m.summary.todo + m.summary.dev + m.summary.blocked;
@@ -53,9 +53,9 @@ function Team() {
           return ({
             id: m.id,
             name: (
-              <>{m.name}<br/>{
-                m.bandwidth.length > 1 ? m.bandwidth.map(b => (<>{b.email} ({b.fte})<br/></>)) : m.bandwidth[0].email
-              }</>
+              <div key={index}>{m.name}<br/>{
+                m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.email} ({b.fte})<br/></div>)) : m.bandwidth[0].email
+              }</div>
             ),
             fte,
             done: m.summary.done,

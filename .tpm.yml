@@ -53,7 +53,7 @@ tasks: |-
     [+] Dashboard
     [+] Team
     [>] Timeline
-    [>] SRS
+    [+] SRS
   [+:036:0.14.0] Add UI controls @vlad.k
     [+] Toolbar
     [+] Dashboard
