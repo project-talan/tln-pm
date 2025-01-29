@@ -26,6 +26,9 @@ const TableValue = styled('div')(({ theme }) => ({
 }));
 
 const getPieOptions = (theme, tasks) => ({
+  credits: {
+    enabled: false
+  },  
   chart: {
     type: 'pie',
     custom: {},
@@ -123,6 +126,9 @@ const getLineOptions = (theme, project) => {
   const diff = (1 - base) * totalFte;
 
   return ({
+    credits: {
+      enabled: false
+    },  
     title: {
       text: ' ',
       align: 'left'
@@ -255,13 +261,13 @@ function Dashboard() {
       </Box>*/}
       {projects.map((p, index) => {
         return (
-          <Card variant="outlined" key={index} sx={{my: 2}}>
-            <CardContent>
-            <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>
-              <Box sx={{ position: 'relative'}}>
-                <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14, position: 'absolute', left: 0, bottom: -20 }}>
-                  <i>updated {p.lastUpdateTime} ago</i>
+          <Card variant="outlined" key={index} sx={{my: 2, position: 'relative', overflow: 'visible', backgroundColor: 'lightgrey1'}}>
+                <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', right: 8, top: -12}}>
+                  <i><b>updated {p.lastUpdateTime} ago</b></i>
                 </Typography>
+            <CardContent sx={{ overflow: 'visible'}}>
+            <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>
+              <Box>
                 <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
                   {p.id}
                 </Typography>

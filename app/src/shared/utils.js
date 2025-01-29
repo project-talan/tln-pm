@@ -47,7 +47,6 @@ const formatDuration = (duration) => {
 }
 
 const getLocalISOString = (date) =>{
-  console.log('date', date);
   if (date !== 'n/a') {
     const offset = date.getTimezoneOffset();
     const offsetAbs = Math.abs(offset)

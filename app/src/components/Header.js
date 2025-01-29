@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { NavLink } from "react-router-dom";
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,7 +14,12 @@ import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import StateContext from '../StateContext';
 
-const pages = ['Dashboard', 'Timeline', 'Team', 'SRS'];
+const pages = [
+  { id: 'dashboard', title: 'Dashboard', href: '/' },
+  { id: 'timeline', title: 'Timeline', href: '/timeline' },
+  { id: 'team', title: 'Team', href: '/team' },
+  { id: 'srs', title: 'SRS', href: '/srs' }
+];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Header() {
@@ -53,7 +60,7 @@ function Header() {
       }
     };
     fetchData();
-  }, [config.apiBaseUrl]);
+  }, [config.apiBaseUrl, version]);
 
   return (
     <AppBar position="static">
@@ -103,9 +110,11 @@ function Header() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
+                <NavLink key={page.id} to={page.href} style={{textDecoration: 'none'}} >
+                  <MenuItem onClick={handleCloseNavMenu}>
+                    <Typography sx={{ textAlign: 'center', color: 'black' }}>{page.title}</Typography>
+                  </MenuItem>
+                </NavLink>
               ))}
             </Menu>
           </Box>
@@ -127,13 +136,14 @@ function Header() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
+              <NavLink key={page.id} to={page.href} style={{textDecoration: 'none'}} >
+                <Button
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page.title}
+                </Button>
+              </NavLink>
             ))}
           </Box>
           {/*

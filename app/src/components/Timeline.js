@@ -13,6 +13,9 @@ const day = 24 * 36e5,
 //today = Math.floor(Date.now() / day) * day;
   today = Date.now();
 const getGanttOptions = (theme) => ({
+  credits: {
+    enabled: false
+  },  
   chart: {
     type: 'gantt',
     plotBackgroundColor: 'rgba(128,128,128,0.02)',
@@ -196,7 +199,7 @@ const getGanttOptions = (theme) => ({
       value: today + 10 * day,
       color: 'red',
       width: 5,
-      zIndex: 3
+      zIndex: 10
     },
     {
       label: {
@@ -208,7 +211,7 @@ const getGanttOptions = (theme) => ({
       value: today + 12 * day,
       color: 'green',
       width: 5,
-      zIndex: 3
+      zIndex: 10
     }]
   }],
   yAxis: {

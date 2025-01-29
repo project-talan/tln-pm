@@ -1,6 +1,8 @@
 import './App.css';
 import React from 'react';
 
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey, purple } from '@mui/material/colors';
 import StateContext from './StateContext';
@@ -57,11 +59,15 @@ function App() {
   return (
     <StateContext.Provider value={{ config }}>
       <ThemeProvider theme={theme}>
-        <Header />
-        {/*<Dashboard />*/}
-        <Timeline />
-        {/*<Team />
-        <Srs />*/}
+        <BrowserRouter>
+          <Header />
+          <Routes>
+            <Route index element={<Dashboard />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="team" element={<Team />} />
+            <Route path="srs" element={<Srs />} />
+          </Routes>
+        </BrowserRouter>
       </ThemeProvider>
     </StateContext.Provider>
   );
