@@ -122,7 +122,7 @@ const getPieOptions = (theme, tasks) => ({
 const getLineOptions = (theme, project) => {
   const numberofDays = 10;
   const totalFte = project.summary.totalFte;
-  const base = 0.5 * (Math.random() + 1);
+  const base = 1 - Math.random() * 0.4;
   const diff = (1 - base) * totalFte;
 
   return ({
@@ -140,9 +140,10 @@ const getLineOptions = (theme, project) => {
     // },
 
     yAxis: {
-      // title: {
-      //   text: 'Number of Employees'
-      // }
+      title: {
+        text: 'Full Time Equivalent'
+      },
+      min: 0
     },
 
     xAxis: {
