@@ -8,8 +8,10 @@ team:
     name: Vladyslav Kurmaz
     fte: 0.1
 timeline:
+  0.16.0:
+    deadline: 2025-02-07T18:00:00.000Z
   0.15.0:
-    deadline: 2025-01-23T18:00:00.000Z
+    deadline: 2025-01-30T18:00:00.000Z
   0.14.0:
     deadline: 2025-01-10T18:00:00.000Z
   0.13.0:
@@ -37,6 +39,9 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:043:0.17.0] Search @vlad.k
+    [-] Srs
+  [-:042:0.16.0] Dockerize web part @vlad.k
   [-:041:0.15.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox

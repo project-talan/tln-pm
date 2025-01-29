@@ -10,7 +10,8 @@ import HighchartsReact from 'highcharts-react-official'
 import StateContext from '../StateContext';
 
 const day = 24 * 36e5,
-    today = Math.floor(Date.now() / day) * day;
+//today = Math.floor(Date.now() / day) * day;
+  today = Date.now();
 const getGanttOptions = (theme) => ({
   chart: {
     type: 'gantt',
@@ -70,8 +71,9 @@ const getGanttOptions = (theme) => ({
       completed: {
         amount: 0.2
       },
+      data: 'data',
       owner: 'Linda'
-    }, {
+    },{
       name: 'Inspect building',
       id: 'inspect_building',
       dependency: 'prepare_building',
@@ -80,17 +82,9 @@ const getGanttOptions = (theme) => ({
       end: today + 8 * day,
       owner: 'Ivy'
     }, {
-      name: 'Passed inspection',
-      id: 'passed_inspection',
-      dependency: 'inspect_building',
-      parent: 'new_offices',
-      start: today + 9.5 * day,
-      milestone: true,
-      owner: 'Peter'
-    }, {
       name: 'Relocate',
       id: 'relocate',
-      dependency: 'passed_inspection',
+      dependency: 'inspect_building',
       parent: 'new_offices',
       owner: 'Josh'
     }, {
@@ -114,7 +108,7 @@ const getGanttOptions = (theme) => ({
       start: today + 11 * day,
       end: today + 14 * day
     }]
-  }, {
+  },/* {
     name: 'Product',
     data: [{
       name: 'New product launch',
@@ -154,7 +148,7 @@ const getGanttOptions = (theme) => ({
       milestone: true,
       owner: 'Peter'
     }]
-  }],
+  }*/],
   tooltip: {
     pointFormat: '<span style="font-weight: bold">{point.name}</span><br>' +
       '{point.start:%e %b}' +
@@ -163,11 +157,13 @@ const getGanttOptions = (theme) => ({
       '{#if point.completed}' +
       'Completed: {multiply point.completed.amount 100}%<br>' +
       '{/if}' +
-      'Owner: {#if point.owner}{point.owner}{else}unassigned{/if}'
+      'Assignee: {#if point.owner}{point.owner}{else}unassigned{/if}'
   },
+  /*
   title: {
-    text: null,
+    text: '',
   },
+  */
   xAxis: [{
     currentDateIndicator: {
       color: '#2caffe',
@@ -189,7 +185,31 @@ const getGanttOptions = (theme) => ({
     custom: {
       today,
       weekendPlotBands: true
-    }
+    },
+    plotLines: [{
+      label: {
+        rotation: 0,
+        text: '0.15.0',
+        x: 0,
+        y: -5
+      },
+      value: today + 10 * day,
+      color: 'red',
+      width: 5,
+      zIndex: 3
+    },
+    {
+      label: {
+        rotation: 0,
+        text: '0.16.0',
+        x: 0,
+        y: -5
+      },
+      value: today + 12 * day,
+      color: 'green',
+      width: 5,
+      zIndex: 3
+    }]
   }],
   yAxis: {
     grid: {

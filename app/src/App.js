@@ -58,10 +58,10 @@ function App() {
     <StateContext.Provider value={{ config }}>
       <ThemeProvider theme={theme}>
         <Header />
-        <Dashboard />
+        {/*<Dashboard />*/}
         <Timeline />
-        <Team />
-        <Srs />
+        {/*<Team />
+        <Srs />*/}
       </ThemeProvider>
     </StateContext.Provider>
   );
