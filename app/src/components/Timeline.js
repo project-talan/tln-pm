@@ -9,7 +9,7 @@ import HighchartsReact from 'highcharts-react-official'
 
 import StateContext from '../StateContext';
 
-
+/*
 const data1 = [
   {
     timeline: [
@@ -146,6 +146,7 @@ const data1 = [
     ]
   }
 ];
+*/
 
 const day = 24 * 36e5,
 //today = Math.floor(Date.now() / day) * day;
