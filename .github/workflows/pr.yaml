@@ -12,7 +12,7 @@ jobs:
     uses: ./.github/workflows/base.yaml
     with:
       ref: "origin/${{ github.event.pull_request.base.ref }}"
-      tests: unit
+      tests: unit, static
       build: true
     secrets:
       SONAR_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

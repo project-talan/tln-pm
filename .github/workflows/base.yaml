@@ -55,6 +55,7 @@ jobs:
           cd app && npm run test:ci
 
       - name: SonarQube Scan
+        if: ${{ contains(inputs.tests, 'static') }}
         uses: SonarSource/sonarqube-scan-action@v4.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.SONAR_GITHUB_TOKEN }}
