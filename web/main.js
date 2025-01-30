@@ -601,7 +601,7 @@ function getMember(member, showZeroFte = false) {
 }
 
 function initTeam() {
-  $.getJSON("team", function(res, status){
+  $.getJSON("teams", function(res, status){
     if (res.success) {
       team = res.data.team;
       updateTeam();

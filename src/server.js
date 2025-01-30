@@ -5,6 +5,7 @@ const fs = require('fs');
 const os = require('os');
 
 const express = require('express');
+var cors = require('cors')
 const fg = require('fast-glob');
 
 const utils = require('./utils');
@@ -29,6 +30,7 @@ class Server {
     const {port, readOnly} = options;
     //
     const ea = express();
+    ea.use(cors());
     ea.use(express.static(path.join(__dirname, '..', 'web')));
     // ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
 
@@ -39,7 +41,7 @@ class Server {
     ea.get('/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
-    ea.get('/team', async (req, res) => {
+    ea.get('/teams', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
     })
     ea.get('/tasks', async(req, res) => {
