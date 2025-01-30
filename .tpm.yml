@@ -42,18 +42,18 @@ tasks: |-
   [-:043:0.17.0] Search @vlad.k
     [-] Srs
   [-:042:0.16.0] Dockerize web part @vlad.k
-  [-:041:0.15.0] Add UI controls @vlad.k
+  [-:041:0.16.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
-  [-:040:0.15.0] Add UI controls @vlad.k
+  [-:040:0.16.0] Add UI controls @vlad.k
     [-] Team
       [-] Search editbox
       [-] Sort by statuses
-  [-:039:0.15.0] Add UI controls @vlad.k
+  [-:039:0.16.0] Add UI controls @vlad.k
     [-] Timeline
       [-] Tasks filter by statuses
       [-] Sort by deadline
-  [-:038:0.15.0] Switch to Highcharts @vlad.k
+  [>:038:0.15.0] Switch to Highcharts @vlad.k
   [>:037:0.15.0] Switch from JQuery+Bootstrap to React+MUI @vlad.k
     [+] Dashboard
     [+] Team
@@ -64,12 +64,12 @@ tasks: |-
     [+] Dashboard
       [+] Checkbox for brief/full mode
       [+] Sort by deadline
-  [-:035:0.15.0] Dump datetime in local time during update command @vlad.k
+  [-:035:0.17.0] Dump datetime in local time during update command @vlad.k
   [+:034:0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
-  [-:033:0.15.0] Implement Timeline web part @vlad.k
-  [-:032:0.15.0] Add fs watch @vlad.k
+  [>:033:0.15.0] Implement Timeline web part @vlad.k
+  [-:032:0.17.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
-  [-:031:0.15.0] Fix task output on hierarchy mode @vlad.k
+  [-:031:0.17.0] Fix task output on hierarchy mode @vlad.k
   [+:030:0.10.0] Implement deadline class @vlad.k
   [+:029:0.14.0] Implement config command via source class @vlad.k
   [+:028:0.14.0] Tasks spill over batch mode @vlad.k
@@ -82,9 +82,9 @@ tasks: |-
   [+:021:0.6.0] Add project description section @vlad.k
   [+:020:0.5.0] Add option to display tasks with different statuses: --backlog, --dev, --done @vlad.k
   [+:019:0.5.0] Add component as optional parameter for ls command @vlad.k
-  [-:018:0.15.0] Generate snapshot @vlad.k
+  [-:018:0.17.0] Generate snapshot @vlad.k
   [+:017:0.5.0] Add SRS section @vlad.k
-  [-:016:0.15.0] Add describe command with resolved links @vlad.k
+  [-:016:0.17.0] Add describe command with resolved links @vlad.k
   [+:015:0.5.0] Integrate .tpm folder at repository root level to store snapshots #invalid @vlad.k
   [+:014:0.13.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:0.6.0] Add search @vlad.k
