@@ -7,8 +7,6 @@ import Highcharts from 'highcharts'
 import gantt from "highcharts/highcharts-gantt";
 import HighchartsReact from 'highcharts-react-official'
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
 import HomeIcon from '@mui/icons-material/Home';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Menu from '@mui/material/Menu';
@@ -27,6 +25,7 @@ const day = 24 * 36e5,
 //today = Math.floor(Date.now() / day) * day;
   today = Date.now();
 
+  /*
 const testData = 
     [
       {
@@ -127,7 +126,7 @@ const testData =
         }]
       }
     ];
-
+*/
 
 const getGanttOptions = (theme, data) => {
   return ({
