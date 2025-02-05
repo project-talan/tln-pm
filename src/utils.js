@@ -1,9 +1,16 @@
 'use strict';
 
+const ems = require('enhanced-ms');
+
+module.exports.timelineTasks = (team, tasks, defaultEstimate) => {
+  tasks.estimate = ems('36h');
+}
+
 module.exports.parseTask = (desc) => {
   let status = '-';
   let id = ''
   let title = '';
+  let estimate = 0;
   let deadline = '';
   let assignees = [];
   let tags = [];
@@ -34,15 +41,20 @@ module.exports.parseTask = (desc) => {
     }
     const next2 = next.replace(/@[a-z,\.,-,_]+/gi, '').trim();
     // extract tag(s)
-    const ts = next2.matchAll(/#[a-z,\.,-,_]+/gi);
+    const ts = next2.matchAll(/#[a-z,0-9,\.,-,_]+/gi);
     for (const t of ts) {
-      tags.push(t[0].substring(1));
+      const tag = t[0].substring(1);
+      tags.push(tag);
+      const e = ems(tag);
+      if (e) {
+        estimate = e;
+      }
     }
-    const next3 = next2.replace(/#[a-z,\.,-,_]+/gi, '').trim();
+    const next3 = next2.replace(/#[a-z,0-9,\.,-,_]+/gi, '').trim();
     // ectratc link(s)
     title = next3;
   }
-  return { status, id, title, deadline, assignees, tags, links };
+  return { status, id, title, estimate, deadline, assignees, tags, links };
 }
 
 

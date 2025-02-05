@@ -93,16 +93,16 @@ function Team() {
   return (
     <Container maxWidth="xl" sx={{pt: 2}}>
       <Box sx={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', backgroundColor: 'lightgrey1'}}>
-      <FormControl component="fieldset">
-        <FormGroup aria-label="position" row>
-          <FormControlLabel
-            value="end"
-            control={<Switch checked={showZeroFte} size="small" color="primary" onChange={(event)=> setShowZeroFte(event.target.checked)} />}
-            label={<Box component="div" fontSize={14}>Show 0 fte</Box>}
-            labelPlacement="end"
-          />
-        </FormGroup>
-      </FormControl>        
+        <FormControl component="fieldset">
+          <FormGroup aria-label="position" row>
+            <FormControlLabel
+              value="end"
+              control={<Switch checked={showZeroFte} size="small" color="primary" onChange={(event)=> setShowZeroFte(event.target.checked)} />}
+              label={<Box component="div" fontSize={14}>Show 0 fte</Box>}
+              labelPlacement="end"
+            />
+          </FormGroup>
+        </FormControl>
       </Box>
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: 1024 }}>

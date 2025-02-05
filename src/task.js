@@ -36,6 +36,7 @@ class Task {
     this.status = '';
     this.id = null;
     this.title = '';
+    this.estimate = 0;
     this.deadline = '';
     this.assignees = [];
     this.tags = [];
@@ -44,6 +45,7 @@ class Task {
     this.audit = {};
   }
 
+  // output tasks in yaml format
   async reconstruct(source, indent = '') {
     if (this.source.isItMe(source)) {
       const id = this.id ? `:${this.id}` : '';
@@ -154,10 +156,11 @@ class Task {
   }
 
   async extract(desc) {
-    const {status, id, title, deadline, assignees, tags, links} = utils.parseTask(desc);
+    const {status, id, title, estimate, deadline, assignees, tags, links} = utils.parseTask(desc);
     this.status = status;
     this.id = id;
     this.title = title;
+    this.estimate = estimate;
     this.deadline = deadline;
     this.assignees = assignees;
     this.tags = tags;
@@ -189,8 +192,10 @@ class Task {
     // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
     const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me, tg, st)))).filter(v => !!v);
     let percentage = (this.status === '+' || this.status === 'x') ? 100 : 0;
+    let estimate = this.estimate;
     if (this.tasks.length) {
       percentage = Math.round(tasks.reduce((acc, t) => acc + t.percentage, 0) / tasks.length);
+      estimate = tasks.reduce((acc, t) => acc + t.estimate, 0);
     }
     //console.log(this.id, st, who.all, me, tg, sr, tasks.length);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
@@ -199,6 +204,7 @@ class Task {
         status: this.status,
         id: this.id,
         title: this.title,
+        estimate,
         percentage,
         deadline: this.deadline,
         assignees: this.assignees,

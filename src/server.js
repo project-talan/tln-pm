@@ -44,13 +44,20 @@ class Server {
     ea.get('/teams', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
     })
-    ea.get('/tasks', async(req, res) => {
-      res.send(this.makeResponce( await app.ls({
-        component: null,
+    ea.get(['/tasks', '/tasks/:component*'], async(req, res) => {
+      const component = req.params.component ? `${req.params.component}${req.params[0]}` : null;
+      const tasks = await app.ls({
+        component,
         depth: 10,
         who: { assignees: [], all: true },
-        filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: false } }
-      })));
+        filter: { tag: [], search: [], deadline: [], status: { 
+          todo: req.query.todo === 'true' ? true : false,
+          dev: req.query.dev === 'true' ? true : false,
+          blocked: req.query.blocked === 'true' ? true : false,
+          done: req.query.done === 'true' ? true : false,
+        }}
+      });
+      res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
     })
     ea.get('/srs', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { srs: true } })));

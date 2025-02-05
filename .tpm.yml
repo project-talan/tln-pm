@@ -8,6 +8,8 @@ team:
     name: Vladyslav Kurmaz
     fte: 0.1
 timeline:
+  0.17.0:
+    deadline: 2025-02-21T18:00:00.000Z
   0.16.0:
     deadline: 2025-02-07T18:00:00.000Z
   0.15.0:
@@ -39,6 +41,11 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:044:0.17.0] Audit command @vlad.k
+    [-] Check tasks without estimates #4h
+    [-] Check tasks without assignees #2h
+    [-] Check tasks without deadline #8h
+    [-] Validate team velocity and timeline #8h
   [-:043:0.17.0] Search @vlad.k
     [-] Srs
   [-:042:0.16.0] Dockerize web part @vlad.k
