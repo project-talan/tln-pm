@@ -51,26 +51,36 @@ describe('Utils lib', function () {
 
   it('should put hierarchy of tasks on timeline', function () {
     const defaultEstimate = '4h';
-    const team = [
-      {"id":"alice.c","name":"Alice Clarke","bandwidth":[{"email":"alice.c@gmail.com","fte":1}]}
-    ];
     const tasks = {
       "id":"test",
       "relativePath":"",
       "name":"My Project",
       "tasks":[
-        {"status":">","id":"002","title":"Integrate auth library","estimate":72000000,"percentage":0,"deadline":"25.2.0","assignees":["alice.c"],"tags":[],"links":[],
+        {"status":"-","id":"004","title":"Unassigned task from next release with no estimate","estimate":0,"percentage":0,"deadline":"25.3.0","assignees":[],"tags":[],"links":[],"tasks":[]},
+        {"status":"-","id":"003","title":"Unassigned task from next release","estimate":57600000,"percentage":0,"deadline":"25.3.0","assignees":[],"tags":[],"links":["16h"],"tasks":[]},
+        {"status":">","id":"002","title":"Integrate auth library","estimate":72000000,"percentage":0,"deadline":"25.2.0","assignees":["alice.c"],"tags":["high", "2h"],"links":[],
           "tasks":[
             {"status":"!","id":"","title":"Add /iam/auth endpoint","estimate":57600000,"percentage":0,"deadline":"","assignees":[],"tags":["16h"],"links":[],"tasks":[]},
             {"status":">","id":"","title":"Configure auth callbacks","estimate":14400000,"percentage":0,"deadline":"","assignees":[],"tags":["4h"],"links":[],"tasks":[]}
           ]
         },
-        {"status":"-","id":"001","title":"Create project structure","estimate":57600000,"percentage":0,"deadline":"25.2.0","assignees":["alice.c"],"tags":["16h"],"links":[],"tasks":[]}
+        {"status":"-","id":"001","title":"Create project structure","estimate":57600000,"percentage":0,"deadline":"25.2.0","assignees":["alice.c"],"tags":["16h"],"links":[],"tasks":[]},
+        {"status":"+","id":"000","title":"Configure repository","estimate":7200000,"percentage":0,"deadline":"25.2.0","assignees":["alice.c"],"tags":["2h"],"links":[],"tasks":[]}
       ],
       "components":[]
     };
-    timelineTasks(team, tasks, ems(defaultEstimate));
-    expect(tasks.estimate).to.be.eql(ems('36h'));
+    const timeline = [
+      {"id":"25.2.0","deadline":"2025-02-28T18:00:00.000Z","features":2},
+      {"id":"25.3.0","deadline":"2025-03-31T18:00:00.000Z","features":2}
+    ];
+    const team = [
+      {"id":"alice.c","name":"Alice Clarke","bandwidth":[{"email":"alice.c@gmail.com","fte":1}]}
+    ];
+    timelineTasks(tasks, timeline, team, ems(defaultEstimate));
+    // console.log('tasks:', JSON.stringify(tasks));
+
+    expect(tasks.start).to.be.eql(0);
+    expect(tasks.end).to.be.eql(208800000);
   });
 
   

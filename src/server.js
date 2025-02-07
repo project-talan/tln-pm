@@ -7,6 +7,7 @@ const os = require('os');
 const express = require('express');
 var cors = require('cors')
 const fg = require('fast-glob');
+const ems = require('enhanced-ms');
 
 const utils = require('./utils');
 const {version} = require('../package.json');
@@ -57,6 +58,7 @@ class Server {
           done: req.query.done === 'true' ? true : false,
         }}
       });
+      utils.timelineTasks(tasks, [], [], ems('8h'));
       res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
     })
     ea.get('/srs', async(req, res) => {

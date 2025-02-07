@@ -345,15 +345,14 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
 
  const transformTasks = (data) => {
     const series = [];
-    let step = 0;
     const processComponent = (parentId, team, timeline, component) => {
       const id = [parentId, component.id].join('.');
       const item = {
         name: component.name,
         id,
         parent: parentId !== '' ? parentId : undefined,
-        start: today + step * day,
-        end: today + (step + 1) * day,
+        start: today + component.start,
+        end: today + component.end,
         // data: 'data',
         // owner: 'Linda'
         completed: {
@@ -365,8 +364,7 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
       //   amount: 0.2
       // },
     
-      const index = series.push(item) - 1;
-      step++;
+      series.push(item);
       //
       const processTasks = (parentId, tasks) => {
         tasks.forEach((t, index) => {
@@ -375,17 +373,15 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
             name: t.title,
             id,
             parent: parentId,
-            start: today + step * day,
-            end: today + (step + 1) * day,
+            start: today + t.start,
+            end: today + t.end,
           };
           series.push(task);
-          step++;
           //
           processTasks(id, t.tasks);
         });
       };
       processTasks(id, component.tasks);
-      series[index].end = today + (series.length - index) * day;
       component.components.forEach((c) => {          
         processComponent(id, team, timeline, c);
       });
