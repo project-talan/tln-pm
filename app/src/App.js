@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey, purple } from '@mui/material/colors';
-import StateContext from './StateContext';
+import Context from './Context';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import Timeline from './components/Timeline';
@@ -53,24 +53,43 @@ const theme = createTheme({
 */
 
 function App() {
-  const [config] = React.useState({
+  const [context, setContext] = React.useState({
     apiBaseUrl: 'http://localhost:5445',
+    selectedMembers: [],
   });
 
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${context.apiBaseUrl}/info`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        const json = await response.json();
+        setContext({...context, version: json.data.version, selectedMembers: [json.data.memberId]});
+        // setLoading(false);
+      } catch (error) {
+        // setError(error.message);
+        // setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <StateContext.Provider value={{ config }}>
+    <Context.Provider value={[context, setContext]}>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <Header />
           <Routes>
             <Route index element={<Dashboard />} />
-            <Route path="timeline" element={<Timeline />} />
+            <Route path="timeline" element={<Timeline/>} />
             <Route path="team" element={<Team />} />
             <Route path="srs" element={<Srs />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
-    </StateContext.Provider>
+    </Context.Provider>
   );
 }
 

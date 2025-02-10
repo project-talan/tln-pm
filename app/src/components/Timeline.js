@@ -15,11 +15,24 @@ import Switch from '@mui/material/Switch';
 import FormControl from '@mui/material/FormControl';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
-import StateContext from '../StateContext';
-import { IconButton } from '@mui/material';
+import Select from '@mui/material/Select';
+import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import Divider from '@mui/material/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import TuneIcon from '@mui/icons-material/Tune';
+import InputLabel from '@mui/material/InputLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Avatar from '@mui/material/Avatar';
+import CloseIcon from '@mui/icons-material/Close';
+import { Typography } from '@mui/material';
 
+import Context from '../Context';
 
 const day = 24 * 36e5,
 //today = Math.floor(Date.now() / day) * day;
@@ -152,27 +165,30 @@ const getGanttOptions = (theme, data) => {
           }
         },
         groupPadding: 0,
-        dataLabels: [{
+        dataLabels: [
+          {
           enabled: true,
           align: 'left',
-          format: '{point.name}',
+          format: '',
           padding: 10,
           style: {
+            color: 'white',
             fontWeight: 'normal',
             textOutline: 'none'
           }
-        }, {
-          enabled: true,
-          align: 'right',
-          format: '{#if point.completed}{(multiply ' +
-            'point.completed.amount 100):.0f}%{/if}',
-          padding: 10,
-          style: {
-            fontWeight: 'normal',
-            textOutline: 'none',
-            opacity: 0.6
+          }, {
+            enabled: true,
+            align: 'center',
+            format: '{#if point.completed}{(multiply ' +
+              'point.completed.amount 100):.0f}%{/if}',
+            padding: 10,
+            style: {
+              fontWeight: 'normal',
+              textOutline: 'none',
+              opacity: 0.6
+            }
           }
-        }]
+        ]
       }
     },
 
@@ -356,7 +372,7 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
         // data: 'data',
         // owner: 'Linda'
         completed: {
-          amount: 0.5
+          amount: 0.25
         },
       };
       // TODO: add completed amount into task
@@ -370,7 +386,7 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
         tasks.forEach((t, index) => {
           const id = [parentId, t.id ? t.id : index].join('.');
           const task = {
-            name: t.title,
+            name: t.title + t.tags.join(','),
             id,
             parent: parentId,
             start: today + t.start,
@@ -392,9 +408,12 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
     return series;
   }
   
-function Timeline() {
-  const { config } = React.useContext(StateContext);
+function Timeline(props) {
+  const [context, setContext] = React.useContext(Context);
   const theme = useTheme();
+  //
+  const defaultMemberId = React.useMemo(() => props.memberId, [props.memberId]);
+  //
   const [tasks, setTasks] = React.useState([]);
   const [components, setComponents] = React.useState([]);
   // Statuses
@@ -402,7 +421,7 @@ function Timeline() {
   // Next level components
   const [subComponents, setSubComponents] = React.useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  const subComponentOpen = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -410,36 +429,148 @@ function Timeline() {
     setAnchorEl(null);
   };
   //
+  // Team & Deadline(s)
+  const [deadlines, setDeadlines] = React.useState(['test-25.2.0', 'test-25.3.0']);
+  const [deadline, setDeadline] = React.useState();
+  const handleDeadlineChange = (event) => {
+    setDeadline(event.target.value);
+  };
+  //
+  const [members, setMembers] = React.useState([]);
+  const [checkedMembers, setCheckedMembers] = React.useState([defaultMemberId]);
+  const handleToggle = (value) => () => {
+    const currentIndex = checkedMembers.indexOf(value);
+    const newChecked = [...checkedMembers];
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+    setCheckedMembers(newChecked);
+  };
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const p = (['tasks'].concat(components)).join('/');
-        const q = Object.keys(statuses).map((key) => `${key}=${statuses[key]}`).join('&');
-        const response = await fetch(`${config.apiBaseUrl}/${p}?${q}`);
+        const response = await fetch(`${context.apiBaseUrl}/team`);
         if (!response.ok) {
           throw new Error('Network response was not ok.');
         }
         const data = await response.json();
-        const tasks = transformTasks(data.data);
-        setTasks(tasks);
-        setSubComponents(data.data.components.map((c) => c.id));
+        setMembers(data.data.team.filter(m => m.summary.fte > 0).map((m) => {
+          return { id: m.id, name: m.name, avatar: m.name.split(' ').map(n => n.substring(0, 1).toUpperCase() ) }
+        }));
+        setCheckedMembers( context.selectedMembers);
         // setLoading(false);
       } catch (error) {
-        console.error(error);
         // setError(error.message);
         // setLoading(false);
       }
     };
     fetchData();
-  }, [theme, config.apiBaseUrl, components, statuses]);
+  }, [context.apiBaseUrl, context.selectedMembers]);
+  //
+  // Drawer
+  const [openDrawer, setOpenDrawer] = React.useState(false);
+  const toggleDrawer = (newOpen) => () => {
+    setOpenDrawer(newOpen);
+  };
+  const DrawerList = (
+    <Box sx={{ p: 2, width: 320 }} role="presentation">
+      <Typography variant="h7" component="div" sx={{ flexGrow: 1, pb: 2 }}>
+        Details
+      </Typography>
+      <IconButton
+        aria-label="close"
+        onClick={toggleDrawer(false)}
+        sx={(theme) => ({
+          position: 'absolute',
+          right: 8,
+          top: 4,
+          color: theme.palette.grey[500],
+        })}
+      >
+        <CloseIcon />
+      </IconButton>      
+      <FormControl fullWidth size="small">
+        <InputLabel id="deadline-select-label">deadline</InputLabel>
+        <Select
+          labelId="deadline-select-label"
+          id="deadline-select"
+          value={deadline}
+          label="deadline"
+          onChange={handleDeadlineChange}
+        >
+          {deadlines.map((d, index) => (
+            <MenuItem key={index} size="small" value={d}><small>{d}</small></MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Box sx={{ py: 2 }}>
+        <Divider />
+      </Box>
+      <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }} disable>
+      {members.map((m) => {
+        const labelId = `checkbox-list-label-${m.id}`;
+
+        return (
+          <ListItem
+            key={m.id}
+            secondaryAction={
+              <Avatar sx={{ width: 32, height: 32 }}>{m.avatar}</Avatar>
+            }
+            disablePadding
+          >
+            <ListItemButton role={undefined} onClick={handleToggle(m.id)} dense>
+              <ListItemIcon>
+                <Checkbox
+                sx={{m: 0}}
+                  size="small"
+                  edge="start"
+                  checked={checkedMembers.includes(m.id)}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={`${m.name} (${m.id})`} />
+            </ListItemButton>
+          </ListItem>
+        );
+      })}
+    </List>      
+    </Box>
+  );
+  //
+  React.useEffect(() => {
+    // const fetchData = async () => {
+    //   try {
+    //     const p = (['tasks'].concat(components)).join('/');
+    //     const q = Object.keys(statuses).map((key) => `${key}=${statuses[key]}`).join('&');
+    //     const response = await fetch(`${context.apiBaseUrl}/${p}?${q}`);
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok.');
+    //     }
+    //     const data = await response.json();
+    //     const tasks = transformTasks(data.data);
+    //     setTasks(tasks);
+    //     setSubComponents(data.data.components.map((c) => c.id));
+    //     // setLoading(false);
+    //   } catch (error) {
+    //     console.error(error);
+    //     // setError(error.message);
+    //     // setLoading(false);
+    //   }
+    // };
+    // fetchData();
+  }, [theme, context.apiBaseUrl, components, statuses]);
 
   return (
-    <Container maxWidth="xl" sx={{pt:1}}>
+    <Container maxWidth="xl" sx={{pt: 1}}>
       <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center'}}>
         <Menu
           id="basic-menu"
           anchorEl={anchorEl}
-          open={open}
+          open={subComponentOpen}
           onClose={handleClose}
           MenuListProps={{
             'aria-labelledby': 'basic-button',
@@ -462,9 +593,9 @@ function Timeline() {
           {subComponents.length && <IconButton
             size="small"
             id="basic-button"
-            aria-controls={open ? 'basic-menu' : undefined}
+            aria-controls={subComponentOpen ? 'basic-menu' : undefined}
             aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
+            aria-expanded={subComponentOpen ? 'true' : undefined}
             onClick={handleClick}
           >
             <MoreHorizIcon fontSize="inherit"/>
@@ -494,9 +625,17 @@ function Timeline() {
                 labelPlacement="end"
               />
             ))}
-          </FormGroup>
-        </FormControl>
+            <FormControl variant="standard" sx={{ pl: 4}}>
+              <IconButton size="small" onClick={toggleDrawer(true)}>
+                <TuneIcon fontSize="inherit"/>
+              </IconButton>
+            </FormControl>
 
+          </FormGroup>
+          <Drawer open={openDrawer} anchor='right' onClose={toggleDrawer(false)}>
+            {DrawerList}
+          </Drawer>          
+        </FormControl>
       </Box>
       <HighchartsReact
         containerProps={{ style: { height: "100%" } }}

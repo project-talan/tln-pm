@@ -15,7 +15,7 @@ import { useTheme } from '@mui/material/styles';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
-import StateContext from '../StateContext';
+import Context from '../Context';
 import { getLocalISOString, getClosestRelease, getLastUpdateTime } from '../shared/utils';
 
 const TableValue = styled('div')(({ theme }) => ({
@@ -193,36 +193,36 @@ const getLineOptions = (theme, project) => {
 };
 
 function Dashboard() {
-  const { config } = React.useContext(StateContext);
+  const [context, setContext] = React.useContext(Context);
   const theme = useTheme();
   
   const [projects, setProjects ] = React.useState([]);
   //
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${config.apiBaseUrl}/projects`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok.');
-        }
-        const data = await response.json();
-        setProjects(data.data.projects.map((p) => {
-          const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
-          const total = p.summary.team.length;
-          return ({
-            ...p,
-            release: getClosestRelease(p.summary.timeline),
-            team: { size, total },
-            lastUpdateTime: getLastUpdateTime(p.summary)});
-        }));
-        // setLoading(false);
-      } catch (error) {
-        // setError(error.message);
-        // setLoading(false);
-      }
-    };
-    fetchData();
-  }, [config.apiBaseUrl]);
+    // const fetchData = async () => {
+    //   try {
+    //     const response = await fetch(`${context.apiBaseUrl}/projects`);
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok.');
+    //     }
+    //     const data = await response.json();
+    //     setProjects(data.data.projects.map((p) => {
+    //       const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
+    //       const total = p.summary.team.length;
+    //       return ({
+    //         ...p,
+    //         release: getClosestRelease(p.summary.timeline),
+    //         team: { size, total },
+    //         lastUpdateTime: getLastUpdateTime(p.summary)});
+    //     }));
+    //     // setLoading(false);
+    //   } catch (error) {
+    //     // setError(error.message);
+    //     // setLoading(false);
+    //   }
+    // };
+    // fetchData();
+  }, [context.apiBaseUrl]);
   //
   // const [mode, setMode] = React.useState('full');
   // const handleMode = (event, newMode) => {

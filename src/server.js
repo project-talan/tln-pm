@@ -37,12 +37,12 @@ class Server {
 
     // API
     ea.get('/info', (req, res) => {
-      res.send(this.makeResponce({version}));
+      res.send(this.makeResponce({version, memberId: 'vlad.k'}));
     })
     ea.get('/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
-    ea.get('/teams', async (req, res) => {
+    ea.get('/team', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
     })
     ea.get(['/tasks', '/tasks/:component*'], async(req, res) => {

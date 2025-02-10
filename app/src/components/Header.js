@@ -12,7 +12,6 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import StateContext from '../StateContext';
 
 const pages = [
   { id: 'dashboard', title: 'Dashboard', href: '/' },
@@ -22,7 +21,7 @@ const pages = [
 ];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-function Header() {
+function Header(props) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   //const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -42,25 +41,6 @@ function Header() {
   // };
 
   //
-  const { config } = React.useContext(StateContext);
-  const [version, setVersion] = React.useState('');
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${config.apiBaseUrl}/info`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok.');
-        }
-        const data = await response.json();
-        setVersion(data.data.version);
-        // setLoading(false);
-      } catch (error) {
-        // setError(error.message);
-        // setLoading(false);
-      }
-    };
-    fetchData();
-  }, [config.apiBaseUrl, version]);
 
   return (
     <AppBar position="static">
@@ -79,7 +59,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-            <span>tpm <sub>{version}</sub></span>
+            <span>tpm <sub>{props.version}</sub></span>
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -132,7 +112,7 @@ function Header() {
               textDecoration: 'none',
             }}
           >
-            <span>tpm <sub>{version}</sub></span>
+            <span>tpm <sub>{props.version}</sub></span>
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (

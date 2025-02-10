@@ -134,6 +134,7 @@ class App {
           }
           processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }}));
           m.summary.total = Object.keys(m.summary).reduce((acc, key) => acc + m.summary[key], 0);
+          m.summary.fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
         }));
         result.team = team;
       }
