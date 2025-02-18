@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { use, useState } from 'react';
 import Box from '@mui/material/Box';
 import Switch from '@mui/material/Switch';
 import FormControl from '@mui/material/FormControl';
@@ -15,8 +15,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useTheme } from '@mui/material/styles';
 
-import Context from '../Context';
-
+import Context from '../shared/Context';
 
 const columns = [
   { id: 'id', label: 'ID', minWidth: 96 },
@@ -28,68 +27,48 @@ const columns = [
 ];
 
 function Team() {
-  const [context, setContext] = React.useContext(Context);
+  const members = use(Context).context.team;
+
   const theme = useTheme();
-  const [showZeroFte, setShowZeroFte] = React.useState(false);
-  const [, setTeam] = React.useState('');
-  const [rows, setRows] = React.useState([]);
-  //
-  React.useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const response = await fetch(`${context.apiBaseUrl}/team`);
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok.');
-    //     }
-    //     const data = await response.json();
-    //     setTeam(data.data);
-    //     setRows(data.data.team.map((m, index) => {
-    //       const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
-    //       // const name = m.name;
-    //       const total = m.summary.todo + m.summary.dev + m.summary.blocked;
-    //       const persents = [m.summary.todo, m.summary.dev, m.summary.blocked].map((b) => {
-    //         return total > 0 ? Math.round(100*b/total) + '%' : '0%';
-    //       });
-    //       return ({
-    //         id: m.id,
-    //         name: (
-    //           <div key={index}>{m.name}<br/>{
-    //             m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.email} ({b.fte})<br/></div>)) : m.bandwidth[0].email
-    //           }</div>
-    //         ),
-    //         fte,
-    //         done: m.summary.done,
-    //         total: m.summary.total,
-    //         status: (
-    //           <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
-    //             <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
-    //             <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
-    //             <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
-    //           </Box>
-    //         )
-    //       });
-    //     }));
-    //     // setLoading(false);
-    //   } catch (error) {
-    //     // setError(error.message);
-    //     // setLoading(false);
-    //   }
-    // };
-    // fetchData();
-  }, [context.apiBaseUrl, theme]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-
+  const [showZeroFte, setShowZeroFte] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
+  const rows = members.map((m, index) => {
+    const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
+    // const name = m.name;
+    const total = m.summary.todo + m.summary.dev + m.summary.blocked;
+    const persents = [m.summary.todo, m.summary.dev, m.summary.blocked].map((b) => {
+      return total > 0 ? Math.round(100*b/total) + '%' : '0%';
+    });
+    return ({
+      id: m.id,
+      name: (
+        <div key={index}>{m.name}<br/>{
+          m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.email} ({b.fte})<br/></div>)) : m.bandwidth[0].email
+        }</div>
+      ),
+      fte,
+      done: m.summary.done,
+      total: m.summary.total,
+      status: (
+        <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
+          <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
+          <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
+          <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
+        </Box>
+      )
+    });
+  });
+  //
+  // console.log('!Team');
   return (
     <Container maxWidth="xl" sx={{pt: 2}}>
       <Box sx={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', backgroundColor: 'lightgrey1'}}>
@@ -156,4 +135,5 @@ function Team() {
     </Container>
   );
 }
+
 export default Team;

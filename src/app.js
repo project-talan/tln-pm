@@ -18,6 +18,7 @@ class App {
     this.logger = logger;
     this.cwd = null;
     this.home = null;
+    this.scmUser = null;
     this.sources = [];
     this.rootComponent = null;
     //
@@ -34,8 +35,9 @@ class App {
     // find home: cwd or git home
     try {
       this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      this.scmUser = exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
-      this.logger.warn('tpm is executed outside of git repository, please use -g <userid> option or --all option to define assignee(s)');
+      this.logger.warn('tpm is executed outside of git repository, please define assigee explicitly using -q <user> or --all option');
     }
     //
     this.logger.info('home:', this.home);
@@ -78,12 +80,8 @@ class App {
     let aees = [...who.assignees];
     //
     // console.log(options, who.all || aees.length);
-    try {
-      if (!(who.all || aees.length)) {
-        aees = [].concat(exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim());
-     }
-    } catch (e) {
-      this.logger.warn('Couldn\'t identify git user, please use -g <userid> option or --all option to define assignee(s)');
+    if (!(who.all || aees.length) && this.scmUser) {
+      aees.push(this.scmUser);  
     }
     //
     this.logger.info('assignees:', aees);
@@ -135,8 +133,12 @@ class App {
           processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }}));
           m.summary.total = Object.keys(m.summary).reduce((acc, key) => acc + m.summary[key], 0);
           m.summary.fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
+          m.scmUser = m.bandwidth.some( b => b.email === this.scmUser );
         }));
         result.team = team;
+      }
+      if (what.timeline) {
+        result.timeline = await c.describeTimeline();
       }
       if (what.srs) {
         result.srs = await c.describeSrs();

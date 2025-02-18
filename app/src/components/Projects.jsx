@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { use, useState } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
@@ -8,15 +8,45 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-
 import { styled } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
 
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
-import Context from '../Context';
+import { errorMsgFetchingProjects } from '../shared/Errors';
+import { API_BASE_URL } from '../shared/Consts';
 import { getLocalISOString, getClosestRelease, getLastUpdateTime } from '../shared/utils';
+
+const fetchProjects = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/projects`);
+    if (!response.ok) {
+      throw error;
+    }
+    const processProject = async () => {
+      const data = await response.json();
+      const projects = data.data.projects.map((p) => {
+        const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
+        const total = p.summary.team.length;
+        return ({
+          ...p,
+          release: getClosestRelease(p.summary.timeline),
+          team: { size, total },
+          lastUpdateTime: getLastUpdateTime(p.summary)});
+      });
+      return { projects };
+    };
+    return processProject();
+  } catch (error) {
+    throw new Error(errorMsgFetchingProjects);
+  } 
+};
+
+let projectsPromise = fetchProjects();
+const resetProjects = () => {
+  projectsPromise = fetchProjects();
+}
 
 const TableValue = styled('div')(({ theme }) => ({
   color: theme.palette.primary.main,
@@ -192,52 +222,21 @@ const getLineOptions = (theme, project) => {
   })
 };
 
-function Dashboard() {
-  const [context, setContext] = React.useContext(Context);
-  const theme = useTheme();
-  
-  const [projects, setProjects ] = React.useState([]);
-  //
-  React.useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const response = await fetch(`${context.apiBaseUrl}/projects`);
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok.');
-    //     }
-    //     const data = await response.json();
-    //     setProjects(data.data.projects.map((p) => {
-    //       const size = p.summary.team.reduce((acc, member) => acc + (member.bandwidth[0].fte > 0 ? 1 : 0), 0);
-    //       const total = p.summary.team.length;
-    //       return ({
-    //         ...p,
-    //         release: getClosestRelease(p.summary.timeline),
-    //         team: { size, total },
-    //         lastUpdateTime: getLastUpdateTime(p.summary)});
-    //     }));
-    //     // setLoading(false);
-    //   } catch (error) {
-    //     // setError(error.message);
-    //     // setLoading(false);
-    //   }
-    // };
-    // fetchData();
-  }, [context.apiBaseUrl]);
-  //
-  // const [mode, setMode] = React.useState('full');
-  // const handleMode = (event, newMode) => {
-  //   setMode(newMode);
-  // };  
-
-  const style = {
-    py: 0,
-    width: '100%',
+const style = {
+  py: 0,
+  width: '100%',
 //    maxWidth: 360,
-    borderRadius: 2,
-    border: '1px solid',
-    borderColor: 'divider',
-    backgroundColor: 'background.paper',
-  };
+  borderRadius: 2,
+  border: '1px solid',
+  borderColor: 'divider',
+  backgroundColor: 'background.paper',
+};
+
+function Projects() {
+  const {projects} = use(projectsPromise);
+  const theme = useTheme();
+  //
+  // console.log('!Projects');
   return (
     <Container maxWidth="xl" sx={{backgroundColor: 'skyblue1', pt: 2}}>
       {/*<Box sx={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', backgroundColor: 'lightgrey1'}}>
@@ -347,4 +346,5 @@ function Dashboard() {
     </Container>
   );
 }
-export default Dashboard;
+
+export { Projects, resetProjects };

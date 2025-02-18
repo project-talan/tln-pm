@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { NavLink } from "react-router-dom";
+import { use, useState, useEffect } from 'react';
 
+import { NavLink } from "react-router";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,17 +13,22 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
+import Context from '../shared/Context';
+
 const pages = [
   { id: 'dashboard', title: 'Dashboard', href: '/' },
   { id: 'timeline', title: 'Timeline', href: '/timeline' },
   { id: 'team', title: 'Team', href: '/team' },
-  { id: 'srs', title: 'SRS', href: '/srs' }
+  { id: 'srs', title: 'SRS', href: '/srs' },
+  { id: 'assessment', title: 'Assessment', href: '/assessment' }
 ];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
+
+
 function Header(props) {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  //const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  //const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -41,9 +46,9 @@ function Header(props) {
   // };
 
   //
-
+  console.log('!Header');
   return (
-    <AppBar position="static">
+    <AppBar position="static" elevation={0}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AccountTreeIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
