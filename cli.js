@@ -10,6 +10,7 @@ const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const yaml = require('js-yaml');
+const { Table } = require("console-table-printer");
 
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
@@ -287,6 +288,34 @@ yargs(hideBin(process.argv))
       });
     });
   })
+  .command('audit', 'Audit project PM status', (yargs) => {
+    return yargs;
+  }, (argv) => {
+    getApp(argv, true, async (a) => {
+      //Create a table
+      const p = new Table();
+
+      //add rows with color
+      p.addRow(
+        { "LineNr.": 1, text: "red wine please", value: 10.212 },
+        { color: "red" }
+      );
+      p.addRow(
+        { "LineNr.": 2, text: "green gemuse please", value: 20.0 },
+        { color: "green" }
+      );
+      p.addRows([
+        //adding multiple rows are possible
+        { "LineNr.": 3, text: "gelb bananen bitte", value: 100 },
+        { "LineNr.": 4, text: "update is working", value: 300 },
+      ]);
+
+      //print
+      p.printTable();
+    });
+  })
+
+
   //
   .command(
     'about', 'Dislay project information',

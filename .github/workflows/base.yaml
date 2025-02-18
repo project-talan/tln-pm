@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: "22.6.0"
 
-      - run: npm i -g tln-cli@1.107.0 tln-pm@0.13.0
+      - run: npm i -g tln-cli@1.108.0 tln-pm@0.14.0
 
       - uses: actions/checkout@v4
         with:
@@ -46,15 +46,16 @@ jobs:
       - name: Build
         if: ${{ inputs.build }}
         run: |
-          cd app && npm run test
+          cd app && npm run build
 
       - name: Format & Unit test
         if: ${{ contains(inputs.tests, 'unit') }}
         run: |
           npm run test
-          cd app && npm run test:ci
+          cd app && npm run test
 
       - name: SonarQube Scan
+        if: ${{ contains(inputs.tests, 'static') }}
         uses: SonarSource/sonarqube-scan-action@v4.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.SONAR_GITHUB_TOKEN }}

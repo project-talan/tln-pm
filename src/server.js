@@ -5,7 +5,9 @@ const fs = require('fs');
 const os = require('os');
 
 const express = require('express');
+var cors = require('cors')
 const fg = require('fast-glob');
+const ems = require('enhanced-ms');
 
 const utils = require('./utils');
 const {version} = require('../package.json');
@@ -29,42 +31,54 @@ class Server {
     const {port, readOnly} = options;
     //
     const ea = express();
-    ea.use(express.static(path.join(__dirname, '..', 'web')));
-    // ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
+    ea.use(cors());
+    //ea.use(express.static(path.join(__dirname, '..', 'web')));
+    ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
 
     // API
-    ea.get('/info', (req, res) => {
+    ea.get('/api/info', (req, res) => {
       res.send(this.makeResponce({version}));
     })
-    ea.get('/projects', async(req, res) => {
+    ea.get('/api/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project: true } })));
     })
-    ea.get('/team', async (req, res) => {
+    ea.get('/api/team', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
     })
-    ea.get('/tasks', async(req, res) => {
-      res.send(this.makeResponce( await app.ls({
-        component: null,
-        depth: 10,
-        who: { assignees: [], all: true },
-        filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: false } }
-      })));
+    ea.get('/api/timeline', async (req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { timeline: true } })));
     })
-    ea.get('/srs', async(req, res) => {
+    ea.get(['/api/tasks', '/api/tasks/:component*'], async(req, res) => {
+      // console.log('req.params:', req.params);
+      // console.log('req.query:', req.query);
+      const component = req.params.component ? `${req.params.component}${req.params[0]}` : null;
+      const status = {todo: false, dev: false, blocked: false, done: false};
+      if (req.query.status) {
+        req.query.status.split(',').forEach((s) => {
+          status[s] = true;
+        });
+      }
+      const assignees = req.query.assignees ? req.query.assignees.split(',') : [];
+      //
+      // console.log('component:', component);
+      // console.log('status:', status);
+      // console.log('assignees:', assignees);
+      const tasks = await app.ls({
+        component,
+        depth: 10,
+        who: { assignees, all: !assignees.length },
+        filter: { tag: [], search: [], deadline: [], status },
+      });
+      if (tasks) {
+        utils.timelineTasks(tasks, [], [], ems('8h'));
+      }
+      
+      res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
+    })
+    ea.get('/api/srs', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { srs: true } })));
     })
-
-    ea.get('/raw', (req, res) => {
-      const arr = [];
-      const dump = (node, indent) => {
-        arr.push(`${indent}${node.id?node.id:'/'}`);
-        node.children.map(c => dump(c, `${indent}&nbsp;&nbsp;`));
-      }
-      dump(root, '');
-      //this.logger.con(arr);
-      res.send(arr.join('<br/>'));
-    })
-    
+    //
     ea.listen(port, () => {
       this.logger.con(`start server version ${version} on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
     })

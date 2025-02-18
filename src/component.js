@@ -3,8 +3,8 @@
 const path = require('path');
 const fs = require('fs');
 const exec = require('child_process').execSync;
-
 const assign = require('assign-deep');
+const { isAfter, isEqual, differenceInMilliseconds, parseISO } = require('date-fns');
 
 const projectFactory = require('./project');
 const memberFactory = require('./member');
@@ -266,7 +266,36 @@ class Component {
     return projects;
   }
 
-  async describeSrs(options) {
+  async describeTimeline() {
+    let deadline = {};
+    await Promise.all(this.timeline.map(async t => deadline[t.id] = await t.getSummary()));
+    //
+    const components = (await Promise.all(this.components.map(async c => c.describeTimeline()))).filter(c => c.length);
+    const flat = components.flat(2);
+    if (Object.keys(deadline).length > 0) {
+      const now = new Date();
+      let current = deadline[Object.keys(deadline)[0]].id;
+      let closestFutureDate = deadline[Object.keys(deadline)[0]].deadline;
+      Object.keys(deadline).forEach( d => {
+        const date = deadline[d].deadline;
+        if (isAfter(date, now) && differenceInMilliseconds(date, now) < differenceInMilliseconds(closestFutureDate, now)) {
+            closestFutureDate = date;
+            current = d;
+        }
+        deadline[d].active = isAfter(date, now);
+        deadline[d].current = false;
+      });
+      deadline[current].current = true;
+      //
+      return [{
+        id: this.id,
+        deadline,
+      }].concat(flat);
+    }
+    return flat;
+  }
+
+  async describeSrs() {
     let srs = {};
     await Promise.all(this.srs.map(async t => srs[t.id] = await t.getSummary()));
     const components = (await Promise.all(this.components.map(async c => c.describeSrs()))).filter(c => !!c);

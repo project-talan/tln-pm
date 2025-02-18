@@ -8,8 +8,14 @@ team:
     name: Vladyslav Kurmaz
     fte: 0.1
 timeline:
+  0.18.0:
+    deadline: 2025-03-14T18:00:00.000Z
+  0.17.0:
+    deadline: 2025-02-28T18:00:00.000Z
+  0.16.0:
+    deadline: 2025-02-22T18:00:00.000Z
   0.15.0:
-    deadline: 2025-01-18T18:00:00.000Z
+    deadline: 2025-02-16T18:00:00.000Z
   0.14.0:
     deadline: 2025-01-10T18:00:00.000Z
   0.13.0:
@@ -37,30 +43,56 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
-  [-:041:0.15.0] Add UI controls @vlad.k
+  [-:049:0.16.0] Improve Timeline section @vlad.k
+    [-] Interval picker: week, month, quarter, year
+    [-] Search by text
+    [-] Check filtering by deadline
+  [-:048:0.18.0] AI tool integration @vlad.k
+    [-] cli command 'tpm assist <component>' - chartgpt style conversation
+    [-] saving context in repository
+    [-] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR
+  [-:047:0.17.0] Assessment section @vlad.k
+    [-] Add UI/UX for assessment section
+    [-] Create yaml file for assessment
+    [-] Add rose diagram inside Dashboard (NFRs)
+  [+:046:0.15.0] Switch to React 19 @vlad.k
+  [-:045:0.16.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
+  [-:044:0.17.0] Audit command @vlad.k
+    [-] Check tasks without estimates #4h
+    [-] Check tasks without assignees #2h
+    [-] Check tasks without deadline #8h
+    [-] Validate team velocity and timeline #8h
+  [-:043:0.17.0] Search @vlad.k
+    [-] Srs
+  [-:042:0.16.0] Dockerize web part @vlad.k
+  [-:041:0.16.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
-  [-:040:0.15.0] Add UI controls @vlad.k
+  [-:040:0.16.0] Add UI controls @vlad.k
     [-] Team
       [-] Search editbox
       [-] Sort by statuses
-  [-:039:0.15.0] Add UI controls @vlad.k
+  [-:039:0.16.0] Add UI controls @vlad.k
     [-] Timeline
       [-] Tasks filter by statuses
       [-] Sort by deadline
-  [-:038:0.15.0] Switch to Highcharts @vlad.k
-  [-:037:0.15.0] Recreate web part using React @vlad.k
+  [+:038:0.15.0] Switch to Highcharts @vlad.k
+  [+:037:0.15.0] Switch from JQuery+Bootstrap to React+MUI @vlad.k
+    [+] Dashboard
+    [+] Team
+    [+] Timeline
+    [+] SRS
   [+:036:0.14.0] Add UI controls @vlad.k
     [+] Toolbar
     [+] Dashboard
       [+] Checkbox for brief/full mode
       [+] Sort by deadline
-  [-:035:0.15.0] Dump datetime in local time during update command @vlad.k
+  [-:035:0.17.0] Dump datetime in local time during update command @vlad.k
   [+:034:0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
-  [-:033:0.15.0] Implement Timeline web part @vlad.k
-  [-:032:0.15.0] Add fs watch @vlad.k
+  [+:033:0.15.0] Implement Timeline web part @vlad.k
+  [-:032:0.17.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
-  [-:031:0.15.0] Fix task output on hierarchy mode @vlad.k
+  [-:031:0.17.0] Fix task output on hierarchy mode @vlad.k
   [+:030:0.10.0] Implement deadline class @vlad.k
   [+:029:0.14.0] Implement config command via source class @vlad.k
   [+:028:0.14.0] Tasks spill over batch mode @vlad.k
@@ -73,9 +105,9 @@ tasks: |-
   [+:021:0.6.0] Add project description section @vlad.k
   [+:020:0.5.0] Add option to display tasks with different statuses: --backlog, --dev, --done @vlad.k
   [+:019:0.5.0] Add component as optional parameter for ls command @vlad.k
-  [-:018:0.15.0] Generate snapshot @vlad.k
+  [-:018:0.17.0] Generate snapshot @vlad.k
   [+:017:0.5.0] Add SRS section @vlad.k
-  [-:016:0.15.0] Add describe command with resolved links @vlad.k
+  [-:016:0.17.0] Add describe command with resolved links @vlad.k
   [+:015:0.5.0] Integrate .tpm folder at repository root level to store snapshots #invalid @vlad.k
   [+:014:0.13.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:0.6.0] Add search @vlad.k
