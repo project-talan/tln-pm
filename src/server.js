@@ -60,9 +60,9 @@ class Server {
       }
       const assignees = req.query.assignees ? req.query.assignees.split(',') : [];
       //
-      console.log('component:', component);
-      console.log('status:', status);
-      console.log('assignees:', assignees);
+      // console.log('component:', component);
+      // console.log('status:', status);
+      // console.log('assignees:', assignees);
       const tasks = await app.ls({
         component,
         depth: 10,
@@ -72,6 +72,7 @@ class Server {
       if (tasks) {
         utils.timelineTasks(tasks, [], [], ems('8h'));
       }
+      
       res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
     })
     ea.get('/api/srs', async(req, res) => {

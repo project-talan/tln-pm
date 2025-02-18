@@ -40,22 +40,26 @@ function App() {
   const [context, setContext] = useState({
     version: info[0].data.version,
     team: info[1].data.team,
+    components: [],
     selectedMembers: info[1].data.team.filter((m) => m.scmUser).map((m) => m.id),
     timeline: info[2].data.timeline,
+    deadline: info[2].data.timeline.map((t) => Object.keys(t.deadline).map((k) => t.deadline[k].current ? `${t.id}-${t.deadline[k].id}` : null).filter((v) => v)).flat(1)[0],
+    statuses: { todo: true, dev: true, blocked: true, done: false },
+    priorities: { critical: false, high: false, low: false },
   });
-  console.log('!App', context);
+  console.log('!App');
   return (
     <Context.Provider value={{ context, setContext }}>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
-              <Header version={context.version}/>
-              <Routes>
-                <Route index element={<Dashboard />} />
-                <Route path="timeline" element={<Timeline/>} />
-                <Route path="team" element={<Team />} />
-                <Route path="srs" element={<Srs />} />
-                <Route path="assessment" element={<Assessment />} />
-              </Routes>
+          <Header version={context.version}/>
+          <Routes>
+            <Route index element={<Dashboard />} />
+            <Route path="timeline" element={<Timeline/>} />
+            <Route path="team" element={<Team />} />
+            <Route path="srs" element={<Srs />} />
+            <Route path="assessment" element={<Assessment />} />
+          </Routes>
         </BrowserRouter>
       </ThemeProvider>
     </Context.Provider>
