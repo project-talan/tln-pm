@@ -52,7 +52,7 @@ jobs:
         if: ${{ contains(inputs.tests, 'unit') }}
         run: |
           npm run test
-          cd app && npm run test:ci
+          cd app && npm run test
 
       - name: SonarQube Scan
         if: ${{ contains(inputs.tests, 'static') }}
