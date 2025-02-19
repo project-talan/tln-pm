@@ -1,6 +1,6 @@
-import { use, useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,8 +13,6 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
-import Context from '../shared/Context';
-
 const pages = [
   { id: 'dashboard', title: 'Dashboard', href: '/' },
   { id: 'timeline', title: 'Timeline', href: '/timeline' },
@@ -24,9 +22,8 @@ const pages = [
 ];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-
-
 function Header(props) {
+  const location = useLocation();
   const [anchorElNav, setAnchorElNav] = useState(null);
   //const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -124,7 +121,7 @@ function Header(props) {
               <NavLink key={page.id} to={page.href} style={{textDecoration: 'none'}} >
                 <Button
                   onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
+                  sx={{ my: 2, color: 'white', display: 'block', textDecoration: location.pathname === page.href ? "underline" : "none" }}
                 >
                   {page.title}
                 </Button>
@@ -167,4 +164,5 @@ function Header(props) {
     </AppBar>
   );
 }
+
 export default Header;
