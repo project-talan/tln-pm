@@ -32,7 +32,7 @@ const fetchSrs = async () => {
           })).concat((n.components || []).map( c => transformTree(c, id ))),
         });
       }
-      const toc = [transformTree(data.data.srs)];
+      const toc = data.data.srs ? [transformTree(data.data.srs)] : [];
       return {toc, topics};
     };
     return processSrs();

@@ -240,7 +240,7 @@ function Wbs() {
         // data: 'data',
         // owner: 'Linda'
         completed: {
-          amount: 0.25
+          amount: Math.trunc(Math.random() * 100) / 100
         },
       };
       // TODO: add completed amount into task

@@ -1,20 +1,38 @@
-# Project Management as Code
-The tool, **tpm**, tackles several challenges faced in modern software development:
+# tpm - Project Management as Code
+**tpm** tackles several challenges faced in modern software development:
   * Development and project management tools are often housed in separate systems like GitHub and Jira. This separation can result in **wasted** development resources due to the need for **continuous synchronization**. **tpm** expands **GiOps** to include project management, offering a **single source of truth** for all software development lifecycle activities.
   * Keeping project status **up-to-date** can be challenging and often requires **setting up and maintaining** a BI subsystem within the project management system. **tpm** **automatically** generates all reports and statistics **directly** from the repository, up to the **latest commit**
   * Managing **multiple** software projects, especially when resources are shared, is inherently challenging and often causes numerous issues with **timelines and estimates**. **tpm** offers a comprehensive overview, or "**eagle's view**", of any number of projects.
 
+![Dashboard](docs/tpm-pm-issues.png)
+
+## Approach
+**tpm:**
+* Utilizes a Git repository to store all SDLC artifacts
+* Automatically generates necessary PM artifacts
+* Estomates new tassk based on complited ones
+* Extends the SDLC to enable AI agents to participate in software development
+
+![Dashboard](docs/tpm-pm-as-code.png)
+|||
+| --- | --- |
+|![Dashboard](docs/tpm-05.png)|![Dashboard](docs/tpm-01.png)|
+|![Dashboard](docs/tpm-02.png)|![Dashboard](docs/tpm-03.png)|
+|![Dashboard](docs/tpm-04.png)|![Dashboard](docs/tpm-06.png)|
+
+
 ## Quick start
 
+* Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.14.0
+  npm i -g tln-pm@0.15.0
   ```
-* Go to your project git repository root folder and create initial config
+* Navigate to your project's Git repository root folder and set up the initial configuration
   ```
   tpm config --project --team --timeline --tasks
   ```
-* Update **.tpm.yml** with project information, team structure, timeline and tasks. Use the same emails for tpm configuration which were used as part of git configuration.
+* Update **.tpm.yml** with your project's details, including team structure, fte, timeline, and tasks. Ensure that the emails used for **tpm** configuration match toyr dev team emails.
   ```
   project:
     id: myproject
@@ -26,13 +44,13 @@ The tool, **tpm**, tackles several challenges faced in modern software developme
       name: Alice Clarke
       fte: 1
   timeline:
-    25.1.0:
-      deadline: '2025-01-31T18:00:00.000Z'
+    25.2.0:
+      deadline: '2025-02-28T18:00:00.000Z'
   tasks: |
-    [>:002:v25.1.0] Integrate auth library @alice.c
-      [!] Add /iam/auth endpoint
-      [>] Configure auth callbacks
-    [-:001:v25.1.0] Create project structure @alice.c
+    [>:002:25.2.0] Integrate auth library @alice.c
+      [!] Add /iam/auth endpoint #16h
+      [>] Configure auth callbacks #4h
+    [-:001:25.2.0] Create project structure #16h @alice.c
   ```
 * Now you can start managing your project using cli and git
   | Command | Description |
@@ -40,12 +58,11 @@ The tool, **tpm**, tackles several challenges faced in modern software developme
   | tpm ls --backlog | Display tasks are in backlog for current git user (you) |
   | tpm ls -g alice.c | Display tasks in development were assigned to the Alice |
   | tpm ls -g alice.c --backlog | List of tasks are in Alice backlog |
-* Next command will give you project "eagle view" inside browser **http://localhost:5445**
+* The following command will provide a high-level "eagle view" of your project in the browser **http://localhost:5445**
   ```
   tpm serve
   ```
-  ![Dashboard](tpm-01.png)
-  ![Team](tpm-02.png)
+![Dashboard](docs/tpm-07.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
@@ -53,7 +70,7 @@ The tool, **tpm**, tackles several challenges faced in modern software developme
     | ------------- | ------------- |
     | [-] Simple task with description only | This format is useful for subtasks |
     | [-:001] Task with Id | Top level task but without delivery version |
-    | [-:010:v24.12.0] Task with delivery version | This format should be used for top level task with specific deadline |
+    | [-:010:25.2.0] Task with delivery version | This format should be used for top level task with specific deadline |
   
   * First symbol in square brackets describes status of the task
     | Symbol | Meaning         |
@@ -62,13 +79,11 @@ The tool, **tpm**, tackles several challenges faced in modern software developme
     | >      | in development  |
     | !      | blocked         |
     | +      | done            |
-  * Optionally, after colon, task can have identifier (may be used to reference this task from other components)
-  * Plus, optionally, deadline can be specified after second colon 
 
 ## Mentionings, Tags, Links
   * @alex.m - will bind Alex with specfic task
   * #backend - will add `backend` tag to the task
-  * (\<docs/srs/multi-tenancy.md\>) - will create link with some other task, internal document or external resource 
+  * #16h - will define estimate for the task
 
 ## Command line options
 General format
