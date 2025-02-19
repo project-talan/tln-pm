@@ -68,11 +68,11 @@ tasks: |-
   [-:041:0.16.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
-  [-:040:0.16.0] Add UI controls @vlad.k
+  [>:040:0.16.0] Add UI controls @vlad.k
     [-] Team
       [-] Search editbox
       [-] Sort by statuses
-  [-:039:0.16.0] Add UI controls @vlad.k
+  [>:039:0.16.0] Add UI controls @vlad.k
     [-] Timeline
       [-] Tasks filter by statuses
       [-] Sort by deadline
