@@ -62,6 +62,7 @@
   ```
   tpm serve
   ```
+![Dashboard](docs/tpm-07.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
@@ -69,7 +70,7 @@
     | ------------- | ------------- |
     | [-] Simple task with description only | This format is useful for subtasks |
     | [-:001] Task with Id | Top level task but without delivery version |
-    | [-:010:v24.12.0] Task with delivery version | This format should be used for top level task with specific deadline |
+    | [-:010:25.2.0] Task with delivery version | This format should be used for top level task with specific deadline |
   
   * First symbol in square brackets describes status of the task
     | Symbol | Meaning         |
@@ -78,13 +79,11 @@
     | >      | in development  |
     | !      | blocked         |
     | +      | done            |
-  * Optionally, after colon, task can have identifier (may be used to reference this task from other components)
-  * Plus, optionally, deadline can be specified after second colon 
 
 ## Mentionings, Tags, Links
   * @alex.m - will bind Alex with specfic task
   * #backend - will add `backend` tag to the task
-  * (\<docs/srs/multi-tenancy.md\>) - will create link with some other task, internal document or external resource 
+  * #16h - will define estimate for the task
 
 ## Command line options
 General format
