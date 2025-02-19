@@ -1,8 +1,24 @@
 # Project Management as Code
-The tool, **tpm**, tackles several challenges faced in modern software development:
+**tpm** tackles several challenges faced in modern software development:
   * Development and project management tools are often housed in separate systems like GitHub and Jira. This separation can result in **wasted** development resources due to the need for **continuous synchronization**. **tpm** expands **GiOps** to include project management, offering a **single source of truth** for all software development lifecycle activities.
   * Keeping project status **up-to-date** can be challenging and often requires **setting up and maintaining** a BI subsystem within the project management system. **tpm** **automatically** generates all reports and statistics **directly** from the repository, up to the **latest commit**
   * Managing **multiple** software projects, especially when resources are shared, is inherently challenging and often causes numerous issues with **timelines and estimates**. **tpm** offers a comprehensive overview, or "**eagle's view**", of any number of projects.
+
+![Dashboard](docs/tpm-pm-issues.png)
+
+## Approach
+**tpm:**
+* Utilizes a Git repository to store all SDLC artifacts
+* Automatically generates necessary PM artifacts
+* Extends the SDLC to enable AI agents to participate in software development
+
+![Dashboard](docs/tpm-pm-as-code.png)
+|||
+| --- | --- |
+|![Dashboard](docs/tpm-05.png)|![Dashboard](docs/tpm-01.png)|
+|![Dashboard](docs/tpm-02.png)|![Dashboard](docs/tpm-03.png)|
+|![Dashboard](docs/tpm-04.png)||
+
 
 ## Quick start
 
@@ -44,8 +60,8 @@ The tool, **tpm**, tackles several challenges faced in modern software developme
   ```
   tpm serve
   ```
-  ![Dashboard](tpm-01.png)
-  ![Team](tpm-02.png)
+  ![Dashboard](docs/tpm-01.png)
+  ![Team](docs/tpm-02.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
