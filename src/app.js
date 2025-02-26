@@ -100,6 +100,9 @@ class App {
     const result = {};
     const c = await this.getCurrentComponent(component);
     if (c) {
+      if (what.project2) {
+        result.projects = await c.describeProject2();
+      }
       if (what.project) {
         result.projects = await c.describeProject();
       }
@@ -140,8 +143,8 @@ class App {
       if (what.timeline) {
         result.timeline = await c.describeTimeline();
       }
-      if (what.srs) {
-        result.srs = await c.describeSrs();
+      if (what.docs) {
+        result.docs = await c.describeDocs();
       }
     }
     return result;

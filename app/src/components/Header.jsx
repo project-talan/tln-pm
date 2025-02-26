@@ -13,13 +13,6 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
-const pages = [
-  { id: 'dashboard', title: 'Dashboard', href: '/' },
-  { id: 'timeline', title: 'Timeline', href: '/timeline' },
-  { id: 'team', title: 'Team', href: '/team' },
-  { id: 'srs', title: 'SRS', href: '/srs' },
-  { id: 'assessment', title: 'Assessment', href: '/assessment' }
-];
 //const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function Header(props) {
@@ -91,7 +84,7 @@ function Header(props) {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {props.pages.map((page) => (
                 <NavLink key={page.id} to={page.href} style={{textDecoration: 'none'}} >
                   <MenuItem onClick={handleCloseNavMenu}>
                     <Typography sx={{ textAlign: 'center', color: 'black' }}>{page.title}</Typography>
@@ -117,7 +110,7 @@ function Header(props) {
             <span>tpm <sub>{props.version}</sub></span>
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {props.pages.map((page) => (
               <NavLink key={page.id} to={page.href} style={{textDecoration: 'none'}} >
                 <Button
                   onClick={handleCloseNavMenu}

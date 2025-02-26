@@ -1,4 +1,4 @@
-import { intervalToDuration } from "date-fns";
+import { isAfter, intervalToDuration } from "date-fns";
 
 function getStringFromInterval(interval) {
   let diff = '?';
@@ -87,4 +87,28 @@ const getLastUpdateTime = (summary) => {
   return getStringFromInterval(lut);
 }
 
-export { getLocalISOString, getClosestRelease, getLastUpdateTime };
+const getDurationToDate = (date) => {
+  const t1 = new Date(date);
+  const t2 = new Date();
+  if (isAfter(t1, t2)) {
+    return getStringFromInterval(intervalToDuration({start: t2, end: t1}));
+  }
+  return getStringFromInterval(intervalToDuration({start: t1, end: t2}));
+}
+
+const checkValue = (value, prefix = '', suffix = '', fallback = '-') => {
+  if (value) {
+    return `${prefix}${value}${suffix}`;
+  }
+  return fallback;
+}
+
+const checkMember = (object, member, prefix = '', suffix = '', fallback = '-') => {
+  if (object && object[member]) {
+    return `${prefix}${object[member]}${suffix}`;
+  }
+  return fallback;
+}
+
+
+export { getLocalISOString, getClosestRelease, getLastUpdateTime, formatDuration, getDurationToDate, checkValue, checkMember };

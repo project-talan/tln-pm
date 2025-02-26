@@ -8,21 +8,26 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import ExpandLess from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
 
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 
-import { errorMsgFetchingProjects } from '../shared/Errors';
-import { API_BASE_URL } from '../shared/Consts';
-import { getLocalISOString, getClosestRelease, getLastUpdateTime } from '../shared/utils';
+import { errorMsgFetchingProjects } from '../../shared/Errors';
+import { API_BASE_URL } from '../../shared/Consts';
+import { getLocalISOString, getClosestRelease, getLastUpdateTime } from '../../shared/utils';
+
+import Utilization from './Utilization';
 
 const fetchProjects = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/projects`);
     if (!response.ok) {
-      throw error;
+      throw "Error fetching projects";
     }
     const processProject = async () => {
       const data = await response.json();
@@ -39,7 +44,7 @@ const fetchProjects = async () => {
     };
     return processProject();
   } catch (error) {
-    throw new Error(errorMsgFetchingProjects);
+    throw new Error(errorMsgFetchingProjects + `: ${error.message}`);
   } 
 };
 
@@ -232,13 +237,24 @@ const style = {
   backgroundColor: 'background.paper',
 };
 
+const fte = [
+  { color: "#ff7eb3", position: 0 },
+  { color: "#ff758c", position: 20 },
+  { color: "#42a5f5", position: 50 },
+  { color: "#34d399", position: 80 },
+  { color: "#ffeb3b", position: 100 },
+];
+
 function Projects() {
   const {projects} = use(projectsPromise);
   const theme = useTheme();
+  const [open, setOpen] = useState(false);
+
   //
   // console.log('!Projects');
   return (
     <Container maxWidth="xl" sx={{backgroundColor: 'skyblue1', pt: 2}}>
+
       {/*<Box sx={{display: 'flex', flexDirection: 'row-reverse', justifyContent: 'space-between', backgroundColor: 'lightgrey1'}}>
         <ToggleButtonGroup
           value={mode}
@@ -262,10 +278,14 @@ function Projects() {
       {projects.map((p, index) => {
         return (
           <Card variant="outlined" key={index} sx={{my: 2, position: 'relative', overflow: 'visible', backgroundColor: 'lightgrey1'}}>
-                <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', right: 8, top: -12}}>
-                  <i><b>updated {p.lastUpdateTime} ago</b></i>
-                </Typography>
-            <CardContent sx={{ overflow: 'visible'}}>
+            <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', right: 64, top: -12}}>
+              <i><b>updated {p.lastUpdateTime} ago</b></i>
+            </Typography>
+            <IconButton sx={{position: 'absolute', right: -6, top: -8}} onClick={() => setOpen(!open)}>
+              {open ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+
+            { open && (<CardContent sx={{ overflow: 'visible'}}>
             <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>
               <Box>
                 <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
@@ -275,6 +295,7 @@ function Projects() {
                   {p.name}
                 </Typography>
                 <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>{p.description}</Typography>
+                
                 <Box sx={{px: 4 }}>
                   <List sx={style}>
                     <ListItem
@@ -282,7 +303,7 @@ function Projects() {
                         <TableValue >in {p.release.timeToRelease}</TableValue>
                       }
                     >
-                      <ListItemText primary={<Typography>Release</Typography>}/>
+                      <ListItemText primary={<Typography><b>Release</b></Typography>}/>
                     </ListItem>
                     <Divider variant="inset" component="li" />
                     <ListItem
@@ -320,11 +341,20 @@ function Projects() {
                     >
                       <ListItemText primary="Team size (total)" />
                     </ListItem>
+                    <ListItem>
+                      <ListItemText primary={<Typography><b>Utilization ({p.team.size} fte)</b></Typography>} />
+                    </ListItem>
+                    <ListItem sx={{pl: 4}} >
+                      <Utilization fte={fte} />
+                    </ListItem>
+                    
+
+                    
                   </List>
                 </Box>
               </Box>
               <Box>
-              <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>
+                <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: {xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}}>
                   <HighchartsReact
                 	  highcharts={Highcharts}
                     options={getPieOptions(theme, p.summary.tasks)}
@@ -336,7 +366,7 @@ function Projects() {
                 </Box>
               </Box>
             </Box>              
-            </CardContent>
+            </CardContent>)}
             {/*<CardActions>
               <Button size="small">Learn More</Button>
             </CardActions>*/}

@@ -157,6 +157,28 @@ module.exports.parseTask = (desc) => {
   return { status, id, title, estimate, deadline, assignees, tags, links };
 }
 
+module.exports.mergeTwoTeams = (t1, t2) => {
+  const ids = [...new Set([...t1.map(v => v.id), ...t2.map(v => v.id)])];
+  return ids.map( i => {
+    let id = i;
+    let name = null;
+    let bandwidth = [];
+    //
+    const m1 = t1.find(v => v.id === i);
+    if (m1) {
+      name = m1.name;
+      bandwidth.push(...m1.bandwidth);
+    }
+    const m2 = t2.find(v => v.id === i);
+    if (m2) {
+      name = m2.name;
+      bandwidth.push(...m2.bandwidth);
+    }
+    const fte = bandwidth.reduce((acc, v) => acc + v.fte, 0);
+    return {id, name, bandwidth, fte};
+  });
+}
+
 
             /*
     console.log(JSON.stringify(match));

@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Container, LinearProgress } from "@mui/material";
+import { Typography, Container } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
 
-export default function UnderConstruction() {
-  // console.log("!Assessment");
+function UnderConstruction() {
   return (
     <Container
       maxWidth="md"
@@ -21,8 +19,9 @@ export default function UnderConstruction() {
         Under Construction
       </Typography>
       <Typography variant="h7" color="text.secondary" mb={3}>
-        We're working on something great. Stay tuned!
+        We&apos;re working on something great. Stay tuned!
       </Typography>
     </Container>
   );
 }
+export default UnderConstruction;

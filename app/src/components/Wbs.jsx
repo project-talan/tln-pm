@@ -18,9 +18,6 @@ import FormControl from '@mui/material/FormControl';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import Grid from '@mui/material/Grid';
-import RadioGroup from '@mui/material/RadioGroup';
-import Radio from '@mui/material/Radio';
 import Select from '@mui/material/Select';  
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -39,6 +36,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Typography } from '@mui/material';
 
 import Context from '../shared/Context';
+
 import { errorMsgFetchingWbs } from '../shared/Errors';
 import { API_BASE_URL } from '../shared/Consts';
 
@@ -80,17 +78,19 @@ function Wbs() {
   //
   // Timeline
   const plotLines = [];
-  const [deadlines] = useState(timeline.map((t) => Object.keys(t.deadline).map((k) => {
-    const id = `${t.id}-${t.deadline[k].id}`;
-    if (t.deadline[k].active) {
+  const [deadlines] = useState(timeline.map((t) => t.deadline.map((d) => {
+    if (d.active) {
       plotLines.push({
-        id,
-        value: t.deadline[k].deadline,
-        color: t.deadline[k].current ? 'red' : 'blue',
+        id: d.uid,
+        value: d.deadline,
+        color: d.current ? 'red' : 'blue',
         width: 5
       });
     }
-    return id;
+    return ({
+      id: d.uid,
+      name: d.uid + (d.active ? ` (in ${d.durationToRelease})` : '')
+    });
   })).flat(1));
   const handleDeadlineChange = (event) => {
     setContext((prev) => ({...prev, deadline: event.target.value}));
@@ -158,7 +158,7 @@ function Wbs() {
           onChange={handleDeadlineChange}
         >
           {deadlines.map((d, index) => (
-            <MenuItem key={index} size="small" value={d}><small>{d}</small></MenuItem>
+            <MenuItem key={index} size="small" value={d.id}><small>{d.name}</small></MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -455,13 +455,18 @@ function Wbs() {
         // Tags
         const tags = [];
         if (deadline) {
-          tags.push(deadline.split('-')[1]);
+          timeline.forEach((t) => t.deadline.forEach((d) => {
+            if (d.id === deadline) {
+              tags.push(t.id);
+            }
+          }));
         }
         Object.keys(priorities).forEach((k) => {
           if (priorities[k]) {
             tags.push(k);
           }
         });
+        console.log('tags:', tags, deadline, priorities);
         if (tags.length) {
           query.push(`tags=${tags.join(',')}`);
         }
@@ -475,7 +480,7 @@ function Wbs() {
         console.log('url:', url);
         const response = await fetch(url);
         if (!response.ok) {
-          throw error;
+          throw `fetch error (${url}): ${response.status}`;
         }
         const data = await response.json();
         if (data.success) {

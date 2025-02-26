@@ -1,15 +1,15 @@
 const chai = require('chai');
 
-const topicFactory = require('./topic');
+const timelineFactory = require('./timeline');
 
 const { expect } = chai;
 
 const logger = require('./logger').create(0);
 
-describe('Topic entity', function () {
+describe('Timeline entity', function () {
 
   it('can be created', function () {
-    expect(topicFactory.create(logger)).not.to.be.null;
+    expect(timelineFactory.create(logger)).not.to.be.null;
   });
 
 });
