@@ -279,12 +279,49 @@ class Component {
         //
         // Team
         let team = [];
+        const filter = {
+          tag: [],
+          search: [],
+          deadline: [],
+          status: {
+            todo: true,
+            dev: true,
+            blocked: true,
+            done: true
+          }
+        };
+        const getMemberStatus = async (c, id, status, me = false) => {
+          if (me || !c.amIaProject()) {
+            const getTaskStatus = async (task, status) => {
+              if (task.tasks.length) {
+                await Promise.all(task.tasks.map(async t => await getTaskStatus(t, status)));
+              } else {
+                switch (task.status) {
+                  case '-': status.todo++; break;
+                  case '>': status.dev++; break;
+                  case '!': status.blocked++; break;
+                  case '+': status.done++; break;
+                }
+              }
+            }
+            const tasks = (await Promise.all(c.tasks.map(async t => await t.filter({who: {assignees: [id]}, filter})))).filter(v => !!v);
+            await Promise.all(tasks.map(async t => await getTaskStatus(t, status)));
+            await Promise.all(c.components.map(async c => await getMemberStatus(c, id, status)));
+          }
+        }
         for(let t of c.team) {
+          const ids = await t.getIds();
+          for (const id of ids) {
+            const status = { todo: 0, dev: 0, blocked: 0, done: 0, total: 0 };
+            await getMemberStatus(c, id, status, true);
+            status.total = status.todo + status.dev + status.blocked + status.done;
+            await t.updateStatus(id, status);
+          }
           team = await t.merge(team);
         }
         for(let p of projects) {
           if (p.team) {
-            team = mergeTwoTeams(team, p.team, true);
+            team = mergeTwoTeams(team, p.team);
           }
         }
         const teamSummary = {
@@ -292,11 +329,10 @@ class Component {
           total: team.length,
           utilization: (new Array(10)).fill(0).map(v => Math.trunc(Math.random() * 100)/100),
         }
-        // TODO: merge teams from nested projects
         project.team = team;
         //
         // Timeline
-        const release = c.timeline.length ? { ...await c.timeline[0].getClosestRelease(), features: 4} : null;
+        const release = c.timeline.length ? { ...await c.timeline[0].getClosestRelease(), features: 0} : null;
         project.timeline = c.timeline.length ? await c.timeline[0].getSummary() : null;
         //
         // Tasks
@@ -351,7 +387,7 @@ class Component {
     let team = [];
     for(let p of projects) {
       if (p.team) {
-        team = mergeTwoTeams(team, p.team, true);
+        team = mergeTwoTeams(team, p.team);
       }
     }
     return { projects, team };

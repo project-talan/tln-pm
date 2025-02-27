@@ -10,6 +10,9 @@ class Team {
     this.members = [];
   }
 
+  async getIds() {
+    return this.members.map( v => v.id );
+  }
 
   async getIdByEmail( email ) {
     const member = this.members.find( v => v.bandwidth[0].email === email );
@@ -45,7 +48,7 @@ class Team {
               fte: data[k].fte
             }
           ],
-          summary: {
+          status: {
             todo: 0,
             dev: 0,
             blocked: 0,
@@ -60,6 +63,13 @@ class Team {
   async merge(team) {
     const members = await this.getSummary();
     return mergeTwoTeams(team, members);
+  }
+
+  async updateStatus( id, status ) {
+    const member = this.members.find( v => v.id === id );
+    if (member) {
+      member.status = { ...status };
+    }
   }
 
   async getSummary() {

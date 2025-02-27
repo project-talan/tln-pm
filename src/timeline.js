@@ -23,7 +23,7 @@ class Timeline {
     }
   }
 
-  async load(data) {
+  async load(data, now) {
     if (data) {
       this.versions = Object.keys(data).map( k => {
         return ({
@@ -34,21 +34,21 @@ class Timeline {
     }
     //
     if (this.versions.length) {
-      const now = new Date();
+      const n = new Date(now);//now ? new Date(now) : new Date();
       let current = this.versions[0];
       let closestFutureDate = this.versions[0].date;
       this.versions.forEach( v => {
         const date = v.date;
-        v.active = isAfter(date, now);
+        v.active = isAfter(date, n);
         v.current = false;
-        const dt = differenceInMilliseconds(date, now);
-        if (isAfter(date, now) && (dt < differenceInMilliseconds(closestFutureDate, now))) {
+        const dt = differenceInMilliseconds(date, n);
+        if (isAfter(date, n) && (dt < differenceInMilliseconds(closestFutureDate, n))) {
           closestFutureDate = date;
           current = v;
         }
         if (v.active) {
           v.durationToRelease = dt;
-          v.durationToReleaseHR = getDurationToDate(date);
+          v.durationToReleaseHR = getDurationToDate(date, n);
         }
       });
       current.current = true;
@@ -58,6 +58,7 @@ class Timeline {
   async getClosestRelease() {
     return ({...(this.versions.find(v => v.current))});
   }
+
   async getSummary() {
     return this.versions.map(v => ({ ...v }));
   }

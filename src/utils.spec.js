@@ -1,5 +1,5 @@
 const chai = require('chai');
-const {parseTask, timelineTasks } = require('./utils');
+const {parseTask, timelineTasks, getDurationToDate } = require('./utils');
 const { expect } = chai;
 const ems = require('enhanced-ms');
 
@@ -81,6 +81,41 @@ describe('Utils lib', function () {
 
     expect(tasks.start).to.be.eql(0);
     expect(tasks.end).to.be.eql(208800000);
+  });
+
+  it('can output duration to specific date in human readable format', function () {
+    const now = new Date('2025-02-27T18:00:00.000Z');
+
+    const d11 = new Date('2025-02-27T17:59:59.000Z');
+    const d12 = new Date('2025-02-27T18:00:01.000Z');
+    expect(getDurationToDate(d11, now)).to.be.eql('1s');
+    expect(getDurationToDate(d12, now)).to.be.eql('1s');
+
+    const d21 = new Date('2025-02-27T17:59:00.000Z');
+    const d22 = new Date('2025-02-27T18:01:00.000Z');
+    expect(getDurationToDate(d21, now)).to.be.eql('1m');
+    expect(getDurationToDate(d22, now)).to.be.eql('1m');
+
+    const d31 = new Date('2025-02-27T17:00:00.000Z');
+    const d32 = new Date('2025-02-27T19:00:00.000Z');
+    expect(getDurationToDate(d31, now)).to.be.eql('1h');
+    expect(getDurationToDate(d32, now)).to.be.eql('1h');
+
+    const d41 = new Date('2025-02-26T18:00:00.000Z');
+    const d42 = new Date('2025-02-28T18:00:00.000Z');
+    expect(getDurationToDate(d41, now)).to.be.eql('1d');
+    expect(getDurationToDate(d42, now)).to.be.eql('1d');
+
+    const d51 = new Date('2025-01-27T18:00:00.000Z');
+    const d52 = new Date('2025-03-27T18:00:00.000Z');
+    expect(getDurationToDate(d51, now)).to.be.eql('1mo');
+    expect(getDurationToDate(d52, now)).to.be.eql('1mo');
+    
+    const d61 = new Date('2024-02-27T18:00:00.000Z');
+    const d62 = new Date('2026-02-27T18:00:00.000Z');
+    expect(getDurationToDate(d61, now)).to.be.eql('1yr');
+    expect(getDurationToDate(d62, now)).to.be.eql('1yr');
+
   });
 
   

@@ -46,12 +46,12 @@ function Team() {
   const rows = team.map((m, index) => {
     const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
     // const name = m.name;
-    const total = m.summary.todo + m.summary.dev + m.summary.blocked;
+    const total = m.status.todo + m.status.dev + m.status.blocked;
     //
     const status = [
-      { id: 'todo', value: m.summary.todo, percents: '0%', color: theme.tasks.todo.color, backgroundColor: theme.tasks.todo.backgroundColor},
-      { id: 'dev', value: m.summary.dev, percents: '0%', color: theme.tasks.dev.color, backgroundColor: theme.tasks.dev.backgroundColor},
-      { id: 'blocked', value: m.summary.blocked, percents: '0%', color: theme.tasks.blocked.color, backgroundColor: theme.tasks.blocked.backgroundColor},
+      { id: 'todo', value: m.status.todo, percents: '0%', color: theme.tasks.todo.color, backgroundColor: theme.tasks.todo.backgroundColor},
+      { id: 'dev', value: m.status.dev, percents: '0%', color: theme.tasks.dev.color, backgroundColor: theme.tasks.dev.backgroundColor},
+      { id: 'blocked', value: m.status.blocked, percents: '0%', color: theme.tasks.blocked.color, backgroundColor: theme.tasks.blocked.backgroundColor},
     ].map((s) => ({ ...s, percents: total > 0 ? Math.round(100*s.value/total) + '%' : '0%' }));
   
     return ({
@@ -62,8 +62,8 @@ function Team() {
         }</div>
       ),
       fte,
-      done: m.summary.done,
-      total: m.summary.total,
+      done: m.status.done,
+      total: m.status.total,
       status: (<Status status={status} />)
     });
   });

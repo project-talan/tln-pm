@@ -49,7 +49,7 @@ const mergedMembers = [
       }
     ],
     fte: 1.5,
-    summary: {
+    status: {
       todo: 0,
       dev: 0,
       blocked: 0,
@@ -68,7 +68,7 @@ const mergedMembers = [
       }
     ],
     fte: 0.5,
-    summary: {
+    status: {
       todo: 0,
       dev: 0,
       blocked: 0,
@@ -87,7 +87,7 @@ const mergedMembers = [
       }
     ],
     fte: 1,
-    summary: {
+    status: {
       todo: 0,
       dev: 0,
       blocked: 0,

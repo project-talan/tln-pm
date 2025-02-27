@@ -159,33 +159,32 @@ module.exports.parseTask = (desc) => {
   return { status, id, title, estimate, deadline, assignees, tags, links };
 }
 
-module.exports.mergeTwoTeams = (t1, t2, randomize = false) => {
+module.exports.mergeTwoTeams = (t1, t2) => {
   const ids = [...new Set([...t1.map(v => v.id), ...t2.map(v => v.id)])];
   return ids.map( i => {
     let id = i;
     let name = null;
     let bandwidth = [];
-    const summary = {
-      todo: randomize ? Math.trunc(Math.random() * 10) : 0,
-      dev: randomize ? Math.trunc(Math.random() * 10) : 0,
-      blocked: randomize ? Math.trunc(Math.random() * 10) : 0,
-      done: randomize ? Math.trunc(Math.random() * 10) : 0,
-      total: 0
-    };
-    summary.total = summary.todo + summary.dev + summary.blocked + summary.done;
+    const status = { todo: 0, dev: 0, blocked: 0, done: 0, total: 0 };
     //
-    const m1 = t1.find(v => v.id === i);
+    const m1 = t1.find(v => v.id === id);
     if (m1) {
       name = m1.name;
       bandwidth.push(...m1.bandwidth);
+      Object.keys(status).forEach( s => {
+        status[s] += m1.status[s];
+      });
     }
-    const m2 = t2.find(v => v.id === i);
+    const m2 = t2.find(v => v.id === id);
     if (m2) {
       name = m2.name;
       bandwidth.push(...m2.bandwidth);
+      Object.keys(status).forEach( s => {
+        status[s] += m2.status[s];
+      });
     }
     const fte = bandwidth.reduce((acc, v) => acc + v.fte, 0);
-    return {id, name, bandwidth, fte, summary};
+    return {id, name, bandwidth, fte, status};
   });
 }
 
@@ -209,9 +208,9 @@ function getStringFromInterval(interval) {
   return diff;
 }
 
-module.exports.getDurationToDate = (date) => {
+module.exports.getDurationToDate = (date, now) => {
   const t1 = new Date(date);
-  const t2 = new Date();
+  const t2 = now ? new Date(now) : new Date();
   if (isAfter(t1, t2)) {
     return getStringFromInterval(intervalToDuration({start: t2, end: t1}));
   }
