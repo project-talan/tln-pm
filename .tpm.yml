@@ -43,6 +43,7 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:050:0.18.0] Add support of external catalog repo (.tpm folder) @vlad.k
   [-:049:0.17.0] Troubleshoot performance drop during cli commands execution @vlad.k
     [-] cli command 'tpm assist <component>' - chartgpt style conversation
     [-] saving context in repository

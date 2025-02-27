@@ -44,7 +44,14 @@ class Team {
               email: data[k].email,
               fte: data[k].fte
             }
-          ]
+          ],
+          summary: {
+            todo: 0,
+            dev: 0,
+            blocked: 0,
+            done: 0,
+            total: 0
+          }
         });
       });
     }

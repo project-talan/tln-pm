@@ -20,7 +20,7 @@ import HighchartsReact from 'highcharts-react-official';
 
 
 
-import { checkValue, checkMember } from '../../shared/utils';
+import { checkMember } from '../../shared/utils';
 import Utilization from './../shared/Utilization';
 import Status from './../shared/Status';
 
@@ -170,7 +170,7 @@ function Project({ project, opened }) {
         <i><b>{project.lastUpdateTime ? `updated ${project.lastUpdateTime} ago` : ''}</b></i>
       </Typography>
       { !open && (
-        <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', left: 64, top: -12}}>
+        <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', left: 64, top: -11}}>
         <i><b>{checkMember(project.summary.release, 'id', '', '', '')}{checkMember(project.summary.release, 'durationToReleaseHR', ' in ', '', '')}</b></i>
         </Typography>
       )}

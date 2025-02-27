@@ -16,11 +16,7 @@ class Project {
  
   async reconstruct(source) {
     if (this.source.isItMe(source)) {
-      return ({
-        id: this.id,
-        name: this.name,
-        description: this.description
-      });
+      return await this.getSummary();
     }
   }
 
@@ -29,6 +25,10 @@ class Project {
     this.id = id;
     this.name = name;
     this.description = description;
+  }
+
+  async getSummary() {
+    return ({id: this.id, name: this.name, description: this.description});
   }
 
 }
