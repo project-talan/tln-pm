@@ -15,7 +15,8 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useTheme } from '@mui/material/styles';
 
-import Context from '../shared/Context';
+import Context from './../../shared/Context';
+import Status from './../shared/Status';
 
 const columns = [
   { id: 'id', label: 'ID', minWidth: 96 },
@@ -27,7 +28,8 @@ const columns = [
 ];
 
 function Team() {
-  const members = use(Context).context.team;
+  const team = use(Context).context.team;
+  console.log('Team', team);
 
   const theme = useTheme();
 
@@ -41,30 +43,28 @@ function Team() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  const rows = members.map((m, index) => {
+  const rows = team.map((m, index) => {
     const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
     // const name = m.name;
     const total = m.summary.todo + m.summary.dev + m.summary.blocked;
-    const persents = [m.summary.todo, m.summary.dev, m.summary.blocked].map((b) => {
-      return total > 0 ? Math.round(100*b/total) + '%' : '0%';
-    });
+    //
+    const status = [
+      { id: 'todo', value: m.summary.todo, percents: '0%', color: theme.tasks.todo.color, backgroundColor: theme.tasks.todo.backgroundColor},
+      { id: 'dev', value: m.summary.dev, percents: '0%', color: theme.tasks.dev.color, backgroundColor: theme.tasks.dev.backgroundColor},
+      { id: 'blocked', value: m.summary.blocked, percents: '0%', color: theme.tasks.blocked.color, backgroundColor: theme.tasks.blocked.backgroundColor},
+    ].map((s) => ({ ...s, percents: total > 0 ? Math.round(100*s.value/total) + '%' : '0%' }));
+  
     return ({
       id: m.id,
       name: (
         <div key={index}>{m.name}<br/>{
-          m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.email} ({b.fte})<br/></div>)) : m.bandwidth[0].email
+          m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.project} ({b.fte}) ({b.email})<br/></div>)) : m.bandwidth[0].email
         }</div>
       ),
       fte,
       done: m.summary.done,
       total: m.summary.total,
-      status: (
-        <Box sx={{display: 'flex', flexDirection: 'row', color: 'white', backgroundColor: 'black', borderRadius: 4, overflow: 'hidden'}}> 
-          <Box sx={{width: persents[0], backgroundColor: theme.tasks.todo.backgroundColor, color: theme.tasks.todo.color}}>{m.summary.todo}</Box>
-          <Box sx={{width: persents[1], backgroundColor: theme.tasks.dev.backgroundColor, color: theme.tasks.dev.color}}>{m.summary.dev}</Box>
-          <Box sx={{width: persents[2], backgroundColor: theme.tasks.blocked.backgroundColor, color: theme.tasks.blocked.color}}>{m.summary.blocked}</Box>
-        </Box>
-      )
+      status: (<Status status={status} />)
     });
   });
   //

@@ -165,6 +165,14 @@ module.exports.mergeTwoTeams = (t1, t2) => {
     let id = i;
     let name = null;
     let bandwidth = [];
+    const summary = {
+      todo: Math.trunc(Math.random() * 10),
+      dev: Math.trunc(Math.random() * 10),
+      blocked: Math.trunc(Math.random() * 10),
+      done: Math.trunc(Math.random() * 10),
+      total: 0
+    };
+    summary.total = summary.todo + summary.dev + summary.blocked + summary.done;
     //
     const m1 = t1.find(v => v.id === i);
     if (m1) {
@@ -177,7 +185,7 @@ module.exports.mergeTwoTeams = (t1, t2) => {
       bandwidth.push(...m2.bandwidth);
     }
     const fte = bandwidth.reduce((acc, v) => acc + v.fte, 0);
-    return {id, name, bandwidth, fte};
+    return {id, name, bandwidth, fte, summary};
   });
 }
 
