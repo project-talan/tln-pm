@@ -6,7 +6,7 @@ const exec = require('child_process').execSync;
 const assign = require('assign-deep');
 const { isAfter, isEqual, differenceInMilliseconds, parseISO } = require('date-fns');
 
-const { mergeTwoTeams } = require('./utils');
+const { mergeTwoTeams, getDurationToDate } = require('./utils');
 
 const projectFactory = require('./project');
 const teamFactory = require('./team');
@@ -17,10 +17,6 @@ const { features } = require('process');
 
 class Component {
 
-  /*
-  *
-  * params:
-  */
   constructor(logger, parent, home, id) {
     this.logger = logger;
     this.parent = parent;
@@ -187,11 +183,15 @@ class Component {
   async getAssignees(assignees) {
     const aees = [...assignees];
     // add aliaces for assignees
-    this.team.forEach( m => {
-      if (assignees.indexOf(m.email) >= 0) {
-        aees.push(m.id);
+    for( const a of aees ) {
+      for( const t of this.team) {
+        const id = await t.getIdByEmail(a);
+        if (id) {
+          aees.push(id);
+          break
+        }
       }
-    });
+    }
     if (this.parent) {
       return await this.parent.getAssignees(aees);
     }
@@ -275,6 +275,7 @@ class Component {
         });
         project.relativePath = c.getRelativePath();
         project.lastCommit = c.lastCommit;
+        project.lastUpdateTime = getDurationToDate(project.lastCommit ?? null);
         //
         // Team
         let team = [];
@@ -330,6 +331,7 @@ class Component {
           team: teamSummary,
           tasks
         };
+
         // mount nested projects
         if (projects.length) {
           project.projects = projects;
@@ -342,11 +344,17 @@ class Component {
       }
     }
     //
-    const p = await dive(this);
-    if (Array.isArray(p)) {
-      return p;
+    let projects = await dive(this);
+    if (!Array.isArray(projects)) {
+      projects = [projects];
     }
-    return [p];
+    let team = [];
+    for(let p of projects) {
+      if (p.team) {
+        team = mergeTwoTeams(team, p.team);
+      }
+    }
+    return { projects, team };
   }
 
   async describeProject(options) {

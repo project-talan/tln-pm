@@ -10,6 +10,12 @@ class Team {
     this.members = [];
   }
 
+
+  async getIdByEmail( email ) {
+    const member = this.members.find( v => v.bandwidth[0].email === email );
+    return member ? member.id : null;
+  }
+  
   async reconstruct(source) {
     if (this.source.isItMe(source)) {
       const result = {};

@@ -4,16 +4,16 @@ project:
   description: Project Management as Code
 team:
   vlad.k:
-    email: vladislav.kurmaz@gmail.com
     name: Vladyslav Kurmaz
+    email: vladislav.kurmaz@gmail.com
     fte: 0.1
 timeline:
   0.18.0:
     deadline: 2025-03-14T18:00:00.000Z
   0.17.0:
-    deadline: 2025-02-28T18:00:00.000Z
+    deadline: 2025-03-07T18:00:00.000Z
   0.16.0:
-    deadline: 2025-02-23T18:00:00.000Z
+    deadline: 2025-02-28T18:00:00.000Z
   0.15.0:
     deadline: 2025-02-19T10:00:00.000Z
   0.14.0:
@@ -56,7 +56,7 @@ tasks: |-
     [-] Create yaml file for assessment
     [-] Add rose diagram inside Dashboard (NFRs)
   [+:046:0.15.0] Switch to React 19 @vlad.k
-  [-:045:0.16.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
+  [-:045:0.17.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
   [-:044:0.17.0] Audit command @vlad.k
     [-] Check tasks without estimates #4h
     [-] Check tasks without assignees #2h
@@ -64,8 +64,8 @@ tasks: |-
     [-] Validate team velocity and timeline #8h
   [-:043:0.17.0] Search @vlad.k
     [-] Srs
-  [-:042:0.16.0] Dockerize web part @vlad.k
-  [-:041:0.16.0] Add UI controls @vlad.k
+  [-:042:0.17.0] Dockerize web part @vlad.k
+  [-:041:0.17.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
   [+:040:0.16.0] Add UI controls @vlad.k

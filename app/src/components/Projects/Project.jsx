@@ -171,7 +171,7 @@ function Project({ project, opened }) {
       </Typography>
       { !open && (
         <Typography gutterBottom sx={{ color: 'text.secondary', backgroundColor: 'white', fontSize: 14, position: 'absolute', left: 64, top: -12}}>
-        <i><b>{checkMember(project.summary.release, 'id', '', '', '')}{checkValue(project.durationToRelease, ' in ', '', '')}</b></i>
+        <i><b>{checkMember(project.summary.release, 'id', '', '', '')}{checkMember(project.summary.release, 'durationToReleaseHR', ' in ', '', '')}</b></i>
         </Typography>
       )}
       <IconButton sx={{position: 'absolute', right: -6, top: -8}} onClick={() => setOpen(!open)}>
@@ -194,7 +194,7 @@ function Project({ project, opened }) {
               <List sx={style}>
                 <ListItem
                   secondaryAction={
-                    <TableValue >{checkValue(project.durationToRelease, 'in ')}</TableValue>
+                    <TableValue >{checkMember(project.summary.release, 'durationToReleaseHR', 'in ')}</TableValue>
                   }
                 >
                   <ListItemText primary={<Typography><b>Release</b></Typography>}/>
@@ -273,7 +273,7 @@ function Project({ project, opened }) {
           </Box>
         </Box>              
         { open && (<Box sx={{px: 4 }}>
-          {project.projects.map((p, index) => (
+          {project.projects && project.projects.map((p, index) => (
             <Project key={index} project={p} opened={false} />
           ))}
         </Box>)}

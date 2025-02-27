@@ -37,9 +37,9 @@ class Server {
 
     // API
     ea.get('/api/info', (req, res) => {
-      res.send(this.makeResponce({version}));
+      res.send(this.makeResponce({version, scmUser: app.scmUser}));
     })
-    ea.get('/api/projects2', async(req, res) => {
+    ea.get('/api/projects', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { project2: true } })));
     })
     ea.get('/api/team', async (req, res) => {

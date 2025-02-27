@@ -4,14 +4,14 @@ import { Suspense } from 'react';
 
 import ErrorFallback from './../../shared/ErrorFallback';
 import Progress from './../../shared/Progress';
-import { Wrapper, resetProjects } from './Wrapper';
+import Wrapper from './Wrapper';
 
 
 function Projects() {
   const [refreshKey, setRefreshKey] = useState(0);
   
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { resetProjects(); setRefreshKey((prev) => prev + 1)}}>
+    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { setRefreshKey((prev) => prev + 1)}}>
       <Suspense fallback={<Progress />}>
         <Wrapper key={refreshKey} />
       </Suspense>

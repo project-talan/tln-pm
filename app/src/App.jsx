@@ -18,21 +18,21 @@ import Assessment from './components/Assessment';
 import { API_BASE_URL } from './shared/Consts';
 import { errorMsgFetchingInfo } from './shared/Errors';
 
-const fetchInfo = async () => {
+const fetchData = async () => {
   try {
-    const responces = await Promise.all(['info', 'team', 'timeline'].map(async (p) => await fetch(`${API_BASE_URL}/${p}`)));
-    if (responces.some(r => !r.ok )) {
+    const responces = await Promise.all(['info', 'projects'].map(async (p) => [p, await fetch(`${API_BASE_URL}/${p}`)]));
+    if (responces.some(r => !r[1].ok )) {
       throw "Error fetching info";
     }
-    return Promise.all(responces.map(async r => r.json()));
+    return Promise.all(responces.map(async r => [r[0], (await r[1].json())]));
   } catch (error) {
     throw new Error(errorMsgFetchingInfo + `: ${error.message}`);
   } 
 };
 
-let infoPromise = fetchInfo();
+let dataPromise = fetchData();
 const resetApp = () => {
-  infoPromise = fetchInfo();
+  dataPromise = fetchData();
 }
 
 const pages = [
@@ -44,14 +44,16 @@ const pages = [
 ];
 
 function App() {
-  const info = use(infoPromise);
+  const data = Object.fromEntries(use(dataPromise));
+  //
   const [context, setContext] = useState({
-    version: info[0].data.version,
-    team: info[1].data.team,
+    version: data.info.data.version,
+    projects: data.projects.data.projects,
+    team: data.projects.data.team,
     components: [],
-    selectedMembers: info[1].data.team.filter((m) => m.scmUser).map((m) => m.id),
-    timeline: info[2].data.timeline,
-    deadline: info[2].data.timeline.map((t) => t.deadline.map((d) => d.current ? d.uid : null).filter((v) => v)).flat(1)[0],
+    selectedMembers: [], //info[1].data.team.filter((m) => m.scmUser).map((m) => m.id),
+    // timeline: info[2].data.timeline,
+    // deadline: info[2].data.timeline.map((t) => t.deadline.map((d) => d.current ? d.uid : null).filter((v) => v)).flat(1)[0],
     statuses: { todo: true, dev: true, blocked: true, done: false },
     priorities: { critical: false, high: false, low: false },
   });

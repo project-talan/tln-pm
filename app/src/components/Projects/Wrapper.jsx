@@ -1,47 +1,14 @@
 import { use } from 'react';
 import { Container } from '@mui/material';
 
-import { API_BASE_URL } from '../../shared/Consts';
-import { errorMsgFetchingProjects } from '../../shared/Errors';
-import { getDurationToDate } from '../../shared/utils';
+import Context from '../../shared/Context';
 import Project from './Project';
 
-const fetchProjects = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/projects2`);
-    if (!response.ok) {
-      throw "Error fetching projects";
-    }
-    const processProject = async () => {
-      const data = await response.json();
-      const enrichProjets = async (projects) => {
-        return await Promise.all(projects.map(async (p) => {
-          return ({
-            ...p,
-            lastUpdateTime: p.lastCommit ? getDurationToDate(p.lastCommit) : '',
-            durationToRelease: p.summary.release ? getDurationToDate(p.summary.release.date) : '',
-            projects: p.projects ? await enrichProjets(p.projects) : []
-          });
-        }));
-      };
-
-      const projects = await enrichProjets(data.data.projects);
-      console.log('projects:', projects);
-      return { projects };
-    };
-    return processProject();
-  } catch (error) {
-    throw new Error(errorMsgFetchingProjects + `: ${error.message}`);
-  } 
-};
-
-let projectsPromise = fetchProjects();
-const resetProjects = () => {
-  projectsPromise = fetchProjects();
-}
 
 function Wrapper() {
-  const {projects} = use(projectsPromise);
+  const projects = use(Context).context.projects;
+  console.log('!Wrapper', projects);
+
   // const [mode, setMode] = useState('full');
 
   return (
@@ -71,4 +38,4 @@ function Wrapper() {
   );
 }
 
-export { Wrapper, resetProjects };
+export default Wrapper;

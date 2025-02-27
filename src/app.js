@@ -101,7 +101,9 @@ class App {
     const c = await this.getCurrentComponent(component);
     if (c) {
       if (what.project2) {
-        result.projects = await c.describeProject2();
+        const {projects, team} = await c.describeProject2();
+        result.projects = projects;
+        result.team = team;
       }
       if (what.project) {
         result.projects = await c.describeProject();

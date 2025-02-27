@@ -1,6 +1,7 @@
 'use strict';
 
 const { isAfter, isEqual, differenceInMilliseconds, parseISO } = require('date-fns');
+const { getDurationToDate } = require('./utils');
 
 class Timeline {
 
@@ -47,6 +48,7 @@ class Timeline {
         }
         if (v.active) {
           v.durationToRelease = dt;
+          v.durationToReleaseHR = getDurationToDate(date);
         }
       });
       current.current = true;
