@@ -159,17 +159,17 @@ module.exports.parseTask = (desc) => {
   return { status, id, title, estimate, deadline, assignees, tags, links };
 }
 
-module.exports.mergeTwoTeams = (t1, t2) => {
+module.exports.mergeTwoTeams = (t1, t2, randomize = false) => {
   const ids = [...new Set([...t1.map(v => v.id), ...t2.map(v => v.id)])];
   return ids.map( i => {
     let id = i;
     let name = null;
     let bandwidth = [];
     const summary = {
-      todo: Math.trunc(Math.random() * 10),
-      dev: Math.trunc(Math.random() * 10),
-      blocked: Math.trunc(Math.random() * 10),
-      done: Math.trunc(Math.random() * 10),
+      todo: randomize ? Math.trunc(Math.random() * 10) : 0,
+      dev: randomize ? Math.trunc(Math.random() * 10) : 0,
+      blocked: randomize ? Math.trunc(Math.random() * 10) : 0,
+      done: randomize ? Math.trunc(Math.random() * 10) : 0,
       total: 0
     };
     summary.total = summary.todo + summary.dev + summary.blocked + summary.done;

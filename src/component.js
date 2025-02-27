@@ -284,7 +284,7 @@ class Component {
         }
         for(let p of projects) {
           if (p.team) {
-            team = mergeTwoTeams(team, p.team);
+            team = mergeTwoTeams(team, p.team, true);
           }
         }
         const teamSummary = {
@@ -351,7 +351,7 @@ class Component {
     let team = [];
     for(let p of projects) {
       if (p.team) {
-        team = mergeTwoTeams(team, p.team);
+        team = mergeTwoTeams(team, p.team, true);
       }
     }
     return { projects, team };

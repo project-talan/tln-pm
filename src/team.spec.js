@@ -48,7 +48,14 @@ const mergedMembers = [
         fte: 0.5
       }
     ],
-    fte: 1.5
+    fte: 1.5,
+    summary: {
+      todo: 0,
+      dev: 0,
+      blocked: 0,
+      done: 0,
+      total: 0
+    }
   },
   {
     id: "bob.w",
@@ -60,7 +67,14 @@ const mergedMembers = [
         fte: 0.5
       }
     ],
-    fte: 0.5
+    fte: 0.5,
+    summary: {
+      todo: 0,
+      dev: 0,
+      blocked: 0,
+      done: 0,
+      total: 0
+    }
   },
   {
     id: "carol.l",
@@ -72,7 +86,14 @@ const mergedMembers = [
         fte: 1
       }
     ],
-    fte: 1
+    fte: 1,
+    summary: {
+      todo: 0,
+      dev: 0,
+      blocked: 0,
+      done: 0,
+      total: 0
+    }
   }
 ]
 
