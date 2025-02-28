@@ -73,10 +73,10 @@ tasks: |-
     [+] Team
       [+] Search editbox
       [+] Sort by statuses
-  [>:039:0.16.0] Add UI controls @vlad.k
-    [>] Timeline
-      [>] Tasks filter by statuses
-      [>] Sort by deadline
+  [+:039:0.16.0] Add UI controls @vlad.k
+    [+] Timeline
+      [+] Tasks filter by statuses
+      [+] Sort by deadline
   [+:038:0.15.0] Switch to Highcharts @vlad.k
   [+:037:0.15.0] Switch from JQuery+Bootstrap to React+MUI @vlad.k
     [+] Dashboard
