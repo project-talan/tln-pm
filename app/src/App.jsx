@@ -46,14 +46,27 @@ const pages = [
 function App() {
   const data = Object.fromEntries(use(dataPromise));
   //
+  const today = Date.now();
+  const day = 24 * 36e5;
+  const scmUserEmail = data.info.data.scmUser;
+  //
+  const team = data.projects.data.team;
+  const scmUser = team.find(m => m.bandwidth.find(b => b.email == scmUserEmail));
+  const selectedMembers = scmUser ? [scmUser.id] : [];
+  const timeline = data.projects.data.projects[0].timeline; // TODO use top level merged timeline
+  const deadline = timeline.map( d => d.current ? d.uid : null).filter((v) => v)[0];
+  const end = timeline.find( d => d.uid === deadline);
+  const interval = {start: today - day, end: end ? today + end.durationToRelease + day : today + 30 * day};
+  //
   const [context, setContext] = useState({
     version: data.info.data.version,
     projects: data.projects.data.projects,
-    team: data.projects.data.team,
+    team,
     components: [],
-    selectedMembers: [], //info[1].data.team.filter((m) => m.scmUser).map((m) => m.id),
-    // timeline: info[2].data.timeline,
-    // deadline: info[2].data.timeline.map((t) => t.deadline.map((d) => d.current ? d.uid : null).filter((v) => v)).flat(1)[0],
+    selectedMembers,
+    timeline,
+    deadline,
+    interval,
     statuses: { todo: true, dev: true, blocked: true, done: false },
     priorities: { critical: false, high: false, low: false },
   });

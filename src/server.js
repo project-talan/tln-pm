@@ -49,8 +49,8 @@ class Server {
       res.send(this.makeResponce( await app.describe({ what: { timeline: true } })));
     })
     ea.get(['/api/tasks', '/api/tasks/:component*'], async(req, res) => {
-      console.log('req.params:', req.params);
-      console.log('req.query:', req.query);
+      // console.log('req.params:', req.params);
+      // console.log('req.query:', req.query);
       const component = req.params.component ? `${req.params.component}${req.params[0]}` : null;
       const status = {todo: false, dev: false, blocked: false, done: false};
       if (req.query.status) {
@@ -61,15 +61,15 @@ class Server {
       const assignees = req.query.assignees ? req.query.assignees.split(',') : [];
       const tags = req.query.tags ? req.query.tags.split(',') : [];
       //
-      console.log('component:', component);
-      console.log('status:', status);
-      console.log('assignees:', assignees);
-      console.log('tags:', tags);
+      // console.log('component:', component);
+      // console.log('status:', status);
+      // console.log('assignees:', assignees);
+      // console.log('tags:', tags);
       const tasks = await app.ls({
         component,
         depth: 10,
         who: { assignees, all: !assignees.length },
-        filter: { tag: [], search: [], deadline: [], status },
+        filter: { tag: tags, search: [], deadline: [], status },
       });
       if (tasks) {
         utils.timelineTasks(tasks, [], [], ems('8h'));

@@ -104,7 +104,7 @@ class Component {
     }
     if (data.timeline) {
       const timeline = timelineFactory.create(this.logger, source);
-      await timeline.load(data.timeline);
+      await timeline.load(data.timeline, this.project[0].id); // TODO: use merged structure and provide ability to projectless timelines
       this.timeline.push(timeline);
       result |= true;
     }

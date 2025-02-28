@@ -23,18 +23,19 @@ class Timeline {
     }
   }
 
-  async load(data, now) {
+  async load(data, project, now) {
     if (data) {
       this.versions = Object.keys(data).map( k => {
         return ({
           id: k,
+          uid: `${project}-${k}`,
           date: data[k].deadline,
         });
       });
     }
     //
     if (this.versions.length) {
-      const n = new Date(now);//now ? new Date(now) : new Date();
+      const n = now ? new Date(now) : new Date();
       let current = this.versions[0];
       let closestFutureDate = this.versions[0].date;
       this.versions.forEach( v => {
