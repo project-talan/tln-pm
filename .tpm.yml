@@ -43,15 +43,12 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
-  [-:050:0.18.0] Add support of external catalog repo (.tpm folder) @vlad.k
+  [-:053:0.18.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
+  [-:052:0.18.0] saving context in repository @vlad.k
+  [-:051:0.18.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
+  [-:050:0.17.0] Add support of external catalog repo (.tpm folder) @vlad.k
   [-:049:0.17.0] Troubleshoot performance drop during cli commands execution @vlad.k
-    [-] cli command 'tpm assist <component>' - chartgpt style conversation
-    [-] saving context in repository
-    [-] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR
   [-:048:0.18.0] AI tool integration @vlad.k
-    [-] cli command 'tpm assist <component>' - chartgpt style conversation
-    [-] saving context in repository
-    [-] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR
   [-:047:0.17.0] Assessment section @vlad.k
     [-] Add UI/UX for assessment section
     [-] Create yaml file for assessment
