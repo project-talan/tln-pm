@@ -244,19 +244,15 @@ function Wbs() {
         end: today + component.end,
         // data: 'data',
         // owner: 'Linda'
-        completed: {
-          amount: Math.trunc(Math.random() * 100) / 100
-        },
       };
-      // TODO: add completed amount into task
-      // completed: {
-      //   amount: 0.2
-      // },
-    
+      if (component.percentage) {
+        item.completed.amount = component.percentage;
+      }
       series.push(item);
       //
       const processTasks = (parentId, tasks) => {
         tasks.forEach((t, index) => {
+          // console.log('task:', t);
           const id = [parentId, t.id ? t.id : index].join('.');
           const task = {
             name: t.title,
@@ -264,7 +260,12 @@ function Wbs() {
             parent: parentId,
             start: today + t.start,
             end: today + t.end,
+            owner: t.assignees.join(', '),
+
           };
+          if (t.percentage) {
+            item.completed.amount = t.percentage;
+          }
           series.push(task);
           //
           processTasks(id, t.tasks);
@@ -345,7 +346,7 @@ function Wbs() {
         '{#if point.completed}' +
         'Completed: {multiply point.completed.amount 100}%<br>' +
         '{/if}' +
-        'Assignee: {#if point.owner}{point.owner}{else}unassigned{/if}'
+        'Assignee: {#if point.owner}{point.owner}{else}-{/if}'
     },
     /*
     title: {
@@ -449,7 +450,6 @@ function Wbs() {
   useEffect(() => {
     const getTasks = async () => {
       try {
-        console.log('fetching tasks');
         const query = [];
         if (statuses) {
           query.push(`status=${Object.keys(statuses).filter((k) => statuses[k]).join(',')}`);
@@ -472,7 +472,7 @@ function Wbs() {
             tags.push(k);
           }
         });
-        console.log('tags:', tags, deadline, priorities);
+        // console.log('tags:', tags, deadline, priorities);
         if (tags.length) {
           query.push(`tags=${tags.join(',')}`);
         }
@@ -483,7 +483,7 @@ function Wbs() {
         const p = (['tasks'].concat(components)).join('/');
         const q = query.join('&');
         const url = `${API_BASE_URL}/${p}?${q}`;
-        console.log('url:', url);
+        // console.log('url:', url);
         const response = await fetch(url);
         if (!response.ok) {
           throw `fetch error (${url}): ${response.status}`;
@@ -498,10 +498,10 @@ function Wbs() {
             },
           ]}));
           setSubComponents(data.data.components.map((c) => c.id));
-          console.log('tasks:', tasks);
+          // console.log('tasks:', tasks);
         }
       } catch (error) {
-        console.log('error:', error);
+        // console.log('error:', error);
         throw new Error(errorMsgFetchingWbs + `\nDetails: ${error.message}`);
       } 
     };
@@ -509,7 +509,7 @@ function Wbs() {
   }, [components, statuses, selectedMembers, deadline, priorities]);
 
   //
-  console.log('!Wbs');
+  // console.log('!Wbs');
   return (
     <Container maxWidth="xl" sx={{pt: 1}}>
       <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignContent: 'center'}}>

@@ -7,7 +7,7 @@ import Project from './Project';
 
 function Wrapper() {
   const projects = use(Context).context.projects;
-  console.log('!Wrapper', projects);
+  // console.log('!Wrapper', projects);
 
   // const [mode, setMode] = useState('full');
 
