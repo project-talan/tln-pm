@@ -9,41 +9,64 @@ import './App.css'
 
 import { theme } from './shared/Theme';
 import Header from './components/Header';
-import Dashboard from './components/Dashboard';
+import Projects from './components/Projects';
 import Timeline from './components/Timeline';
 import Team from './components/Team';
-import Srs from './components/Srs';
+import Docs from './components/Docs';
 import Assessment from './components/Assessment';
 
 import { API_BASE_URL } from './shared/Consts';
 import { errorMsgFetchingInfo } from './shared/Errors';
 
-const fetchInfo = async () => {
+const fetchData = async () => {
   try {
-    const responces = await Promise.all(['info', 'team', 'timeline'].map(async (p) => await fetch(`${API_BASE_URL}/${p}`)));
-    if (responces.some(r => !r.ok )) {
-      throw error;
+    const responces = await Promise.all(['info', 'projects'].map(async (p) => [p, await fetch(`${API_BASE_URL}/${p}`)]));
+    if (responces.some(r => !r[1].ok )) {
+      throw "Error fetching info";
     }
-    return Promise.all(responces.map(async r => r.json()));
+    return Promise.all(responces.map(async r => [r[0], (await r[1].json())]));
   } catch (error) {
-    throw new Error(errorMsgFetchingInfo);
+    throw new Error(errorMsgFetchingInfo + `: ${error.message}`);
   } 
 };
 
-let infoPromise = fetchInfo();
+let dataPromise = fetchData();
 const resetApp = () => {
-  infoPromise = fetchInfo();
+  dataPromise = fetchData();
 }
 
+const pages = [
+  { id: 'projects', title: 'Projects', href: '/' },
+  { id: 'timeline', title: 'Timeline', href: '/timeline' },
+  { id: 'team', title: 'Team', href: '/team' },
+  { id: 'docs', title: 'Docs', href: '/docs' },
+  { id: 'assessment', title: 'Assessment', href: '/assessment' },
+];
+
 function App() {
-  const info = use(infoPromise);
+  const data = Object.fromEntries(use(dataPromise));
+  //
+  const today = Date.now();
+  const day = 24 * 36e5;
+  const scmUserEmail = data.info.data.scmUser;
+  //
+  const team = data.projects.data.team;
+  const scmUser = team.find(m => m.bandwidth.find(b => b.email == scmUserEmail));
+  const selectedMembers = scmUser ? [scmUser.id] : [];
+  const timeline = data.projects.data.projects[0].timeline; // TODO use top level merged timeline
+  const deadline = timeline.map( d => d.current ? d.uid : null).filter((v) => v)[0];
+  const end = timeline.find( d => d.uid === deadline);
+  const interval = {start: today - day, end: end ? today + end.durationToRelease + day : today + 30 * day};
+  //
   const [context, setContext] = useState({
-    version: info[0].data.version,
-    team: info[1].data.team,
+    version: data.info.data.version,
+    projects: data.projects.data.projects,
+    team,
     components: [],
-    selectedMembers: info[1].data.team.filter((m) => m.scmUser).map((m) => m.id),
-    timeline: info[2].data.timeline,
-    deadline: info[2].data.timeline.map((t) => Object.keys(t.deadline).map((k) => t.deadline[k].current ? `${t.id}-${t.deadline[k].id}` : null).filter((v) => v)).flat(1)[0],
+    selectedMembers,
+    timeline,
+    deadline,
+    interval,
     statuses: { todo: true, dev: true, blocked: true, done: false },
     priorities: { critical: false, high: false, low: false },
   });
@@ -52,12 +75,12 @@ function App() {
     <Context.Provider value={{ context, setContext }}>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
-          <Header version={context.version}/>
+          <Header version={context.version} pages={pages} />
           <Routes>
-            <Route index element={<Dashboard />} />
+            <Route index element={<Projects />} />
             <Route path="timeline" element={<Timeline/>} />
             <Route path="team" element={<Team />} />
-            <Route path="srs" element={<Srs />} />
+            <Route path="docs" element={<Docs />} />
             <Route path="assessment" element={<Assessment />} />
           </Routes>
         </BrowserRouter>

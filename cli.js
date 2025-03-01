@@ -53,7 +53,7 @@ yargs(hideBin(process.argv))
   .option('team', { describe: 'Include team section', default: false, type: 'boolean' })
   .option('timeline', { describe: 'Include timeline section', default: false, type: 'boolean' })
   .option('tasks', { describe: 'Include tasks section', default: true, type: 'boolean' })
-  .option('srs', { describe: 'Include SRS section', default: false, type: 'boolean' })
+  .option('docs', { describe: 'Include documentation section', default: false, type: 'boolean' })
   .option('components', { describe: 'Include Components section', default: false, type: 'boolean' })
 
   .option('deadlines', { describe: 'Deadline for tasks spill over <from>:<to>', default: null, type: 'string' })
@@ -165,7 +165,7 @@ yargs(hideBin(process.argv))
           team: argv.team || argv.all,
           timeline: argv.timeline || argv.all,
           tasks: argv.tasks || argv.all,
-          srs: argv.srs || argv.all
+          docs: argv.docs || argv.all
         },
         file: argv.file,
         force: argv.force
@@ -189,7 +189,7 @@ yargs(hideBin(process.argv))
       const r = await a.describe({
         component: argv.component,
         id: argv.id,
-        what: { project: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, srs: argv.srs },
+        what: { project2: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, docs: argv.docs },
       });
       if (argv.json || argv.yaml) {
         if (argv.json) {

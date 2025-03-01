@@ -8,16 +8,16 @@ import IconButton from '@mui/material/IconButton';
 import TopicOutlinedIcon from '@mui/icons-material/TopicOutlined';
 import Box from '@mui/material/Box';
 
-import { errorMsgFetchingSrs } from '../shared/Errors';
-import { API_BASE_URL } from '../shared/Consts';
+import { errorMsgFetchingDocs } from './../../shared/Errors';
+import { API_BASE_URL } from './../../shared/Consts';
 
-const fetchSrs = async () => {
+const fetchDocs = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/srs`);
+    const response = await fetch(`${API_BASE_URL}/docs`);
     if (!response.ok) {
-      throw error;
+      throw "Error fetching docs";
     }
-    const processSrs = async () => {
+    const processDocs = async () => {
       const data = await response.json();
       const topics = {};
       const transformTree = (n, parentId = '') => {
@@ -25,30 +25,30 @@ const fetchSrs = async () => {
         return ({
           id,
           label: n.id,
-          children: (Object.keys(n.srs).map(k => {
-            const topicId = `${id}.${k}`;
-            topics[topicId] = n.srs[k];
-            return ({id: topicId, label: k});
+          children: (n.docs.map(d => {
+            const topicId = `${id}.${d.id}`;
+            topics[topicId] = d.md;
+            return ({id: topicId, label: d.id});
           })).concat((n.components || []).map( c => transformTree(c, id ))),
         });
       }
-      const toc = data.data.srs ? [transformTree(data.data.srs)] : [];
+      const toc = data.data.docs ? [transformTree(data.data.docs)] : [];
       return {toc, topics};
     };
-    return processSrs();
+    return processDocs();
   } catch (error) {
-    throw new Error(errorMsgFetchingSrs);
+    throw new Error(errorMsgFetchingDocs + `: ${error.message}`);
   } 
 };
 
-let srsPromise = fetchSrs();
-const resetSrs = () => {
-  srsPromise = fetchSrs();
+let docsPromise = fetchDocs();
+const resetDocs = () => {
+  docsPromise = fetchDocs();
 }
 
-function SrsContainer() {
-  const {toc, topics} = use(srsPromise);
-  const [markdown, setMarkdown] = useState(`use TOC to select SRS topic`);
+function Topics() {
+  const {toc, topics} = use(docsPromise);
+  const [markdown, setMarkdown] = useState(`use TOC to select specific topic`);
   //
   const [/*lastSelectedItem*/, setLastSelectedItem] = useState(null);
   const handleTopicSelection = (event, itemId, isSelected) => {
@@ -65,7 +65,6 @@ function SrsContainer() {
     setOpenDrawer(newOpen);
   };
 
-  // console.log('!SrsContainer');
   return (
     <Container maxWidth="xl" sx={{pt: 2}} >
       <IconButton size="small1" onClick={toggleDrawer(true)} sx={{ display: { xs: "block", md: "none" } }}>
@@ -89,4 +88,4 @@ function SrsContainer() {
   );
 }
 
-export { SrsContainer, resetSrs };
+export { Topics, resetDocs };

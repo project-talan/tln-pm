@@ -215,20 +215,17 @@ class Task {
     }
   }
 
-  async getSummary(tasksSummary) {
+  async getSummary(summary) {
     if (this.tasks.length) {
-      for (const task of this.tasks) {
-        tasksSummary = await task.getSummary(tasksSummary);
-      }
+      await Promise.all(this.tasks.map(async t => t.getSummary(summary)));
     } else {
       switch (this.status) {
-        case '-': tasksSummary.todo++; break;
-        case '>': tasksSummary.dev++; break;
-        case '!': tasksSummary.blocked++; break;
-        case '+': tasksSummary.done++; break;
+        case '-': summary.todo++; break;
+        case '>': summary.dev++; break;
+        case '!': summary.blocked++; break;
+        case '+': summary.done++; break;
       }
     }
-    return tasksSummary;
   }
   
   async getCountByDeadlime(deadline) {

@@ -18,9 +18,6 @@ import FormControl from '@mui/material/FormControl';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-import Grid from '@mui/material/Grid';
-import RadioGroup from '@mui/material/RadioGroup';
-import Radio from '@mui/material/Radio';
 import Select from '@mui/material/Select';  
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -38,9 +35,10 @@ import Avatar from '@mui/material/Avatar';
 import CloseIcon from '@mui/icons-material/Close';
 import { Typography } from '@mui/material';
 
-import Context from '../shared/Context';
-import { errorMsgFetchingWbs } from '../shared/Errors';
-import { API_BASE_URL } from '../shared/Consts';
+import Context from './../../shared/Context';
+
+import { errorMsgFetchingWbs } from './../../shared/Errors';
+import { API_BASE_URL } from './../../shared/Consts';
 
 function Wbs() {
   const theme = useTheme();
@@ -50,6 +48,7 @@ function Wbs() {
   const selectedMembers = use(Context).context.selectedMembers;
   const timeline = use(Context).context.timeline;
   const deadline = use(Context).context.deadline;
+  const interval = use(Context).context.interval;
   const statuses = use(Context).context.statuses;
   const priorities = use(Context).context.priorities;
   //
@@ -80,18 +79,20 @@ function Wbs() {
   //
   // Timeline
   const plotLines = [];
-  const [deadlines] = useState(timeline.map((t) => Object.keys(t.deadline).map((k) => {
-    const id = `${t.id}-${t.deadline[k].id}`;
-    if (t.deadline[k].active) {
+  const [deadlines] = useState(timeline.map((d) => {
+    if (d.active) {
       plotLines.push({
-        id,
-        value: t.deadline[k].deadline,
-        color: t.deadline[k].current ? 'red' : 'blue',
+        id: d.uid,
+        value: d.date,
+        color: d.current ? 'red' : 'blue',
         width: 5
       });
     }
-    return id;
-  })).flat(1));
+    return ({
+      id: d.uid,
+      name: d.uid + (d.active ? ` (in ${d.durationToReleaseHR})` : '')
+    });
+  }).flat(1));
   const handleDeadlineChange = (event) => {
     setContext((prev) => ({...prev, deadline: event.target.value}));
   };
@@ -112,8 +113,12 @@ function Wbs() {
 
   //
   // Members
-  const [members] = useState(team.filter(m => m.summary.fte > 0).map((m) => {
-    return { id: m.id, name: m.name, avatar: m.name.split(' ').map(n => n.substring(0, 1).toUpperCase() ) }
+  const [members] = useState(team.filter(m => m.fte > 0).map((m) => {
+    return {
+      id: m.id,
+      name: m.name,
+      avatar: m.name.split(' ').map(n => n.substring(0, 1).toUpperCase())
+    }
   }));
   const handleToggle = (value) => () => {
     const currentIndex = selectedMembers.indexOf(value);
@@ -158,7 +163,7 @@ function Wbs() {
           onChange={handleDeadlineChange}
         >
           {deadlines.map((d, index) => (
-            <MenuItem key={index} size="small" value={d}><small>{d}</small></MenuItem>
+            <MenuItem key={index} size="small" value={d.id}><small>{d.name}</small></MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -363,8 +368,8 @@ function Wbs() {
         borderWidth: 0
       },
       gridLineWidth: 1,
-      min: today - day,
-      max: today + 8 * day,
+      min: interval.start,
+      max: interval.end,
       custom: {
         today,
         weekendPlotBands: true
@@ -373,8 +378,8 @@ function Wbs() {
         label: {
           rotation: 0,
           text: l.id,
-          x: 0,
-          y: -5
+          x: -32,
+          y: -4
         },
         value: l.value,
         color: l.color,
@@ -444,6 +449,7 @@ function Wbs() {
   useEffect(() => {
     const getTasks = async () => {
       try {
+        console.log('fetching tasks');
         const query = [];
         if (statuses) {
           query.push(`status=${Object.keys(statuses).filter((k) => statuses[k]).join(',')}`);
@@ -455,13 +461,18 @@ function Wbs() {
         // Tags
         const tags = [];
         if (deadline) {
-          tags.push(deadline.split('-')[1]);
+          timeline.forEach((d) => {
+            if (d.uid === deadline) {
+              tags.push(d.id);
+            }
+          });
         }
         Object.keys(priorities).forEach((k) => {
           if (priorities[k]) {
             tags.push(k);
           }
         });
+        console.log('tags:', tags, deadline, priorities);
         if (tags.length) {
           query.push(`tags=${tags.join(',')}`);
         }
@@ -475,7 +486,7 @@ function Wbs() {
         console.log('url:', url);
         const response = await fetch(url);
         if (!response.ok) {
-          throw error;
+          throw `fetch error (${url}): ${response.status}`;
         }
         const data = await response.json();
         if (data.success) {

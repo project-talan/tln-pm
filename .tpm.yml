@@ -1,21 +1,21 @@
 project:
-  id: tpm
+  id: tln-pm
   name: Talan PM
   description: Project Management as Code
 team:
   vlad.k:
-    email: vladislav.kurmaz@gmail.com
     name: Vladyslav Kurmaz
+    email: vladislav.kurmaz@gmail.com
     fte: 0.1
 timeline:
   0.18.0:
     deadline: 2025-03-14T18:00:00.000Z
   0.17.0:
-    deadline: 2025-02-28T18:00:00.000Z
+    deadline: 2025-03-07T18:00:00.000Z
   0.16.0:
-    deadline: 2025-02-22T18:00:00.000Z
+    deadline: 2025-02-28T18:00:00.000Z
   0.15.0:
-    deadline: 2025-02-16T18:00:00.000Z
+    deadline: 2025-02-19T10:00:00.000Z
   0.14.0:
     deadline: 2025-01-10T18:00:00.000Z
   0.13.0:
@@ -43,20 +43,18 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
-  [-:049:0.16.0] Improve Timeline section @vlad.k
-    [-] Interval picker: week, month, quarter, year
-    [-] Search by text
-    [-] Check filtering by deadline
+  [-:053:0.18.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
+  [-:052:0.18.0] saving context in repository @vlad.k
+  [-:051:0.18.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
+  [-:050:0.17.0] Add support of external catalog repo (.tpm folder) @vlad.k
+  [-:049:0.17.0] Troubleshoot performance drop during cli commands execution @vlad.k
   [-:048:0.18.0] AI tool integration @vlad.k
-    [-] cli command 'tpm assist <component>' - chartgpt style conversation
-    [-] saving context in repository
-    [-] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR
   [-:047:0.17.0] Assessment section @vlad.k
     [-] Add UI/UX for assessment section
     [-] Create yaml file for assessment
     [-] Add rose diagram inside Dashboard (NFRs)
   [+:046:0.15.0] Switch to React 19 @vlad.k
-  [-:045:0.16.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
+  [-:045:0.17.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
   [-:044:0.17.0] Audit command @vlad.k
     [-] Check tasks without estimates #4h
     [-] Check tasks without assignees #2h
@@ -64,18 +62,18 @@ tasks: |-
     [-] Validate team velocity and timeline #8h
   [-:043:0.17.0] Search @vlad.k
     [-] Srs
-  [-:042:0.16.0] Dockerize web part @vlad.k
-  [-:041:0.16.0] Add UI controls @vlad.k
+  [-:042:0.17.0] Dockerize web part @vlad.k
+  [-:041:0.17.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
-  [-:040:0.16.0] Add UI controls @vlad.k
-    [-] Team
-      [-] Search editbox
-      [-] Sort by statuses
-  [-:039:0.16.0] Add UI controls @vlad.k
-    [-] Timeline
-      [-] Tasks filter by statuses
-      [-] Sort by deadline
+  [+:040:0.16.0] Add UI controls @vlad.k
+    [+] Team
+      [+] Search editbox
+      [+] Sort by statuses
+  [+:039:0.16.0] Add UI controls @vlad.k
+    [+] Timeline
+      [+] Tasks filter by statuses
+      [+] Sort by deadline
   [+:038:0.15.0] Switch to Highcharts @vlad.k
   [+:037:0.15.0] Switch from JQuery+Bootstrap to React+MUI @vlad.k
     [+] Dashboard
@@ -126,7 +124,7 @@ tasks: |-
   [+:003:0.3.0] Create hierarchy of nodes with descriptions @vlad.k
   [+:002:0.2.0] Update README.md @vlad.k
   [+:001:0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
-srs:
+docs:
   ups: |
     The main project's USPs are:
       * 1

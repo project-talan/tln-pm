@@ -40,10 +40,37 @@ const theme = createTheme({
       color: 'black',
     },
   },
+  rag: {
+    red: {
+      backgroundColor: '#ee6666',
+      color: 'black',
+    },
+    amber: {
+      backgroundColor: '#fac858',
+      color: 'black',
+    },
+    green: {
+      backgroundColor: '#91cc75',
+      color: 'black',
+    },
+  },
   error: {
     backgroundColor: '#ee6666',
     color: 'black',
   },
 });
+
+// const red = '#DC4646';
+// const amber = '#FFA500';
+// const green = '#4CAF50';
+
+// const red = '#DC4646';
+// const amber = '#F0B450';
+// const green = '#5AAA5A';
+
+// const red = '#ee6666';
+// const amber = '#fac858';
+// const green = '#91cc75';
+
 
 export { theme };

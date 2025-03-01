@@ -37,10 +37,10 @@ class Server {
 
     // API
     ea.get('/api/info', (req, res) => {
-      res.send(this.makeResponce({version}));
+      res.send(this.makeResponce({version, scmUser: app.scmUser}));
     })
     ea.get('/api/projects', async(req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { project: true } })));
+      res.send(this.makeResponce( await app.describe({ what: { project2: true } })));
     })
     ea.get('/api/team', async (req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { team: true } })));
@@ -59,15 +59,17 @@ class Server {
         });
       }
       const assignees = req.query.assignees ? req.query.assignees.split(',') : [];
+      const tags = req.query.tags ? req.query.tags.split(',') : [];
       //
       // console.log('component:', component);
       // console.log('status:', status);
       // console.log('assignees:', assignees);
+      // console.log('tags:', tags);
       const tasks = await app.ls({
         component,
         depth: 10,
         who: { assignees, all: !assignees.length },
-        filter: { tag: [], search: [], deadline: [], status },
+        filter: { tag: tags, search: [], deadline: [], status },
       });
       if (tasks) {
         utils.timelineTasks(tasks, [], [], ems('8h'));
@@ -75,8 +77,8 @@ class Server {
       
       res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
     })
-    ea.get('/api/srs', async(req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { srs: true } })));
+    ea.get('/api/docs', async(req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { docs: true } })));
     })
     //
     ea.listen(port, () => {

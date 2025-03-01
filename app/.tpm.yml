@@ -1,0 +1,5 @@
+tasks: |-
+  [-:001:0.17.0] Improve Timeline section @vlad.k
+    [-] Interval picker: week, month, quarter, year
+    [-] Search by text
+    [-] Check filtering by deadline

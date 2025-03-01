@@ -26,7 +26,7 @@
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.15.0
+  npm i -g tln-pm@0.16.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
@@ -93,7 +93,7 @@ tpm [ls | config] [component] [id] [optios]
 | Command (parameters & options)  | Default | Description |
 | ------------- | ------------- | ------------- |
 | tpm ls | | Display list of tasks for current git user |
-| tpm config --project --team --timeline --tasks --srs --components | | Generate example .tpm.yml |
+| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.yml |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
 | tpm ls --todo | false | Display list of tasks for current git user in development |
 | tpm ls --dev | true | Display list of tasks for current git user in development |
