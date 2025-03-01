@@ -14,6 +14,7 @@ import Timeline from './components/Timeline';
 import Team from './components/Team';
 import Docs from './components/Docs';
 import Assessment from './components/Assessment';
+import Assistant from './components/Assistant';
 
 import { API_BASE_URL } from './shared/Consts';
 import { errorMsgFetchingInfo } from './shared/Errors';
@@ -41,6 +42,7 @@ const pages = [
   { id: 'team', title: 'Team', href: '/team' },
   { id: 'docs', title: 'Docs', href: '/docs' },
   { id: 'assessment', title: 'Assessment', href: '/assessment' },
+  { id: 'assistant', title: 'Assistant', href: '/assistant' },
 ];
 
 function App() {
@@ -48,12 +50,12 @@ function App() {
   //
   const today = Date.now();
   const day = 24 * 36e5;
-  const scmUserEmail = data.info.data.scmUser;
+  const scmUserEmail = data.info.data.scmUser ?? '';
   //
   const team = data.projects.data.team;
   const scmUser = team.find(m => m.bandwidth.find(b => b.email == scmUserEmail));
   const selectedMembers = scmUser ? [scmUser.id] : [];
-  const timeline = data.projects.data.projects[0].timeline; // TODO use top level merged timeline
+  const timeline = data.projects.data.projects[0].timeline ?? []; // TODO use top level merged timeline
   const deadline = timeline.map( d => d.current ? d.uid : null).filter((v) => v)[0];
   const end = timeline.find( d => d.uid === deadline);
   const interval = {start: today - day, end: end ? today + end.durationToRelease + day : today + 30 * day};
@@ -70,7 +72,7 @@ function App() {
     statuses: { todo: true, dev: true, blocked: true, done: false },
     priorities: { critical: false, high: false, low: false },
   });
-  console.log('!App');
+  // console.log('!App');
   return (
     <Context.Provider value={{ context, setContext }}>
       <ThemeProvider theme={theme}>
@@ -82,6 +84,7 @@ function App() {
             <Route path="team" element={<Team />} />
             <Route path="docs" element={<Docs />} />
             <Route path="assessment" element={<Assessment />} />
+            <Route path="assistant" element={<Assistant />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

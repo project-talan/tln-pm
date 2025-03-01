@@ -1,7 +1,7 @@
 import { Typography, Container } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
 
-function UnderConstruction() {
+function UnderConstruction(props) {
   return (
     <Container
       maxWidth="md"
@@ -21,6 +21,11 @@ function UnderConstruction() {
       <Typography variant="h7" color="text.secondary" mb={3}>
         We&apos;re working on something great. Stay tuned!
       </Typography>
+      {props.details && (
+        <Typography variant="h6" color="text.secondary">
+          {props.details}
+        </Typography>
+      )}
     </Container>
   );
 }

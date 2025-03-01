@@ -81,6 +81,11 @@ class Server {
       res.send(this.makeResponce( await app.describe({ what: { docs: true } })));
     })
     //
+    // SPA
+    ea.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, '..', 'app', 'dist', 'index.html'));
+    });
+    //    
     ea.listen(port, () => {
       this.logger.con(`start server version ${version} on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
     })
