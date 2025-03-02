@@ -16,9 +16,9 @@
 ![Dashboard](docs/tpm-pm-as-code.png)
 |||
 | --- | --- |
-|![Dashboard](docs/tpm-05.png)|![Dashboard](docs/tpm-01.png)|
-|![Dashboard](docs/tpm-02.png)|![Dashboard](docs/tpm-03.png)|
-|![Dashboard](docs/tpm-04.png)|![Dashboard](docs/tpm-06.png)|
+|![Dashboard](docs/tpm-01.png)|![Dashboard](docs/tpm-01.png)|
+|![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-03.png)|
+|![Dashboard](docs/tpm-03.png)||
 
 
 ## Quick start
@@ -62,7 +62,6 @@
   ```
   tpm serve
   ```
-![Dashboard](docs/tpm-07.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
