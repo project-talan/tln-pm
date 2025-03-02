@@ -16,8 +16,8 @@
 ![Dashboard](docs/tpm-pm-as-code.png)
 |||
 | --- | --- |
-|![Dashboard](docs/tpm-01.png)|![Dashboard](docs/tpm-01.png)|
-|![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-03.png)|
+|![Dashboard](docs/tpm-01.png)|![Dashboard](docs/tpm-02.png)|
+|![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-04.png)|
 |![Dashboard](docs/tpm-03.png)||
 
 
