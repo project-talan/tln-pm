@@ -48,7 +48,7 @@ tasks: |-
   [-:053:0.18.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
   [-:052:0.18.0] saving context in repository @vlad.k
   [-:051:0.18.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
-  [-:050:0.17.0] Add support of external catalog repo (.tpm folder) @vlad.k
+  [-:050:0.17.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
   [-:049:0.17.0] Troubleshoot performance drop during cli commands execution @vlad.k
   [-:048:0.18.0] AI tool integration @vlad.k
   [-:047:0.17.0] Assessment section @vlad.k
@@ -64,7 +64,7 @@ tasks: |-
     [-] Validate team velocity and timeline #8h
   [-:043:0.19.0] Search @vlad.k
     [-] Srs
-  [-:042:0.17.0] Dockerize web+backend parts (docker run -p 5445:5445 sh.tln.pm:0.17.0) @vlad.k
+  [-:042:0.17.0] Dockerize web+backend parts (docker run -p 5445:5445 sh.tln.pm:0.17.0) #feature @vlad.k
   [-:041:0.19.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
