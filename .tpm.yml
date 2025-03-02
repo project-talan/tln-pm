@@ -64,7 +64,7 @@ tasks: |-
     [-] Validate team velocity and timeline #8h
   [-:043:0.19.0] Search @vlad.k
     [-] Srs
-  [-:042:0.17.0] Dockerize web+backend parts (docker run -p 5445:5445 sh.tln.pm:0.17.0) #feature @vlad.k
+  [>:042:0.17.0] Dockerize web+backend parts (docker run -p 5445:5445 sh.tln.pm:0.17.0) #feature @vlad.k
   [-:041:0.19.0] Add UI controls @vlad.k
     [-] SRS
       [-] Search editbox
