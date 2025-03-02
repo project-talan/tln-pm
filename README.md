@@ -26,7 +26,7 @@
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.16.0
+  npm i -g tln-pm@0.17.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
