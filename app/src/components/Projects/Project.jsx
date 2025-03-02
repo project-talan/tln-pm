@@ -218,10 +218,10 @@ function Project({ project, opened }) {
                 </ListItem>
                 <ListItem sx={{pl: 4}}
                   secondaryAction={
-                    <TableValue>{checkMember(project.summary.release, 'features')}</TableValue>
+                    <TableValue>{checkMember(project.summary.release, 'features')}/{checkMember(project.summary.release, 'improvements')}</TableValue>
                   }
                 >
-                  <ListItemText primary="Features" />
+                  <ListItemText primary="Features/Improvements" />
                 </ListItem>
                 <Divider component="li" />
                 <ListItem>

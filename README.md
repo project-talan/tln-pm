@@ -6,12 +6,12 @@
 
 ![Dashboard](docs/tpm-pm-issues.png)
 
-## Approach
+## Approach (GitOps + PM)
 **tpm:**
-* Utilizes a Git repository to store all SDLC artifacts
-* Automatically generates necessary PM artifacts
-* Estomates new tassk based on complited ones
-* Extends the SDLC to enable AI agents to participate in software development
+- Employs a Git repository to store all SDLC artifacts.
+- Automatically generates essential project management artifacts.
+- Estimates new tasks based on completed ones.
+- Expands the SDLC to allow AI agents to participate in the software development process.
 
 ![Dashboard](docs/tpm-pm-as-code.png)
 |||
