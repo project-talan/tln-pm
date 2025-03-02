@@ -1,0 +1,5 @@
+tasks: |
+  [>:002:25.3.0] Integrate auth library @alice.c
+    [!] Add /iam/auth endpoint #16h
+    [>] Configure auth callbacks #4h
+  [-:001:25.3.0] Create project structure #16h @alice.c
