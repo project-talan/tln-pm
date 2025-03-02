@@ -86,9 +86,36 @@ class Server {
       res.sendFile(path.join(__dirname, '..', 'app', 'dist', 'index.html'));
     });
     //    
-    ea.listen(port, () => {
+    const server = ea.listen(port, () => {
       this.logger.con(`start server version ${version} on http://localhost:${port} in ${readOnly?'read-only':'read-write'} mode`);
     })
+    //
+    // Graceful shutdown function
+    const shutdown = () => {
+      console.log('Received kill signal, shutting down gracefully...');
+
+      // Stop the server from accepting new connections
+      server.close((err) => {
+        if (err) {
+          console.error('Error closing server:', err);
+          process.exit(1);
+        }
+
+        console.log('Server closed successfully.');
+        // Perform any async cleanup tasks here, if needed
+        process.exit(0);
+      });
+
+      // If server.close takes longer than 5 seconds, forcefully exit
+      setTimeout(() => {
+        console.error('Forcing server shutdown after 5 seconds...');
+        process.exit(1);
+      }, 5000);
+    };
+
+    // Listen for termination signals
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
 
   }
  

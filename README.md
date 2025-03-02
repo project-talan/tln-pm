@@ -6,19 +6,19 @@
 
 ![Dashboard](docs/tpm-pm-issues.png)
 
-## Approach
+## Approach (GitOps + PM)
 **tpm:**
-* Utilizes a Git repository to store all SDLC artifacts
-* Automatically generates necessary PM artifacts
-* Estomates new tassk based on complited ones
-* Extends the SDLC to enable AI agents to participate in software development
+- Employs a Git repository to store all SDLC artifacts.
+- Automatically generates essential project management artifacts.
+- Estimates new tasks based on completed ones.
+- Expands the SDLC to allow AI agents to participate in the software development process.
 
 ![Dashboard](docs/tpm-pm-as-code.png)
 |||
 | --- | --- |
-|![Dashboard](docs/tpm-05.png)|![Dashboard](docs/tpm-01.png)|
-|![Dashboard](docs/tpm-02.png)|![Dashboard](docs/tpm-03.png)|
-|![Dashboard](docs/tpm-04.png)|![Dashboard](docs/tpm-06.png)|
+|![Dashboard](docs/tpm-01.png)|![Dashboard](docs/tpm-02.png)|
+|![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-04.png)|
+|![Dashboard](docs/tpm-05.png)| |
 
 
 ## Quick start
@@ -26,7 +26,7 @@
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.16.0
+  npm i -g tln-pm@0.17.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
@@ -62,7 +62,6 @@
   ```
   tpm serve
   ```
-![Dashboard](docs/tpm-07.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements
