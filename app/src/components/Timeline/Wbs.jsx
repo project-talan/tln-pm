@@ -250,6 +250,7 @@ function Wbs() {
         parent: parentId !== '' ? parentId : undefined,
         start: today + component.start,
         end: today + component.end,
+        color: theme.components.backgroundColor
         // data: 'data',
         // owner: 'Linda'
       };
@@ -261,6 +262,8 @@ function Wbs() {
       const processTasks = (parentId, tasks) => {
         tasks.forEach((t, index) => {
           // console.log('task:', t);
+          const ts = t.status == '>' ? 'dev' : t.status == '+' ? 'done' : t.status == '!' ? 'blocked' : 'todo';
+          const color = t.tasks.length ? theme.tasks.story.backgroundColor : theme.tasks[ts].backgroundColor;
           const id = [parentId, t.id ? t.id : index].join('.');
           const task = {
             name: t.title,
@@ -269,7 +272,7 @@ function Wbs() {
             start: today + t.start,
             end: today + t.end,
             owner: t.assignees.join(', '),
-
+            color
           };
           if (t.percentage) {
             item.completed = { amount: t.percentage };
