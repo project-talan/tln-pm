@@ -44,7 +44,17 @@ module.exports.timelineTasks = (tasks, timeline, team, defaultEstimate) => {
   leafs.sort((a, b) => {
     if (a.attributes.status >= b.attributes.status) {
       if (a.attributes.severity >= b.attributes.severity) {
-        return compareVersions(a.attributes.deadline, b.attributes.deadline);
+        try {
+          return compareVersions(a.attributes.deadline, b.attributes.deadline);
+        } catch (e) {
+          if (a.attributes.deadline) {
+            return -1;
+          }
+          if (b.attributes.deadline) {
+            return 1;
+          }
+          return 0;
+        }
       }
     }
     return -1;
