@@ -27,7 +27,7 @@
   ```
 * Open next link in browser
   ```
-  http://localhosy:5445
+  http://localhost:5445
   ```
 
 ## Quick start
