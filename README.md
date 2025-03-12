@@ -1,32 +1,41 @@
 # tpm - Project Management as Code
 **tpm** tackles several challenges faced in modern software development:
-  * Development and project management tools are often housed in separate systems like GitHub and Jira. This separation can result in **wasted** development resources due to the need for **continuous synchronization**. **tpm** expands **GiOps** to include project management, offering a **single source of truth** for all software development lifecycle activities.
+  * Development and project management tools are often housed in separate systems like GitHub and Jira. This separation can result in **wasted** development resources due to the need for **continuous synchronization**. **tpm** expands **GitOps** to include project management, offering a **single source of truth** for all software development lifecycle activities.
   * Keeping project status **up-to-date** can be challenging and often requires **setting up and maintaining** a BI subsystem within the project management system. **tpm** **automatically** generates all reports and statistics **directly** from the repository, up to the **latest commit**
   * Managing **multiple** software projects, especially when resources are shared, is inherently challenging and often causes numerous issues with **timelines and estimates**. **tpm** offers a comprehensive overview, or "**eagle's view**", of any number of projects.
 
 ![Dashboard](docs/tpm-pm-issues.png)
 
-## Approach
+## Approach (GitOps + PM)
 **tpm:**
-* Utilizes a Git repository to store all SDLC artifacts
-* Automatically generates necessary PM artifacts
-* Estomates new tassk based on complited ones
-* Extends the SDLC to enable AI agents to participate in software development
+- Employs a Git repository to store all SDLC artifacts.
+- Automatically generates essential project management artifacts.
+- Estimates new tasks based on completed ones.
+- Expands the SDLC to allow AI agents to participate in the software development process.
 
 ![Dashboard](docs/tpm-pm-as-code.png)
 |||
 | --- | --- |
-|![Dashboard](docs/tpm-05.png)|![Dashboard](docs/tpm-01.png)|
-|![Dashboard](docs/tpm-02.png)|![Dashboard](docs/tpm-03.png)|
-|![Dashboard](docs/tpm-04.png)|![Dashboard](docs/tpm-06.png)|
+|![Dashboard](docs/tpm-01.png)|![Dashboard](docs/tpm-02.png)|
+|![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-04.png)|
+|![Dashboard](docs/tpm-05.png)| |
 
+## Demo project
+* Run next docker command to see tpm in action using test project
+  ```
+  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.17.0
+  ```
+* Open next link in browser
+  ```
+  http://localhost:5445
+  ```
 
 ## Quick start
 
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.16.0
+  npm i -g tln-pm@0.17.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
@@ -62,7 +71,6 @@
   ```
   tpm serve
   ```
-![Dashboard](docs/tpm-07.png)
 
 ## Task statuses & attributes
   * Task can be described in multiple forms depends on requirements

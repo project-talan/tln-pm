@@ -32,7 +32,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import InputLabel from '@mui/material/InputLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Avatar from '@mui/material/Avatar';
-import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { Typography } from '@mui/material';
 
 import Context from './../../shared/Context';
@@ -42,6 +42,8 @@ import { API_BASE_URL } from './../../shared/Consts';
 
 function Wbs() {
   const theme = useTheme();
+  const [refreshKey, setRefreshKey] = useState(0);
+  //
   const { setContext } = use(Context);
   const team = use(Context).context.team;
   const components = use(Context).context.components;
@@ -137,22 +139,28 @@ function Wbs() {
     setOpenDrawer(newOpen);
   };
   const DrawerList = (
-    <Box sx={{ p: 2, width: 320 }} role="presentation">
-      <Typography variant="h7" component="div" sx={{ flexGrow: 1, pb: 2 }}>
-        Details
-      </Typography>
-      <IconButton
+    <Box sx={{ p: 2, width: 320,}} role="presentation">
+      <Box sx={{ pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h7" component="div" sx={{ flexGrow1: 1 }}>
+          Details
+        </Typography>
+        <IconButton aria-label="close" onClick={() => setRefreshKey((prev) => prev + 1)} >
+          <RefreshIcon />
+        </IconButton>
+      </Box>
+      {/*<IconButton
         aria-label="close"
         onClick={toggleDrawer(false)}
         sx={(theme) => ({
+          p: 0,
           position: 'absolute',
-          right: 8,
-          top: 4,
+          right: 0,
+          top: 0,
           color: theme.palette.grey[500],
         })}
       >
         <CloseIcon />
-      </IconButton>      
+      </IconButton>*/}
       <FormControl fullWidth size="small">
         <InputLabel id="deadline-select-label">deadline</InputLabel>
         <Select
@@ -242,17 +250,20 @@ function Wbs() {
         parent: parentId !== '' ? parentId : undefined,
         start: today + component.start,
         end: today + component.end,
+        color: theme.components.backgroundColor
         // data: 'data',
         // owner: 'Linda'
       };
       if (component.percentage) {
-        item.completed.amount = component.percentage;
+        item.completed = { amount: component.percentage };
       }
       series.push(item);
       //
       const processTasks = (parentId, tasks) => {
         tasks.forEach((t, index) => {
           // console.log('task:', t);
+          const ts = t.status == '>' ? 'dev' : t.status == '+' ? 'done' : t.status == '!' ? 'blocked' : 'todo';
+          const color = t.tasks.length ? theme.tasks.story.backgroundColor : theme.tasks[ts].backgroundColor;
           const id = [parentId, t.id ? t.id : index].join('.');
           const task = {
             name: t.title,
@@ -261,10 +272,10 @@ function Wbs() {
             start: today + t.start,
             end: today + t.end,
             owner: t.assignees.join(', '),
-
+            color
           };
           if (t.percentage) {
-            item.completed.amount = t.percentage;
+            item.completed = { amount: t.percentage };
           }
           series.push(task);
           //
@@ -506,7 +517,7 @@ function Wbs() {
       } 
     };
     getTasks();
-  }, [components, statuses, selectedMembers, deadline, priorities]);
+  }, [refreshKey, components]);
 
   //
   // console.log('!Wbs');
@@ -585,6 +596,7 @@ function Wbs() {
         </FormControl>
       </Box>
       <HighchartsReact
+        key={refreshKey}
         containerProps={{ style: { height: "100%" } }}
         constructorType={'ganttChart'}
         highcharts={Gantt}

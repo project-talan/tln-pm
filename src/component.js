@@ -332,7 +332,7 @@ class Component {
         project.team = team;
         //
         // Timeline
-        const release = c.timeline.length ? { ...await c.timeline[0].getClosestRelease(), features: 0} : null;
+        const release = c.timeline.length ? { ...await c.timeline[0].getClosestRelease(), features: 1, improvements: 1} : null;
         project.timeline = c.timeline.length ? await c.timeline[0].getSummary() : null;
         //
         // Tasks

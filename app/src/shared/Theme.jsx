@@ -23,6 +23,10 @@ const theme = createTheme({
     },
   },
   tasks: {
+    story: {
+      backgroundColor: '#73c0de',
+      color: 'black',
+    },
     todo: {
       backgroundColor: '#fac858',
       color: 'black',
@@ -39,6 +43,10 @@ const theme = createTheme({
       backgroundColor: '#28A745',
       color: 'black',
     },
+  },
+  components: {
+    backgroundColor: 'grey',
+    color: 'white',
   },
   rag: {
     red: {
