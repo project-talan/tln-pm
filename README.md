@@ -20,6 +20,15 @@
 |![Dashboard](docs/tpm-03.png)|![Dashboard](docs/tpm-04.png)|
 |![Dashboard](docs/tpm-05.png)| |
 
+## Demo project
+* Run next docker command to see tpm in action using test project
+  ```
+  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.17.0
+  ```
+* Open next link in browser
+  ```
+  http://localhosy:5445
+  ```
 
 ## Quick start
 
