@@ -57,7 +57,7 @@ tasks: |-
     [-] Create yaml file for assessment
     [-] Add rose diagram inside Dashboard (NFRs)
   [+:046:0.15.0] Switch to React 19 @vlad.k
-  [-:045:0.17.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
+  [>:045:0.17.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
   [-:044:0.18.0] Audit command @vlad.k
     [-] Check tasks without estimates #4h
     [-] Check tasks without assignees #2h
