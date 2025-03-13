@@ -49,10 +49,10 @@ tasks: |-
   [-:053:0.18.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
   [-:052:0.18.0] saving context in repository @vlad.k
   [-:051:0.18.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
-  [-:050:0.17.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
+  [-:050:0.18.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
   [-:049:0.17.0] Troubleshoot performance drop during cli commands execution @vlad.k
   [-:048:0.18.0] AI tool integration @vlad.k
-  [-:047:0.17.0] Assessment section @vlad.k
+  [-:047:0.18.0] Assessment section @vlad.k
     [-] Add UI/UX for assessment section
     [-] Create yaml file for assessment
     [-] Add rose diagram inside Dashboard (NFRs)
@@ -93,7 +93,7 @@ tasks: |-
   [+:033:0.15.0] Implement Timeline web part @vlad.k
   [-:032:0.18.0] Add fs watch @vlad.k
     [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
-  [-:031:0.17.0] Fix task output on hierarchy mode @vlad.k
+  [-:031:0.18.0] Fix task output on hierarchy mode @vlad.k
   [+:030:0.10.0] Implement deadline class @vlad.k
   [+:029:0.14.0] Implement config command via source class @vlad.k
   [+:028:0.14.0] Tasks spill over batch mode @vlad.k
