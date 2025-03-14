@@ -32,8 +32,9 @@ class Server {
     //
     const ea = express();
     ea.use(cors());
-    //ea.use(express.static(path.join(__dirname, '..', 'web')));
     ea.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
+    // ea.use(express.static(process.cwd()));
+    // console.log('process.cwd:', process.cwd());
 
     // API
     ea.get('/api/info', (req, res) => {

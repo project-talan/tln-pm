@@ -139,7 +139,7 @@ function Wbs() {
     setOpenDrawer(newOpen);
   };
   const DrawerList = (
-    <Box sx={{ p: 2, width: 320,}} role="presentation">
+    <Box sx={{ p: 2, width: 336}} role="presentation">
       <Box sx={{ pb: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h7" component="div" sx={{ flexGrow1: 1 }}>
           Details
@@ -174,6 +174,34 @@ function Wbs() {
             <MenuItem key={index} size="small" value={d.id}><small>{d.name}</small></MenuItem>
           ))}
         </Select>
+      </FormControl>
+      <Box sx={{ py: 2 }}>
+        <Divider />
+      </Box>
+      <FormControl sx={{ width: '100%' }} component="fieldset" >
+        <FormLabel component="legend">Status</FormLabel>
+        <FormGroup sx={{pt: 1, pl: 1}} aria-label="position" row>
+          {Object.keys(statuses).map((key, index) => (
+            <FormControlLabel
+              key={index}
+              value="end"
+              control={<Switch checked={statuses[key]} size="small" sx={{
+                "&.MuiSwitch-root .MuiSwitch-switchBase": {
+                  color: "darkgray"
+                },
+                "&.MuiSwitch-root .MuiSwitch-track": {
+                  backgroundColor: theme.tasks[key].backgroundColor,
+                },                
+                "&.MuiSwitch-root .Mui-checked": {
+                 color: theme.tasks[key].backgroundColor
+                }
+               }}
+              onChange={(event) => handleStatusesChange(key, event.target.checked)} />}
+              label={<Box component="div" fontSize={14}>{key}</Box>}
+              labelPlacement="end"
+            />
+          ))}
+        </FormGroup>
       </FormControl>
       <Box sx={{ py: 2 }}>
         <Divider />
@@ -562,38 +590,17 @@ function Wbs() {
         {/* Statuses */}
         <FormControl component="fieldset" >
           <FormGroup aria-label="position" row>
-            {Object.keys(statuses).map((key, index) => (
-              <FormControlLabel
-                key={index}
-                value="end"
-                control={<Switch checked={statuses[key]} size="small" sx={{
-                  "&.MuiSwitch-root .MuiSwitch-switchBase": {
-                    color: "darkgray"
-                  },
-                  "&.MuiSwitch-root .MuiSwitch-track": {
-                    backgroundColor: theme.tasks[key].backgroundColor,
-                  },                
-                  "&.MuiSwitch-root .Mui-checked": {
-                   color: theme.tasks[key].backgroundColor
-                  }
-                 }}
-                onChange={(event) => handleStatusesChange(key, event.target.checked)} />}
-                label={<Box component="div" fontSize={14}>{key}</Box>}
-                labelPlacement="end"
-              />
-            ))}
             {/* Filtering details Drawer */}
             <FormControl variant="standard" sx={{ pl: 4}}>
               <IconButton size="small" onClick={toggleDrawer(true)}>
                 <TuneIcon fontSize="inherit"/>
               </IconButton>
             </FormControl>
-
           </FormGroup>
-          <Drawer open={openDrawer} anchor='right' onClose={toggleDrawer(false)}>
-            {DrawerList}
-          </Drawer>          
         </FormControl>
+        <Drawer open={openDrawer} anchor='right' onClose={toggleDrawer(false)}>
+            {DrawerList}
+        </Drawer>          
       </Box>
       <HighchartsReact
         key={refreshKey}

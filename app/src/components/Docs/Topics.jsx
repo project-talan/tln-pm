@@ -1,7 +1,7 @@
 import { use, useState } from 'react';
 import Grid from '@mui/system/Grid';
 import Container from '@mui/material/Container';
-import { MuiMarkdown } from 'mui-markdown';
+import { MuiMarkdown, getOverrides } from 'mui-markdown';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -81,7 +81,43 @@ function Topics() {
           <RichTreeView items={toc.length?toc:[{id:'nodata', label:'nodata'}]} onItemSelectionToggle={handleTopicSelection} />
         </Grid>
         <Grid size={{ xs: 12, md: 9 }}>
-          <MuiMarkdown>{markdown}</MuiMarkdown>
+          <MuiMarkdown
+            overrides={{
+              ...getOverrides({}), // This will keep the other default overrides.
+              h1: {
+                component: 'p',
+                props: {
+                  style: { fontSize: '32px' },
+                },
+              },
+              h2: {
+                component: 'p',
+                props: {
+                  style: { fontSize: '24px' },
+                },
+              },
+              h3: {
+                component: 'p',
+                props: {
+                  style: { fontSize: '16px' },
+                },
+              },
+              h4: {
+                component: 'p',
+                props: {
+                  style: { fontSize: '14px' },
+                },
+              },
+              h5: {
+                component: 'p',
+                props: {
+                  style: { fontSize: '12px' },
+                },
+              },
+            }}
+          >
+            {markdown}
+          </MuiMarkdown>
         </Grid>
       </Grid>      
     </Container>
