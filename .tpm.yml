@@ -50,7 +50,7 @@ tasks: |-
   [-:052:0.19.0] saving context in repository @vlad.k
   [-:051:0.19.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
   [-:050:0.18.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
-  [-:049:0.18.0] Troubleshoot performance drop during cli commands execution @vlad.k
+  [>:049:0.18.0] Troubleshoot performance drop during cli commands execution @vlad.k
   [-:048:0.19.0] AI tool integration @vlad.k
   [-:047:0.18.0] Assessment section @vlad.k
     [-] Add UI/UX for assessment section
