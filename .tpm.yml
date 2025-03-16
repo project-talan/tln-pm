@@ -8,10 +8,12 @@ team:
     email: vladislav.kurmaz@gmail.com
     fte: 0.1
 timeline:
+  0.20.0:
+    deadline: 2025-04-07T16:00:00.000Z
   0.19.0:
-    deadline: 2025-03-28T07:00:00.000Z
+    deadline: 2025-03-28T16:00:00.000Z
   0.18.0:
-    deadline: 2025-03-21T18:00:00.000Z
+    deadline: 2025-03-21T16:00:00.000Z
   0.17.0:
     deadline: 2025-03-16T12:40:00.000Z
   0.16.0:
@@ -45,12 +47,13 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:055:0.20.0] Add performance benchmark using console.time and verbose option @vlad.k
   [+:054:0.17.0] Use colom to define multiple tasks for spill over command  i.e. 021:034:055 and subtasks 021/1 @vlad.k
   [-:053:0.19.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
   [-:052:0.19.0] saving context in repository @vlad.k
   [-:051:0.19.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
   [-:050:0.18.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
-  [>:049:0.18.0] Troubleshoot performance drop during cli commands execution @vlad.k
+  [+:049:0.18.0] Troubleshoot performance drop during cli commands execution @vlad.k
   [-:048:0.19.0] AI tool integration @vlad.k
   [-:047:0.18.0] Assessment section @vlad.k
     [-] Add UI/UX for assessment section

@@ -3,6 +3,7 @@
 class Logger {
 
   constructor(verbose) {
+    // console.time('logger');
     this.verbose = 3 - verbose;
     const levels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
     // normalize verbose level
@@ -15,6 +16,7 @@ class Logger {
       categories: { default: { appenders: [/*'logfile',*/ 'console'], level: levels[this.verbose] } }
     });
     this.logger = log4js.getLogger();
+    // console.timeEnd('logger');
   }
   trace(...args) { this.logger.trace.apply(this.logger, args); }
   debug(...args) { this.logger.debug.apply(this.logger, args); }
