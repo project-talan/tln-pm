@@ -37,7 +37,7 @@ class App {
       this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
       this.scmUser = exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
-      this.logger.warn('tpm is executed outside of git repository, please define assigee explicitly using -q <user> or --all option');
+      this.logger.info('tpm is executed outside of git repository, please define assigee explicitly using -q <user> or --all option');
     }
     //
     this.logger.info('home:', this.home);
@@ -153,10 +153,10 @@ class App {
   }
 
   async update(options) {
-    const {component, id, status, git} = options;
+    const {component, ids, status, git} = options;
     const c = await this.getCurrentComponent(component);
     if (c) {
-      return await c.update({id, status, git});
+      return await c.update({ids, status, git});
     }
   }
 

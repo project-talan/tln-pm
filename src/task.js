@@ -35,6 +35,7 @@ class Task {
     this.indent = indent;
     this.status = '';
     this.id = null;
+    this.index = -1;
     this.title = '';
     this.estimate = 0;
     this.deadline = '';
@@ -66,6 +67,24 @@ class Task {
       const found = await task.find(id);
       if (found) {
         return found;
+      }
+    }
+  }
+
+  async findByIds(ids) {
+    if (ids.length) {
+      const nids = [...ids];
+      const id = nids.shift();
+      if ( (this.id && this.id === id) || (!this.id && this.index === parseInt(id)) ) {
+        if (!nids.length) {
+          return this;
+        }
+        for (const task of this.tasks) {
+          const found = await task.findByIds(nids);
+          if (found) {
+            return found;
+          }
+        }
       }
     }
   }
@@ -140,12 +159,14 @@ class Task {
 
   async parse(descs, index) {
     let i = index;
+    let taskIndex = 0;
     for (;i < descs.length;) {
       const s = descs[i];
       const indent = s.length - s.trimLeft().length;
       if (indent > this.indent) {
         const task = new Task(this.logger, this.source, this, indent);
-        await task.extract(s.trim());
+        await task.extract(s.trim(), taskIndex);
+        taskIndex++;
         this.tasks.push(task);
         i = await task.parse(descs, i + 1);
       } else {
@@ -155,10 +176,11 @@ class Task {
     return i;
   }
 
-  async extract(desc) {
+  async extract(desc, index) {
     const {status, id, title, estimate, deadline, assignees, tags, links} = utils.parseTask(desc);
     this.status = status;
     this.id = id;
+    this.index = !this.id ? index : -1;
     this.title = title;
     this.estimate = estimate;
     this.deadline = deadline;

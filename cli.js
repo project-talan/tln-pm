@@ -208,7 +208,7 @@ yargs(hideBin(process.argv))
       // console.log(argv);
       const cmds = await a.update({
         component: argv.component,
-        id: argv.id,
+        ids: argv.id.split(':'),
         status: { todo: argv.todo, dev: argv.dev, blocked: argv.blocked, done: argv.done },
         git: argv.git,
       });
