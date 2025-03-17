@@ -111,7 +111,7 @@ tasks: |-
   [+:019:0.5.0] Add component as optional parameter for ls command @vlad.k
   [-:018:0.19.0] Generate snapshot @vlad.k
   [+:017:0.5.0] Add SRS section @vlad.k
-  [-:016:0.18.0] Add describe command with resolved links @vlad.k
+  [>:016:0.18.0] Add describe command with resolved links @vlad.k
   [+:015:0.5.0] Integrate .tpm folder at repository root level to store snapshots #invalid @vlad.k
   [+:014:0.13.0] Update README.md with Hello World section using <https://github.com/project-talan/tln-demo> repository @vlad.k
   [+:013:0.6.0] Add search @vlad.k
