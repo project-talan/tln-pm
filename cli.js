@@ -12,18 +12,33 @@ const { hideBin } = require('yargs/helpers');
 const yaml = require('js-yaml');
 const { Table } = require("console-table-printer");
 
+const loggerFactory = require('./src/logger');
+const appFactory = require('./src/app');
+
+
 const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
   const include = argv.include.split(';');
   const ignore = argv.ignore.split(';');
   //
-  const a = require('./src/app').create(require('./src/logger').create(verbose));
+  // console.time('get app');
+  // console.time('create logger');
+  const logger = loggerFactory.create(verbose);
+  // console.timeEnd('create logger');
+  // console.time('create app');
+  const a = appFactory.create(logger);
+  // console.timeEnd('create app');
   //a.logger.con(argv);
+  // console.time('init app');
   await a.init();
+  // console.timeEnd('init app');
+  // console.time('load app');
   if (load) {
     await a.load(include, ignore);
   }
+  // console.timeEnd('load app');
   await fn(a);
+  // console.timeEnd('get app');
 }
 
 const configPath = findUp.sync(['.tpmrc']);
@@ -72,9 +87,14 @@ yargs(hideBin(process.argv))
       default: null
     });
   }, async (argv) => {
-    getApp(argv, true, async (a) => {
+    if (argv.verbose > 0) {
+      console.time('ls');
+    }
+    await getApp(argv, true, async (a) => {
+      // console.time('app callback');
       // console.log(argv);
       const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.blocked || argv.done);
+      // console.time('component ls');
       const component = await a.ls({
         component: argv.component,
         depth: argv.depth,
@@ -91,7 +111,9 @@ yargs(hideBin(process.argv))
           }
         }
       });
+      // console.timeEnd('component ls');
       //
+      // console.time('print');
       const prefix = "";
       const hierarchy = argv.hierarchy;
       if (component) {
@@ -151,14 +173,19 @@ yargs(hideBin(process.argv))
           dump(component, '', true);
         }
       }
+      // console.timeEnd('print');
+      // console.timeEnd('app callback');
     });
+    if (argv.verbose > 0) {
+      console.timeEnd('ls');
+    }
   })
   //
   .command('config', 'Generate .tpm.yml skeleton', (yargs) => {
     return yargs
   }, async (argv) => {
     // console.log(argv);
-    getApp(argv, false, async (a) => {
+    await getApp(argv, false, async (a) => {
       await a.config({
         what: {
           project: argv.project || argv.all,
@@ -184,7 +211,7 @@ yargs(hideBin(process.argv))
       default: null
     });
   }, async (argv) => {
-    getApp(argv, true, async (a) => {
+    await getApp(argv, true, async (a) => {
       // console.log(argv);
       const r = await a.describe({
         component: argv.component,
@@ -204,7 +231,7 @@ yargs(hideBin(process.argv))
   .command('update [component] [id]', 'Update task', (yargs) => {
     return yargs;
   }, async (argv) => {
-    getApp(argv, true, async (a) => {
+    await getApp(argv, true, async (a) => {
       // console.log(argv);
       const cmds = await a.update({
         component: argv.component,
@@ -224,7 +251,7 @@ yargs(hideBin(process.argv))
   .command('normalise [component] [id] [--save]', 'Normalise task status', (yargs) => {
     return yargs;
   }, async (argv) => {
-    getApp(argv, true, async (a) => {
+    await getApp(argv, true, async (a) => {
       // console.log(argv);
       await a.normalise({
         component: argv.component,
@@ -239,7 +266,7 @@ yargs(hideBin(process.argv))
       return yargs;
     },
     async (argv) => {
-      getApp(argv, true, async (a) => {
+      await getApp(argv, true, async (a) => {
         // console.log(argv);
         if (argv.deadlines) {
           const [from, to] = argv.deadlines.split(':');
@@ -290,8 +317,8 @@ yargs(hideBin(process.argv))
   })
   .command('audit', 'Audit project PM status', (yargs) => {
     return yargs;
-  }, (argv) => {
-    getApp(argv, true, async (a) => {
+  }, async (argv) => {
+    await getApp(argv, true, async (a) => {
       //Create a table
       const p = new Table();
 
