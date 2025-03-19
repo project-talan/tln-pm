@@ -233,7 +233,7 @@ class Component {
     }
   }
 
-  async describeProject2() {
+  async describeComponent() {
     // TODO: remove hardcoded array and use real data
     const keys = [
       'correctness',
@@ -384,6 +384,7 @@ class Component {
     if (!Array.isArray(projects)) {
       projects = [projects];
     }
+    projects = projects.filter(p => !!p);
     let team = [];
     for(let p of projects) {
       if (p.team) {
@@ -391,63 +392,6 @@ class Component {
       }
     }
     return { projects, team };
-  }
-
-  async describeProject(options) {
-    let projects = [];
-    if (this.project.length > 0) {
-      let project = {};
-      this.project.forEach( p => {
-        project = assign(project, {id: p.id, name: p.name, description: p.description});
-      });
-      let summary = {
-        tasks: { todo: 0, dev: 0, blocked: 0, done: 0 },
-        timeline: []
-      };
-      project.summary = await this.getSummary(summary);
-      const team = [];
-      this.getTeam(team, false, true)
-      project.summary.team = team;
-      project.summary.lastCommit = this.lastCommit;
-      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.bandwidth[0].fte, 0);
-      projects.push(project);
-    }
-    const prs = await Promise.all(this.components.map(async c => c.describeProject()));
-    projects = projects.concat(...prs);
-    return projects;
-  }
-
-  async describeTimeline() {
-    const deadline = await Promise.all(this.timeline.map(async d => await d.getSummary()));
-    //
-    const components = (await Promise.all(this.components.map(async c => c.describeTimeline()))).filter(c => c.length);
-    const flat = components.flat(2);
-    if (deadline.length) {
-      const now = new Date();
-      let current = deadline[0];
-      let closestFutureDate = deadline[0].deadline;
-      deadline.forEach( d => {
-        const date = d.deadline;
-        d.uid = `${this.id}-${d.id}`;
-        d.active = isAfter(date, now);
-        d.current = false;
-        const dt = differenceInMilliseconds(date, now);
-        if (isAfter(date, now) && (dt < differenceInMilliseconds(closestFutureDate, now))) {
-          closestFutureDate = date;
-          current = d;
-        }
-        if (d.active) {
-          d.durationToRelease = dt;
-        }
-      });
-      current.current = true;
-      //
-      return [{
-        id: this.id,
-        deadline,
-      }].concat(flat);
-    }
-    return flat;
   }
 
   async describeDocs() {
@@ -529,3 +473,63 @@ class Component {
 module.exports.create = (logger, home, id) => {
   return new Component(logger, null, home, id);
 }
+
+/*
+  async describeProject(options) {
+    let projects = [];
+    if (this.project.length > 0) {
+      let project = {};
+      this.project.forEach( p => {
+        project = assign(project, {id: p.id, name: p.name, description: p.description});
+      });
+      let summary = {
+        tasks: { todo: 0, dev: 0, blocked: 0, done: 0 },
+        timeline: []
+      };
+      project.summary = await this.getSummary(summary);
+      const team = [];
+      this.getTeam(team, false, true)
+      project.summary.team = team;
+      project.summary.lastCommit = this.lastCommit;
+      project.summary.totalFte = project.summary.team.reduce((acc, m) => acc + m.bandwidth[0].fte, 0);
+      projects.push(project);
+    }
+    const prs = await Promise.all(this.components.map(async c => c.describeProject()));
+    projects = projects.concat(...prs);
+    return projects;
+  }
+
+  async describeTimeline() {
+    const deadline = await Promise.all(this.timeline.map(async d => await d.getSummary()));
+    //
+    const components = (await Promise.all(this.components.map(async c => c.describeTimeline()))).filter(c => c.length);
+    const flat = components.flat(2);
+    if (deadline.length) {
+      const now = new Date();
+      let current = deadline[0];
+      let closestFutureDate = deadline[0].deadline;
+      deadline.forEach( d => {
+        const date = d.deadline;
+        d.uid = `${this.id}-${d.id}`;
+        d.active = isAfter(date, now);
+        d.current = false;
+        const dt = differenceInMilliseconds(date, now);
+        if (isAfter(date, now) && (dt < differenceInMilliseconds(closestFutureDate, now))) {
+          closestFutureDate = date;
+          current = d;
+        }
+        if (d.active) {
+          d.durationToRelease = dt;
+        }
+      });
+      current.current = true;
+      //
+      return [{
+        id: this.id,
+        deadline,
+      }].concat(flat);
+    }
+    return flat;
+  }
+
+*/

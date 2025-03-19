@@ -200,7 +200,7 @@ yargs(hideBin(process.argv))
     });
   })
   //
-  .command('describe [component] [id]', 'Describe specific entity', (yargs) => {
+  .command('describe [component] [id]', 'Describe component or task', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',
@@ -216,7 +216,7 @@ yargs(hideBin(process.argv))
       const r = await a.describe({
         component: argv.component,
         id: argv.id,
-        what: { project2: argv.project, team: argv.team, timeline: argv.timeline, tasks: argv.tasks, docs: argv.docs },
+        what: { component: true },
       });
       if (argv.json || argv.yaml) {
         if (argv.json) {
@@ -224,6 +224,8 @@ yargs(hideBin(process.argv))
         } else {
           a.logger.con(yaml.dump(r, {lineWidth: -1}));
         }
+      } else {
+        a.logger.con(r);
       }
     });
   })
