@@ -41,13 +41,7 @@ class Server {
       res.send(this.makeResponce({version, scmUser: app.scmUser}));
     })
     ea.get('/api/projects', async(req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { project2: true } })));
-    })
-    ea.get('/api/team', async (req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { team: true } })));
-    })
-    ea.get('/api/timeline', async (req, res) => {
-      res.send(this.makeResponce( await app.describe({ what: { timeline: true } })));
+      res.send(this.makeResponce( await app.describe({ what: { component: true } })));
     })
     ea.get(['/api/tasks', '/api/tasks/:component*'], async(req, res) => {
       // console.log('req.params:', req.params);
@@ -113,15 +107,22 @@ class Server {
         process.exit(1);
       }, 5000);
     };
-
     // Listen for termination signals
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
-
   }
- 
 }
 
 module.exports.create = (logger) => {
   return new Server(logger);
 }
+
+/*
+    ea.get('/api/team', async (req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { team: true } })));
+    })
+    ea.get('/api/timeline', async (req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { timeline: true } })));
+    })
+
+*/
