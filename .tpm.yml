@@ -109,7 +109,7 @@ tasks: |-
   [-:035:0.22.0] Dump datetime in local time during update command @vlad.k
   [+:034:0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
   [+:033:0.15.0] Implement Timeline web part @vlad.k
-  [-:032:0.19.0] Add --watch option to watch for changes in .tpm.yml files and refresh tpm internal state #16h @vlad.k
+  [>:032:0.19.0] Add --watch option to watch for changes in .tpm.yml files and refresh tpm internal state #16h @vlad.k
   [-:031:0.21.0] Fix task output on hierarchy mode @vlad.k
   [+:030:0.10.0] Implement deadline class @vlad.k
   [+:029:0.14.0] Implement config command via source class @vlad.k
