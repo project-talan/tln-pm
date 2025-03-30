@@ -8,6 +8,8 @@ team:
     email: vladislav.kurmaz@gmail.com
     fte: 0.1
 timeline:
+  0.22.0:
+    deadline: 2025-04-30T16:00:00.000Z
   0.21.0:
     deadline: 2025-04-21T16:00:00.000Z
   0.20.0:
@@ -49,7 +51,12 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
-  [-:047:0.20.0] Assessment procedure @vlad.k
+  [-:057:0.19.0] Taks endpoint @vlad.k
+    [-] Build timeline taking into account users, priorities and statuses
+    [-] Fix Gantt update procedure
+    [-] Display selected deadline
+    [-] Correctly display tasks duration, including estomated time and FTEs
+  [-:056:0.20.0] Assessment procedure @vlad.k
     [-] List of NFRS
     [-] POST request for new assessment creation
     [-] PATCH request for assessment update
@@ -59,27 +66,27 @@ tasks: |-
     [-] Add rose diagram inside Dashboard (NFRs)
   [-:055:0.20.0] Add performance benchmark using console.time and verbose option @vlad.k
   [+:054:0.17.0] Use colom to define multiple tasks for spill over command  i.e. 021:034:055 and subtasks 021/1 @vlad.k
-  [-:053:0.19.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
-  [-:052:0.19.0] saving context in repository @vlad.k
-  [-:051:0.19.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
+  [-:053:0.21.0] cli command 'tpm assist <component>' - chartgpt style conversation @vlad.k
+  [-:052:0.21.0] saving context in repository @vlad.k
+  [-:051:0.21.0] Github Actions for CI/CD, where relaunch will give AI chance to read comments and update PR @vlad.k
   [-:050:0.19.0] Add support of external catalog repo (.tpm folder) #feature @vlad.k
   [+:049:0.18.0] Troubleshoot performance drop during cli commands execution @vlad.k
-  [-:048:0.19.0] AI tool integration @vlad.k
+  [-:048:0.21.0] AI tool integration @vlad.k
   [+:047:0.18.0] Assessment section @vlad.k
     [+] Add UI/UX for assessment section
   [+:046:0.15.0] Switch to React 19 @vlad.k
   [+:045:0.17.0] Finalise Drawer inside Srs area and Markdown styles @vlad.k
-  [-:044:0.19.0] Audit command @vlad.k
+  [-:044:0.21.0] Audit command @vlad.k
     [-] Check tasks without estimates #4h
     [-] Check tasks without assignees #2h
     [-] Check tasks without deadline #8h
     [-] Validate team velocity and timeline #8h
-  [-:043:0.19.0] Search @vlad.k
-    [-] Srs
+  [+:043:0.19.0] Search @vlad.k
+    [+] Srs
   [+:042:0.17.0] Dockerize web+backend parts (docker run -p 5445:5445 sh.tln.pm:0.17.0) #feature @vlad.k
-  [-:041:0.19.0] Add UI controls @vlad.k
-    [-] SRS
-      [-] Search editbox
+  [+:041:0.19.0] Add UI controls @vlad.k
+    [+] SRS
+      [+] Search editbox
   [+:040:0.16.0] Add UI controls @vlad.k
     [+] Team
       [+] Search editbox
@@ -99,11 +106,10 @@ tasks: |-
     [+] Dashboard
       [+] Checkbox for brief/full mode
       [+] Sort by deadline
-  [-:035:0.19.0] Dump datetime in local time during update command @vlad.k
+  [-:035:0.22.0] Dump datetime in local time during update command @vlad.k
   [+:034:0.14.0] Add update command --todo --dev --blocked --done to change task state @vlad.k
   [+:033:0.15.0] Implement Timeline web part @vlad.k
-  [-:032:0.19.0] Add fs watch @vlad.k
-    [-] Add --watch option to watch for changes in .todo.yml files and refresh tpm internal state
+  [-:032:0.19.0] Add --watch option to watch for changes in .tpm.yml files and refresh tpm internal state #16h @vlad.k
   [-:031:0.21.0] Fix task output on hierarchy mode @vlad.k
   [+:030:0.10.0] Implement deadline class @vlad.k
   [+:029:0.14.0] Implement config command via source class @vlad.k
@@ -117,7 +123,7 @@ tasks: |-
   [+:021:0.6.0] Add project description section @vlad.k
   [+:020:0.5.0] Add option to display tasks with different statuses: --backlog, --dev, --done @vlad.k
   [+:019:0.5.0] Add component as optional parameter for ls command @vlad.k
-  [-:018:0.19.0] Generate snapshot @vlad.k
+  [-:018:0.22.0] Generate snapshot to store spent timeon tasks @vlad.k
   [+:017:0.5.0] Add SRS section @vlad.k
   [+:016:0.18.0] Implement describe command @vlad.k
     [+] Project
@@ -129,7 +135,7 @@ tasks: |-
   [+:010:0.6.0] Extract tags, timeline from task description @vlad.k
   [+:009:0.5.0] Add command to generate .todo template --team, --timeline, --tasks, --force @vlad.k
   [+:008:0.6.0] Merge multiple descriptions from one file @vlad.k
-  [+:007:0.12.0] Server command: express server + fs watch @vlad.k
+  [+:007:0.12.0] Server command: express server @vlad.k
     [+] Create API using express
     [+] Implement web part: Dashboard
     [+] Implement web part: Team
