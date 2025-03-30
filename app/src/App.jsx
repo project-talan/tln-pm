@@ -17,17 +17,17 @@ import Assessment from './components/Assessment';
 import Assistant from './components/Assistant';
 
 import { API_BASE_URL } from './shared/Consts';
-import { errorMsgFetchingInfo } from './shared/Errors';
+import { errorMsgFetchingData } from './shared/Errors';
 
 const fetchData = async () => {
   try {
     const responces = await Promise.all(['info', 'projects'].map(async (p) => [p, await fetch(`${API_BASE_URL}/${p}`)]));
     if (responces.some(r => !r[1].ok )) {
-      throw "Error fetching info";
+      throw `Error fetching data : ${response.status}`;
     }
     return Promise.all(responces.map(async r => [r[0], (await r[1].json())]));
   } catch (error) {
-    throw new Error(errorMsgFetchingInfo + `: ${error.message}`);
+    throw new Error(`${error.message} : ${errorMsgFetchingData}`);
   } 
 };
 

@@ -8,14 +8,15 @@ import IconButton from '@mui/material/IconButton';
 import TopicOutlinedIcon from '@mui/icons-material/TopicOutlined';
 import Box from '@mui/material/Box';
 
-import { errorMsgFetchingDocs } from './../../shared/Errors';
+import { errorMsgFetchingData } from './../../shared/Errors';
 import { API_BASE_URL } from './../../shared/Consts';
 
 const fetchDocs = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/docs`);
+    const url = `${API_BASE_URL}/docs`;
+    const response = await fetch(url);
     if (!response.ok) {
-      throw "Error fetching docs";
+      throw `Error fetching assessments (${url}) : ${response.status}`;
     }
     const processDocs = async () => {
       const data = await response.json();
@@ -37,7 +38,7 @@ const fetchDocs = async () => {
     };
     return processDocs();
   } catch (error) {
-    throw new Error(errorMsgFetchingDocs + `: ${error.message}`);
+    throw new Error(`${error.message} : ${errorMsgFetchingData}`);
   } 
 };
 

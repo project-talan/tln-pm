@@ -69,11 +69,15 @@ class Server {
       if (tasks) {
         utils.timelineTasks(tasks, [], [], ems('8h'));
       }
-      
       res.send(this.makeResponce(tasks, tasks ? null : `Component ${req.params.component} not found`));
     })
+    // DOCS
     ea.get('/api/docs', async(req, res) => {
       res.send(this.makeResponce( await app.describe({ what: { docs: true } })));
+    })
+    // ASSESSMENTS
+    ea.get('/api/assessments', async(req, res) => {
+      res.send(this.makeResponce( await app.describe({ what: { assessments: true } })));
     })
     //
     // SPA

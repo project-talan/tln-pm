@@ -37,7 +37,7 @@ import { Typography } from '@mui/material';
 
 import Context from './../../shared/Context';
 
-import { errorMsgFetchingWbs } from './../../shared/Errors';
+import { errorMsgFetchingData } from './../../shared/Errors';
 import { API_BASE_URL } from './../../shared/Consts';
 
 function Wbs() {
@@ -525,7 +525,7 @@ function Wbs() {
         // console.log('url:', url);
         const response = await fetch(url);
         if (!response.ok) {
-          throw `fetch error (${url}): ${response.status}`;
+          throw `Error fetching WBD (${url}): ${response.status}`;
         }
         const data = await response.json();
         if (data.success) {
@@ -541,7 +541,7 @@ function Wbs() {
         }
       } catch (error) {
         // console.log('error:', error);
-        throw new Error(errorMsgFetchingWbs + `\nDetails: ${error.message}`);
+        throw new Error(`${error.message} : ${errorMsgFetchingData}`);
       } 
     };
     getTasks();

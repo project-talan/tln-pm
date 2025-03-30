@@ -109,6 +109,70 @@ class App {
       if (what.docs) {
         result.docs = await c.describeDocs();
       }
+      if (what.assessments) {
+        result.assessments = {
+          id: 'project-talan',
+          name: 'Talentwise',
+          description: 'SDLC framework',
+          assessments: [
+            {
+              date: "2025-03-23",
+              assessor: "vlad.k",
+              comment: "The project is going well. The team is working hard to deliver the next version on time.",
+              status: 'amber',
+              completed: false,
+              nfrs: {
+                correctness: 0.1,
+                subs: {
+                  features: 0.55
+                }
+              }
+            }
+          ],
+          components: [/*
+            {
+              id: 'tln-pm',
+              name: 'Talan PM',
+              description: 'Project Management as Code',
+              assessments: [
+                {
+                  date: "2025-03-23",
+                  assessor: "vlad.k",
+                  comment: "The project is going well. The team is working hard to deliver the next version on time.",
+                  status: 'amber',
+                  completed: false,
+                  nfrs: {
+                    correctness: 0.1,
+                    subs: {
+                      features: 0.55
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              id: 'tln-cli',
+              name: 'Talan CLI',
+              description: 'Talam CLI interface',
+              assessments: [
+                {
+                  date: "2025-03-23",
+                  assessor: "vlad.k",
+                  comment: "The project is going well. The team is working hard to deliver the next version on time.",
+                  status: 'amber',
+                  completed: false,
+                  nfrs: {
+                    correctness: 0.1,
+                    subs: {
+                      features: 0.55
+                    }
+                  }
+                }
+              ]
+            }*/
+          ]
+        };
+      }
     }
     return result;
   }
