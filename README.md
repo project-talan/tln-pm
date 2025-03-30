@@ -23,7 +23,7 @@
 ## Demo project
 * Run next docker command to see tpm in action using test project
   ```
-  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.17.0
+  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.19.0
   ```
 * Open next link in browser
   ```
@@ -35,7 +35,7 @@
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.17.0
+  npm i -g tln-pm@0.19.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```

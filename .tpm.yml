@@ -141,4 +141,5 @@ tasks: |-
   [+:001:0.2.0] Read config with parameters (include, ignore etc.) @vlad.k
 docs:
   README.md: README.md
+  audit: docs/audit.md
   release: docs/release.md
