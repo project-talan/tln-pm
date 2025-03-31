@@ -36,6 +36,7 @@
   "homepage": "https://github.com/project-talan/tln-pm#readme",
   "dependencies": {
     "assign-deep": "^1.0.1",
+    "chokidar": "^4.0.3",
     "compare-versions": "^6.1.1",
     "console-table-printer": "^2.12.1",
     "cors": "^2.8.5",

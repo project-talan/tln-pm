@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+const chokidar = require('chokidar');
 const express = require('express');
 var cors = require('cors')
 const fg = require('fast-glob');
@@ -28,7 +29,21 @@ class Server {
   }
 
   async serve(app, root, options) {
-    const {port, readOnly} = options;
+    const {port, readOnly, watch, glob} = options;
+    //
+    // watch file system changes
+    if (watch) {
+      console.log(`tpm will be watching file system for changes in ${glob} files recursively`);
+      const watcher = chokidar.watch(app.entries, {
+        persistent: true
+      });
+      // Add event listeners
+      watcher
+      .on('change', path => {
+        console.log(`File ${path} has been changed, reloading ...`);
+        app.reload();
+      })
+    }
     //
     const ea = express();
     ea.use(cors());
