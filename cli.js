@@ -308,12 +308,15 @@ yargs(hideBin(process.argv))
     return yargs
       .positional('port',   { describe: 'Port to bind on', default: defaultPort })
       .option('read-only',  { describe: 'Readonly serve mode, no modifications are allowed', default: true, type: 'boolean' })
+      .option('watch',      { describe: 'Automatically reload configurations one files were changed', default: false, type: 'boolean' })
       ;
   }, (argv) => {
     getApp(argv, true, async (a) => {
       a.serve({
         port: argv.port,
-        readOnly: argv.readOnly
+        readOnly: argv.readOnly,
+        watch: argv.watch,
+        glob: argv.file,
       });
     });
   })

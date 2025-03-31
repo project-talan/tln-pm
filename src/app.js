@@ -20,6 +20,7 @@ class App {
     this.home = null;
     this.scmUser = null;
     this.sources = [];
+    this.entries = [];
     this.rootComponent = null;
     //
     if (!logger) {
@@ -45,11 +46,15 @@ class App {
   }
 
   async load(include, ignore) {
+    this.entries = await fg(include, { cwd: this.home, dot: true, ignore });
+    this.logger.info('Entries count:', this.entries.length);
+    this.logger.info('Entries to scan:', this.entries);
+    await this.reload();
+  }
+
+  async reload() {
     this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
-    const entries = await fg(include, { cwd: this.home, dot: true, ignore });
-    this.logger.info('Entries count:', entries.length);
-    this.logger.info('Entries to scan:', entries);
-    for (const e of entries) {
+    for (const e of this.entries) {
       const ids = e.split(path.sep); ids.pop();
       const c = await this.rootComponent.find(ids, true);
       const source = sourceFactory.create(this.logger, path.join(this.home, e), c);
