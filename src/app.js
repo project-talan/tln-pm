@@ -36,7 +36,7 @@ class App {
     // find home: cwd or git home
     try {
       this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
-      this.scmUser = exec(`git config --local --get user.email`, { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      this.scmUser = exec('git config --local --get user.email', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
       this.logger.info('tpm is executed outside of git repository, please define assigee explicitly using -q <user> or --all option');
     }
@@ -47,8 +47,8 @@ class App {
 
   async load(include, ignore) {
     this.entries = await fg(include, { cwd: this.home, dot: true, ignore });
-    this.logger.info('Entries count:', this.entries.length);
-    this.logger.info('Entries to scan:', this.entries);
+    this.logger.info('entries count:', this.entries.length);
+    this.logger.info('entries to scan:', this.entries);
     await this.reload();
   }
 

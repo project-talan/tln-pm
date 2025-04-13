@@ -33,9 +33,9 @@ class Component {
     // check if component is git repo root
     if (fs.existsSync(path.join(this.home, '.git'))) {
       try {
-        this.lastCommit = exec(`git --no-pager log -1 --pretty='format:%cd' --date='iso'`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+        this.lastCommit = exec(`git --no-pager log -1 --pretty="format:%cd" --date=iso`, { cwd: this.home, stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
       } catch (e) {
-        this.logger.warn('Could\'n read git repository', this.home, e);
+        this.logger.warn(`failed to read Git repository at ${this.home}`);
       }
     }
     //
