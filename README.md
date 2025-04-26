@@ -41,7 +41,7 @@
   ```
   tpm config --project --team --timeline --tasks
   ```
-* Update **.tpm.yml** with your project's details, including team structure, fte, timeline, and tasks. Ensure that the emails used for **tpm** configuration match toyr dev team emails.
+* Update **.tpm.conf** with your project's details, including team structure, fte, timeline, and tasks. Ensure that the emails used for **tpm** configuration match toyr dev team emails.
 
   ```yml
   project:
@@ -103,7 +103,7 @@ tpm [ls | config] [component] [id] [optios]
 | Command (parameters & options)  | Default | Description |
 | ------------- | ------------- | ------------- |
 | tpm ls | | Display list of tasks for current git user |
-| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.yml |
+| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
 | tpm ls --todo | false | Display list of tasks for current git user in development |
 | tpm ls --dev | true | Display list of tasks for current git user in development |
