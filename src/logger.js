@@ -12,8 +12,27 @@ class Logger {
     //
     const log4js = require('log4js');
     log4js.configure({
-      appenders: { /*logfile: { type: 'file', filename: '/tmp/tln.log' }, */console: { type: 'stdout' } },
-      categories: { default: { appenders: [/*'logfile',*/ 'console'], level: levels[this.verbose] } }
+      appenders: {
+        /*
+        logfile: { type: 'file', filename: '/tmp/tln.log' },
+        */
+        console: {
+          type: 'stdout',
+          layout: {
+            type: 'pattern',
+            pattern: '%p: %m'
+          }
+        }
+      },
+      categories: {
+        default: {
+          appenders: [
+            /*'logfile',*/
+            'console'
+          ],
+          level: levels[this.verbose]
+        }
+      }
     });
     this.logger = log4js.getLogger();
     // console.timeEnd('logger');
