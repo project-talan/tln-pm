@@ -8,16 +8,10 @@ team:
     email: vladislav.kurmaz@gmail.com
     fte: 0.1
 timeline:
-  0.23.0:
-    deadline: 2025-05-07T16:00:00.000Z
-  0.22.0:
-    deadline: 2025-04-30T16:00:00.000Z
-  0.21.0:
-    deadline: 2025-04-21T16:00:00.000Z
   0.20.0:
-    deadline: 2025-04-14T16:00:00.000Z
+    deadline: 2025-05-07T16:00:00.000Z
   0.19.0:
-    deadline: 2025-04-07T16:00:00.000Z
+    deadline: 2025-04-26T16:00:00.000Z
   0.18.0:
     deadline: 2025-03-30T12:00:00.000Z
   0.17.0:
@@ -53,6 +47,7 @@ timeline:
   0.2.0:
     deadline: 2024-09-04T15:30:00.000Z
 tasks: |-
+  [-:059:0.19.0] Bind project under task using API #4 @vlad.k
   [-:058:0.19.0] Connect backend with frontend using web socket #4 @vlad.k
   [-:057:0.19.0] Tasks endpoint @vlad.k
     [-] Build timeline taking into account users, priorities and statuses
