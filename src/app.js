@@ -46,7 +46,31 @@ class App {
   }
 
   async load(include, ignore) {
-    this.entries = await fg(include, { cwd: this.home, dot: true, ignore });
+    const tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+    this.logger.info('.tpmignore:', tpmignore);
+    //
+    const tpmIgnoreRecords = [];
+    tpmignore.forEach(i => {
+      const fp = path.join(this.home, i);
+      if (fs.existsSync(fp)) {
+        const dirname = path.dirname(i);
+        const content = fs.readFileSync(fp, 'utf8');
+        if (content) {
+          const lines = content.split('\n').map(l => l.trim()).filter(l => l).filter(l => !l.startsWith('#'));
+          if (lines.length) {
+            this.logger.info('tpmignore content:', i, lines);
+            tpmIgnoreRecords.push(...(lines.map(l => path.join( dirname, l))));
+          }
+        }
+      } else {
+        this.logger.warn('tpmignore file not found:', fp);
+      }
+    });
+    //
+    const allIgnores = ignore.concat(tpmIgnoreRecords);
+    this.logger.info('ignore:', allIgnores);
+    //
+    this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
     this.logger.info('entries count:', this.entries.length);
     this.logger.info('entries to scan:', this.entries);
     await this.reload();
