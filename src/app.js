@@ -89,11 +89,12 @@ class App {
       aees.push(this.scmUser);  
     }
     //
-    this.logger.info('assignees:', aees);
-    this.logger.info('component:', component);
+    // this.logger.info('assignees:', aees);
+    // this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
       const c = await this.getCurrentComponent(component);
+      // console.log('c:', c);
       if (c) {
         return await c.ls({depth, who: {...who, assignees: aees}, filter});
       }

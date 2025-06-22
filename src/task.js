@@ -189,7 +189,7 @@ class Task {
     this.links = links;
   }
 
-  async filter(options, alsoMe = false, alsoTags = false, statusToo = false) {
+  async filter(options, alsoMe = false, alsoTags = false, statusToo = false, index = 0) {
     //console.log('filter in', this.id);
     const {who, filter} = options;
     // check myself
@@ -212,7 +212,7 @@ class Task {
     const sr = filter.search.length ? filter.search.find( s => this.title.indexOf(s) >= 0 ) : true;
     //
     // console.log(this.id, 'me', me, 'st', st, 'tg', tg, 'sr', sr);
-    const tasks = (await Promise.all(this.tasks.map(async t => t.filter(options, me, tg, st)))).filter(v => !!v);
+    const tasks = (await Promise.all(this.tasks.map(async (t, i) => t.filter(options, me, tg, st, i)))).filter(v => !!v);
     let percentage = (this.status === '+' || this.status === 'x') ? 100 : 0;
     let estimate = this.estimate;
     if (this.tasks.length) {
@@ -221,10 +221,9 @@ class Task {
     }
     //console.log(this.id, st, who.all, me, tg, sr, tasks.length);
     if (((who.all || me) && st && tg && sr) || tasks.length) {
-      //console.log('filter out', this.id);
       return {
         status: this.status,
-        id: this.id,
+        id: this.id !== '' ? this.id : `${index}`,
         title: this.title,
         estimate,
         percentage,

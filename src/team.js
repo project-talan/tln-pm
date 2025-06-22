@@ -58,6 +58,9 @@ class Team {
         });
       });
     }
+    // this.members.forEach( m => {
+    //   console.log(`Team member: ${m.name} (${m.id})`);
+    // });
   }
 
   async merge(team) {
