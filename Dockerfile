@@ -11,7 +11,7 @@ WORKDIR /app
 # RUN cd /app && tpm config --project --team --timeline --tasks
 
 # production
-RUN npm i -g tln-pm@0.19.0 && tpm config --project --team --timeline --tasks
+RUN npm i -g tln-pm@0.20.0 && tpm config --project --team --timeline --tasks
 
 EXPOSE 5445
 

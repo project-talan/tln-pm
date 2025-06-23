@@ -26,7 +26,6 @@ class Team {
         result[v.id] = {
             name: v.name,
             email: v.bandwidth[0].email,
-            fte: v.bandwidth[0].fte
           };
       });
       if (Object.keys(result).length) {
@@ -45,7 +44,6 @@ class Team {
             {
               project,
               email: data[k].email,
-              fte: data[k].fte
             }
           ],
           status: {

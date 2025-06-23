@@ -193,8 +193,7 @@ module.exports.mergeTwoTeams = (t1, t2) => {
         status[s] += m2.status[s];
       });
     }
-    const fte = bandwidth.reduce((acc, v) => acc + v.fte, 0);
-    return {id, name, bandwidth, fte, status};
+    return {id, name, bandwidth, status};
   });
 }
 

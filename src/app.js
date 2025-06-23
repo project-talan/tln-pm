@@ -273,7 +273,6 @@ class App {
           "alice.c": {
             email: "alice.c@gmail.com",
             name: "Alice Clarke",
-            fte: 1,
           },
         };
       }
@@ -333,47 +332,3 @@ class App {
 module.exports.create = (logger) => {
   return new App(logger);
 }
-
-/*
-      if (what.project) {
-        result.projects = await c.describeProject();
-      }
-      if (what.team) {
-        const team = [];
-        c.getTeam(team, false, true);
-        await Promise.all(team.map(async m => {
-          m.summary = { todo: 0, dev: 0, blocked: 0, done: 0 };
-          const processTasks = (tasks) => {
-            for (const nt of tasks) {
-              if (nt.tasks.length) {
-                processTasks(nt.tasks);
-              } else {
-                switch (nt.status) {
-                  case '-': m.summary.todo++; break;
-                  case '>': m.summary.dev++; break;
-                  case '!': m.summary.blocked++; break;
-                  case '+': m.summary.done++; break;
-                }
-              }
-            }
-          }
-          const processComponent = (c) => {
-            if (c) {
-              processTasks(c.tasks);
-              for (const nc of c.components) {
-                processComponent(nc);
-              }
-            }
-          }
-          processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }}));
-          m.summary.total = Object.keys(m.summary).reduce((acc, key) => acc + m.summary[key], 0);
-          m.summary.fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
-          m.scmUser = m.bandwidth.some( b => b.email === this.scmUser );
-        }));
-        result.team = team;
-      }
-      if (what.timeline) {
-        result.timeline = await c.describeTimeline();
-      }
-
-*/

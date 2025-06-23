@@ -10,12 +10,10 @@ const team1Members = {
   "alice.c": {
     email: "alice.c@gmail.com",
     name: "Alice Clarke",
-    fte: 1
   },
   "bob.w": {
     email: "bob.w@gmail.com",
     name: "Bob Walts",
-    fte: 0.5
   }
 }
 
@@ -23,12 +21,10 @@ const team2Members = {
   "carol.l": {
     email: "alice.c@gmail.com",
     name: "Carol Lewit",
-    fte: 1
   },
   "alice.c": {
     email: "alice.c@gmail.com",
     name: "Alice Clarke",
-    fte: 0.5
   },
 }
 
@@ -40,15 +36,12 @@ const mergedMembers = [
       {
         project: 'project1',
         email: "alice.c@gmail.com",
-        fte: 1
       },
       {
         project: 'project2',
         email: "alice.c@gmail.com",
-        fte: 0.5
       }
     ],
-    fte: 1.5,
     status: {
       todo: 0,
       dev: 0,
@@ -64,10 +57,8 @@ const mergedMembers = [
       {
         project: 'project1',
         email: "bob.w@gmail.com",
-        fte: 0.5
       }
     ],
-    fte: 0.5,
     status: {
       todo: 0,
       dev: 0,
@@ -83,10 +74,8 @@ const mergedMembers = [
       {
         project: 'project2',
         email: "alice.c@gmail.com",
-        fte: 1
       }
     ],
-    fte: 1,
     status: {
       todo: 0,
       dev: 0,
