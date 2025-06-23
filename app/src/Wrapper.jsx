@@ -9,7 +9,7 @@ import {App, resetApp } from './App.jsx'
 
 function Wrapper() {
   const [refreshKey, setRefreshKey] = useState(0);
-  console.log('!Wrapper');
+  //console.log('!Wrapper');
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { resetApp(); setRefreshKey((prev) => prev + 1)}}>
       <Suspense fallback={<Progress />}>

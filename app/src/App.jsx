@@ -41,7 +41,7 @@ const pages = [
   { id: 'timeline', title: 'Timeline', href: '/timeline' },
   { id: 'team', title: 'Team', href: '/team' },
   { id: 'docs', title: 'Docs', href: '/docs' },
-  { id: 'assessment', title: 'Assessment', href: '/assessment' },
+  // { id: 'assessment', title: 'Assessment', href: '/assessment' },
   { id: 'assistant', title: 'Assistant', href: '/assistant' },
 ];
 
@@ -83,7 +83,7 @@ function App() {
             <Route path="timeline" element={<Timeline/>} />
             <Route path="team" element={<Team />} />
             <Route path="docs" element={<Docs />} />
-            <Route path="assessment" element={<Assessment />} />
+            {/*<Route path="assessment" element={<Assessment />} />*/}
             <Route path="assistant" element={<Assistant />} />
           </Routes>
         </BrowserRouter>
@@ -93,3 +93,113 @@ function App() {
 }
 
 export { App, resetApp };
+
+/*
+To connect a React 19 frontend with an Express backend using WebSockets, you'll typically use Socket.IO, which simplifies WebSocket communication with fallbacks and event-based APIs.
+
+Here’s a step-by-step guide:
+
+✅ 1. Install Dependencies
+Backend (Express)
+npm install express socket.io
+
+Frontend (React)
+npm install socket.io-client
+
+✅ 2. Backend: Set Up Express + WebSocket
+// server.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const app = express();
+const server = http.createServer(app); // Required for socket.io
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000', // React dev server
+    methods: ['GET', 'POST']
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('send-message', (data) => {
+    console.log('Received:', data);
+    socket.broadcast.emit('receive-message', data); // Send to others
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+app.get('/', (req, res) => {
+  res.send('Socket server is running');
+});
+
+server.listen(4000, () => {
+  console.log('Server listening on http://localhost:4000');
+});
+
+✅ 3. Frontend: Connect React to Socket.IO
+// src/hooks/useSocket.js
+import { useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
+
+export default function useSocket() {
+  const socket = useRef(null);
+
+  useEffect(() => {
+    socket.current = io('http://localhost:4000');
+
+    socket.current.on('connect', () => {
+      console.log('Connected:', socket.current.id);
+    });
+
+    socket.current.on('receive-message', (msg) => {
+      console.log('Message from server:', msg);
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
+  }, []);
+
+  return socket;
+}
+
+// src/App.jsx
+import React, { useState } from 'react';
+import useSocket from './hooks/useSocket';
+
+function App() {
+  const [message, setMessage] = useState('');
+  const socket = useSocket();
+
+  const sendMessage = () => {
+    socket.current.emit('send-message', message);
+    setMessage('');
+  };
+
+  return (
+    <div>
+      <h1>WebSocket Chat</h1>
+      <input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type a message"
+      />
+      <button onClick={sendMessage}>Send</button>
+    </div>
+  );
+}
+
+export default App;
+🔄 Summary
+Backend listens on http://localhost:4000 and manages socket events.
+
+React frontend connects using socket.io-client and emits/listens to messages.
+
+You can customize events as needed (send-message, user-typing, join-room, etc.)
+*/

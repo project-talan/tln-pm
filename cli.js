@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const defaultFileName = '.tpm.yml';
+const defaultFileName = '.tpm.conf';
 const defaultPort = 5445;
 
 const fs = require('fs');
@@ -47,7 +47,7 @@ yargs(hideBin(process.argv))
   .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
   .option('verbose', { alias: 'v', count: true, default: 0 })
-  .option('include', { default: '**/.tpm.yml', type: 'string' })
+  .option('include', { default: '**/.tpm.conf', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('depth', { describe: 'Scan depth', default: 5, type: 'number' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
@@ -56,7 +56,7 @@ yargs(hideBin(process.argv))
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
 
-  .option('file', { describe: 'File name', default: '.tpm.yml', type: 'string' })
+  .option('file', { describe: 'File name', default: '.tpm.conf', type: 'string' })
 
   .option('backlog', { describe: 'Show tasks in backelog (-,>,!)', default: false, type: 'boolean' })
   .option('todo', { describe: 'Tasks in todo state (-)', default: false, type: 'boolean' })
@@ -181,7 +181,7 @@ yargs(hideBin(process.argv))
     }
   })
   //
-  .command('config', 'Generate .tpm.yml skeleton', (yargs) => {
+  .command('config', 'Generate .tpm.conf skeleton', (yargs) => {
     return yargs
   }, async (argv) => {
     // console.log(argv);

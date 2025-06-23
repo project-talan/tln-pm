@@ -44,7 +44,7 @@ function Team() {
     setPage(0);
   };
   const rows = team.map((m, index) => {
-    const fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
+    const fte = 1;//m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
     // const name = m.name;
     const total = m.status.todo + m.status.dev + m.status.blocked;
     //
@@ -58,7 +58,7 @@ function Team() {
       id: m.id,
       name: (
         <div key={index}>{m.name}<br/>{
-          m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.project} ({b.fte}) ({b.email})<br/></div>)) : m.bandwidth[0].email
+          m.bandwidth.length > 1 ? m.bandwidth.map((b, bi) => (<div key={"bw"+index + '-' + bi}>{b.project} ({b.email})<br/></div>)) : m.bandwidth[0].email
         }</div>
       ),
       fte,

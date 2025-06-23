@@ -23,7 +23,7 @@
 ## Demo project
 * Run next docker command to see tpm in action using test project
   ```
-  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.19.0
+  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.20.0
   ```
 * Open next link in browser
   ```
@@ -35,13 +35,13 @@
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.19.0
+  npm i -g tln-pm@0.20.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
   tpm config --project --team --timeline --tasks
   ```
-* Update **.tpm.yml** with your project's details, including team structure, fte, timeline, and tasks. Ensure that the emails used for **tpm** configuration match toyr dev team emails.
+* Update **.tpm.conf** with your project's details, including team structure, timeline, and tasks. Ensure that the emails used for **tpm** configuration match toyr dev team emails.
 
   ```yml
   project:
@@ -52,7 +52,6 @@
     alice.c:
       email: alice.c@gmail.com
       name: Alice Clarke
-      fte: 1
   timeline:
     25.2.0:
       deadline: '2025-02-28T18:00:00.000Z'
@@ -103,7 +102,7 @@ tpm [ls | config] [component] [id] [optios]
 | Command (parameters & options)  | Default | Description |
 | ------------- | ------------- | ------------- |
 | tpm ls | | Display list of tasks for current git user |
-| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.yml |
+| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
 | tpm ls --todo | false | Display list of tasks for current git user in development |
 | tpm ls --dev | true | Display list of tasks for current git user in development |
@@ -126,7 +125,6 @@ tpm [ls | config] [component] [id] [optios]
     alice.c:
       email: alice.c@gmail.com
       name: Alice Clarke
-      fte: 1
   timeline:
     25.1.0:
       deadline: '2025-01-31T18:00:00.000Z'
