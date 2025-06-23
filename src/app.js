@@ -46,7 +46,31 @@ class App {
   }
 
   async load(include, ignore) {
-    this.entries = await fg(include, { cwd: this.home, dot: true, ignore });
+    const tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+    this.logger.info('.tpmignore:', tpmignore);
+    //
+    const tpmIgnoreRecords = [];
+    tpmignore.forEach(i => {
+      const fp = path.join(this.home, i);
+      if (fs.existsSync(fp)) {
+        const dirname = path.dirname(i);
+        const content = fs.readFileSync(fp, 'utf8');
+        if (content) {
+          const lines = content.split('\n').map(l => l.trim()).filter(l => l).filter(l => !l.startsWith('#'));
+          if (lines.length) {
+            this.logger.info('tpmignore content:', i, lines);
+            tpmIgnoreRecords.push(...(lines.map(l => path.join( dirname, l))));
+          }
+        }
+      } else {
+        this.logger.warn('tpmignore file not found:', fp);
+      }
+    });
+    //
+    const allIgnores = ignore.concat(tpmIgnoreRecords);
+    this.logger.info('ignore:', allIgnores);
+    //
+    this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
     this.logger.info('entries count:', this.entries.length);
     this.logger.info('entries to scan:', this.entries);
     await this.reload();
@@ -84,13 +108,9 @@ class App {
     const {component, depth, who, filter} = options;
     let aees = [...who.assignees];
     //
-    // console.log(options, who.all || aees.length);
     if (!(who.all || aees.length) && this.scmUser) {
       aees.push(this.scmUser);  
     }
-    //
-    this.logger.info('assignees:', aees);
-    this.logger.info('component:', component);
     //
     if (who.all || aees.length) {
       const c = await this.getCurrentComponent(component);
@@ -248,7 +268,6 @@ class App {
           "alice.c": {
             email: "alice.c@gmail.com",
             name: "Alice Clarke",
-            fte: 1,
           },
         };
       }
@@ -308,47 +327,3 @@ class App {
 module.exports.create = (logger) => {
   return new App(logger);
 }
-
-/*
-      if (what.project) {
-        result.projects = await c.describeProject();
-      }
-      if (what.team) {
-        const team = [];
-        c.getTeam(team, false, true);
-        await Promise.all(team.map(async m => {
-          m.summary = { todo: 0, dev: 0, blocked: 0, done: 0 };
-          const processTasks = (tasks) => {
-            for (const nt of tasks) {
-              if (nt.tasks.length) {
-                processTasks(nt.tasks);
-              } else {
-                switch (nt.status) {
-                  case '-': m.summary.todo++; break;
-                  case '>': m.summary.dev++; break;
-                  case '!': m.summary.blocked++; break;
-                  case '+': m.summary.done++; break;
-                }
-              }
-            }
-          }
-          const processComponent = (c) => {
-            if (c) {
-              processTasks(c.tasks);
-              for (const nc of c.components) {
-                processComponent(nc);
-              }
-            }
-          }
-          processComponent(await c.ls({depth: 10, who: {all: false, assignees: [m.id]}, filter: { tag: [], search: [], deadline: [], status: { todo: true, dev: true, blocked: true, done: true } }}));
-          m.summary.total = Object.keys(m.summary).reduce((acc, key) => acc + m.summary[key], 0);
-          m.summary.fte = m.bandwidth.reduce((acc, b) => acc + b.fte, 0.0);
-          m.scmUser = m.bandwidth.some( b => b.email === this.scmUser );
-        }));
-        result.team = team;
-      }
-      if (what.timeline) {
-        result.timeline = await c.describeTimeline();
-      }
-
-*/

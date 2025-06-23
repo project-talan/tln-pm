@@ -53,6 +53,7 @@ function Wbs() {
   const interval = use(Context).context.interval;
   const statuses = use(Context).context.statuses;
   const priorities = use(Context).context.priorities;
+  //console.log('!Wbs', team, components, selectedMembers, timeline, deadline, interval, statuses, priorities);
   //
   // Components
   const handleComponentsChange = (newComponents) => {
@@ -115,7 +116,7 @@ function Wbs() {
 
   //
   // Members
-  const [members] = useState(team.filter(m => m.fte > 0).map((m) => {
+  const [members] = useState(team.map((m) => {
     return {
       id: m.id,
       name: m.name,
