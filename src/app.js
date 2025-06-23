@@ -108,17 +108,12 @@ class App {
     const {component, depth, who, filter} = options;
     let aees = [...who.assignees];
     //
-    // console.log(options, who.all || aees.length);
     if (!(who.all || aees.length) && this.scmUser) {
       aees.push(this.scmUser);  
     }
     //
-    // this.logger.info('assignees:', aees);
-    // this.logger.info('component:', component);
-    //
     if (who.all || aees.length) {
       const c = await this.getCurrentComponent(component);
-      // console.log('c:', c);
       if (c) {
         return await c.ls({depth, who: {...who, assignees: aees}, filter});
       }

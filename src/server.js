@@ -81,7 +81,6 @@ class Server {
         who: { assignees, all: !assignees.length },
         filter: { tag: tags, search: [], deadline: [], status },
       });
-      // console.log('tasks:', tasks);
       if (tasks) {
         utils.timelineTasks(tasks, [], [], ems('8h'));
       }
