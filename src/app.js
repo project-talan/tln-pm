@@ -46,7 +46,13 @@ class App {
   }
 
   async load(include, ignore) {
-    const tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+    let tpmignore = [];
+    try {
+      tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+    } catch (e) {
+      this.logger.error('Error while searching for .tpmignore files, please check permissions:', e.path);
+    }
+
     this.logger.info('.tpmignore:', tpmignore);
     //
     const tpmIgnoreRecords = [];
@@ -70,7 +76,11 @@ class App {
     const allIgnores = ignore.concat(tpmIgnoreRecords);
     this.logger.info('ignore:', allIgnores);
     //
-    this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
+    try {
+      this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
+    } catch (e) {
+      this.logger.error('Error while searching for .tpm.conf files, please check permissions:', e.path);
+    }
     this.logger.info('entries count:', this.entries.length);
     this.logger.info('entries to scan:', this.entries);
     await this.reload();
