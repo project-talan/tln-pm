@@ -203,10 +203,10 @@ class App {
   }
 
   async update(options) {
-    const {component, ids, status, git} = options;
+    const {component, ids, status, recursively} = options;
     const c = await this.getCurrentComponent(component);
     if (c) {
-      return await c.update({ids, status, git});
+      return await c.update({ids, status, recursively});
     }
   }
 

@@ -90,26 +90,19 @@ class Task {
   }
 
   async update(options) {
-    const {relativePath, status, git} = options;
+    const {relativePath, status, recursively} = options;
     let commitMsg = '';
     const cmds = [];
     if (status.todo) {
       this.status = '-';
     } else if (status.dev) {
       this.status = '>';
-      const checkoutBranch = (relativePath ? `${relativePath}/` : ``) + this.id;
-      cmds.push(`git checkout -b ${checkoutBranch}`);
-      //
-      commitMsg = 'feat' + (relativePath ? `(${relativePath})` : ``) + `: ${this.id} - ${this.title.substring(0, 20)}"`;
     } else if (status.blocked) {
       this.status = '!';
     } else if (status.done) {
       this.status = '+';
     }
-    await this.source.save();
-    cmds.push(`git add -A`);
-    cmds.push(`git commit -m"${commitMsg}"`);
-    return git ? cmds : [];
+    return [this.source].concat( recursively ? (await Promise.all(this.tasks.map(async t => t.update(options)))).flat() : []);
   }
 
   getNormaliseStatus(statuses) {

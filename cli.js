@@ -55,6 +55,7 @@ yargs(hideBin(process.argv))
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
+  .option('r', { describe: 'Execute command recursively', alias: 'recursively', default: false, type: 'boolean' })
 
   .option('file', { describe: 'File name', default: '.tpm.conf', type: 'string' })
 
@@ -73,7 +74,6 @@ yargs(hideBin(process.argv))
 
   .option('deadlines', { describe: 'Deadline for tasks spill over <from>:<to>', default: null, type: 'string' })
   .option('save', { describe: 'Save modifications', default: false, type: 'boolean' })
-  .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
   .option('yaml', { describe: 'Output in yaml format', default: false, type: 'boolean' })
@@ -236,18 +236,17 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
       // console.log(argv);
-      const cmds = await a.update({
+      const sources = await a.update({
         component: argv.component,
         ids: argv.id.split(':'),
         status: { todo: argv.todo, dev: argv.dev, blocked: argv.blocked, done: argv.done },
-        git: argv.git,
+        recursively: argv.recursively,
       });
       //
-      if (cmds) {
-        for (const cmd of cmds) {
-          a.logger.con(cmd);
-        }
-      }
+      [...new Set(sources)].forEach(async (s) => {
+        await s.save();
+        a.logger.info(`Updated: ${s.file}`);
+      });
     });
   })
   //
