@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: "22.6.0"
 
-      - run: npm i -g tln-cli@1.112.0 tln-pm@0.19.0
+      - run: npm i -g tln-cli@1.112.0 tln-pm@0.20.0
 
       - uses: actions/checkout@v4
         with:
