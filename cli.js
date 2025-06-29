@@ -165,6 +165,7 @@ yargs(hideBin(process.argv))
             }
             // components
             const lng = c.components.length;
+            c.components.sort((a, b) => a.relativePath < b.relativePath ? -1 : 1);
             for (let i = 0; i < lng; i++) {
               const lc = (i === lng - 1);
               dump(c.components[i], indent + (last? '  ' : '│ '), lc);
