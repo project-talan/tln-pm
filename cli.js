@@ -269,9 +269,12 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       await getApp(argv, true, async (a) => {
+        try {
         // console.log(argv);
-        if (argv.deadlines) {
           const [from, to] = argv.deadlines.split(':');
+          if (!from || !to) {
+            throw new Error('Invalid deadlines format');
+          }
           await a.spillOver({
             component: argv.component,
             id: argv.id,
@@ -279,8 +282,8 @@ yargs(hideBin(process.argv))
             to,
             save: argv.save
           });
-        } else {
-          a.logger.error('Please provide "--deadlines from:to" for spill over');
+        } catch (e) {
+          a.logger.error('Provide option in format "--deadlines from:to" for spill over');
         }
       });
     }
