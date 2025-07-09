@@ -236,9 +236,10 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
       // console.log(argv);
+      const ids = argv.id ? argv.id.split(':') : [];
       const sources = await a.update({
         component: argv.component,
-        ids: argv.id.split(':'),
+        ids,
         status: { todo: argv.todo, dev: argv.dev, blocked: argv.blocked, done: argv.done },
         recursively: argv.recursively,
       });
