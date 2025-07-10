@@ -124,54 +124,41 @@ yargs(hideBin(process.argv))
             a.logger.con(yaml.dump(component, {lineWidth: -1}));
           }
         } else {
-          const dump = (c, indent, last) => {
-            // title
-            let ti = `  `;
-            let percentage = '';
-            if (c.tasks.length) {
-              percentage = Math.round(c.tasks.reduce((acc, t) => acc + t.percentage, 0) / c.tasks.length);
-              if (percentage > 0) {
-                percentage = `(${percentage}%)`;
+          const dumpComponent = (c, indent, last) => {
+            if (c.tasks.length || ( c.components.length && hierarchy)) {
+              if (hierarchy) {
+                a.logger.con(`${indent}${last?'└':'├'} ${c.id}`);
               } else {
-                percentage = '';
+                a.logger.con(``);
+                a.logger.con(`~ ${c.relativePath}`);
+              }
+              //
+              const dumpTask = (t, indent) => {
+                if (t.title) {
+                  const g = t.assignees.length ? ` @(${t.assignees.join(',')})` : '';
+                  const tg = t.tags.length ? ` #(${t.tags.join(',')})` : '';
+                  const dl = t.deadline ? ` (${t.deadline})` : '';
+                  const id = t.id ? ` ${t.id}:` : '';
+                  a.logger.con(`${indent}${t.status}${id} ${t.title}${g}${tg}${dl}`);
+                  // sub tasks
+                  for (const st of t.tasks) {
+                    dumpTask(st, `${indent}  `);
+                  }
+                }
+              }
+              const ti = hierarchy ? `${indent}${last?' ':'|'} * ` : '  ';
+              for (const t of c.tasks) {
+                dumpTask(t, ti);
               }
             }
-            if (hierarchy) {
-              ti = `${indent}` + ((last && c.components.length === 0) ? ' ' : '│')
-              const title = (c.id) ? `${indent}${last?'└':'├'} ${c.id}` : '';
-              a.logger.con(`${title} ${percentage}`);
-            } else {
-              if (c.tasks.length) {
-                a.logger.con(`${prefix}`);
-                a.logger.con(`${prefix}~ ${c.relativePath} ${percentage}`);
-              }
-            }
-            // tasks
-            const out = (task, indent) => {
-              if (task.title) {
-                const g = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
-                const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
-                const dl = task.deadline ? ` (${task.deadline})` : '';
-                const id = task.id ? ` ${task.id}:` : '';
-                a.logger.con(`${prefix}${indent}${task.status}${id} ${task.title}${g}${tg}${dl}`);
-              }
-              // console.log(task);
-              for (const t of task.tasks) {
-                out(t, `${indent}  `);
-              }
-            }
-            for (const t of c.tasks) {
-              out(t, ti);
-            }
-            // components
-            const lng = c.components.length;
+            //
+            // nested components
             c.components.sort((a, b) => a.relativePath < b.relativePath ? -1 : 1);
-            for (let i = 0; i < lng; i++) {
-              const lc = (i === lng - 1);
-              dump(c.components[i], indent + (last? '  ' : '│ '), lc);
+            for (let i = 0; i < c.components.length; i++) {
+              dumpComponent(c.components[i], `${indent}${last?' ':'|'} `, i === c.components.length - 1);
             }
           }
-          dump(component, '', true);
+          dumpComponent(component, '', true);
         }
       }
       // console.timeEnd('print');
