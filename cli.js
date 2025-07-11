@@ -93,8 +93,8 @@ yargs(hideBin(process.argv))
     await getApp(argv, true, async (a) => {
       // console.time('app callback');
       // console.log(argv);
+      a.logger.info('component:', argv.component);
       const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.blocked || argv.done);
-      // console.time('component ls');
       const component = await a.ls({
         component: argv.component,
         depth: argv.depth,

@@ -101,7 +101,7 @@ class App {
     let component = this.rootComponent;
     let components = [];
     const h = this.home;
-    const c = id && id !== '.' ? path.join(this.cwd, id) : this.cwd;
+    const c = !!id && (id !== '.') ? path.join(this.cwd, id) : this.cwd;
     if (h !== c) {
       components = path.relative(h, c).split(path.sep);
     }
