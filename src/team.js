@@ -36,7 +36,9 @@ class Team {
 
   async load(data, project) {
     if (data) {
-      this.members = Object.keys(data).map( k => {
+      // skip inactive members
+      const keys = Object.keys(data).filter(k => !data[k].skip);
+      this.members = keys.map( k => {
         return ({
           id: k,
           name: data[k].name,

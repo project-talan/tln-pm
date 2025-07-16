@@ -80,7 +80,7 @@ yargs(hideBin(process.argv))
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
   // ls command aims to work exclusively with tasks
-  .command('ls [component] [-g assignee] [-t tag]', 'Show list of tasks', (yargs) => {
+  .command('ls [component]', 'Show list of tasks', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',

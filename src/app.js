@@ -74,7 +74,7 @@ class App {
     });
     //
     const allIgnores = ignore.concat(tpmIgnoreRecords);
-    this.logger.info('ignore:', allIgnores);
+    this.logger.info('ignores:', allIgnores);
     //
     try {
       this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
