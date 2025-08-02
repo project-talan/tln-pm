@@ -10,7 +10,8 @@ const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const yaml = require('js-yaml');
-const { Table } = require("console-table-printer");
+const { table, getBorderCharacters } = require('table');
+const chalk = require('chalk');
 
 const loggerFactory = require('./src/logger');
 const appFactory = require('./src/app');
@@ -311,30 +312,59 @@ yargs(hideBin(process.argv))
       });
     });
   })
-  .command('audit', 'Audit project PM status', (yargs) => {
+  .command('audit', 'Audit project', (yargs) => {
     return yargs;
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
-      //Create a table
-      const p = new Table();
 
-      //add rows with color
-      p.addRow(
-        { "LineNr.": 1, text: "red wine please", value: 10.212 },
-        { color: "red" }
-      );
-      p.addRow(
-        { "LineNr.": 2, text: "green gemuse please", value: 20.0 },
-        { color: "green" }
-      );
-      p.addRows([
-        //adding multiple rows are possible
-        { "LineNr.": 3, text: "gelb bananen bitte", value: 100 },
-        { "LineNr.": 4, text: "update is working", value: 300 },
-      ]);
+const data = [
+  ['SpheraX audit report', '', ''],
+  ['Area', 'Feature', 'Details'],
+  ['Timeline', 'Current release', chalk.white.bgBlue('spherax-25.7.3')],
+  ['', 'Scheduled releases', '4'],
+  ['', 'Delivered releases', '4'],
+  ['Team', 'Active members', '5'],
+  ['', 'Total members', '10'],
+  ['Tasks', 'Without assignee', '0'],
+  ['', 'Without estimate', '1'],
+  ['', 'Without deadline', '5'],
+  ['', 'Release deficit', '5'],
 
-      //print
-      p.printTable();
+
+
+  /*
+  ['Subtotal', '', '150'],
+  ['Team', 'User', '24'],
+  ['', 'Payment', '30'],
+  ['Taks', '', '54'],
+  ['Total', '', '204'],
+  */
+];
+
+const config = {
+  columns: [
+    { alignment: 'left', width: 12 },
+    { alignment: 'left', width: 32 },
+    { alignment: 'right', width: 44 },
+  ],
+  spanningCells: [
+    { col: 0, row: 0, colSpan: 3 },
+    { col: 0, row: 2, rowSpan: 3, verticalAlignment: 'top'},
+    { col: 0, row: 5, rowSpan: 2, verticalAlignment: 'top'},
+    { col: 0, row: 7, rowSpan: 4, verticalAlignment: 'top'},
+    /*
+    { col: 0, row: 4, colSpan: 3, alignment: 'right'},
+    { col: 0, row: 5, rowSpan: 2, verticalAlignment: 'middle'},
+    { col: 0, row: 7, colSpan: 2, alignment: 'right' },
+    { col: 0, row: 8, colSpan: 2, alignment: 'right' }
+     */
+  ],
+  border: getBorderCharacters('norc'),
+
+};
+
+console.log(table(data, config));
+
     });
   })
 

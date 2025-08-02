@@ -46,16 +46,19 @@ class App {
   }
 
   async load(include, ignore) {
+    // console.time('tpmignore');
     let tpmignore = [];
+    const tpmIgnoreRecords = [];
+    /*
+    // DISABLE .tpmignore support for now, since it is down performance significantly
     try {
-      tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+      tpmignore = await fg(['**\/.tpmignore'], { cwd: this.home, dot: true });
     } catch (e) {
       this.logger.error('Error while searching for .tpmignore files, please check permissions:', e.path);
     }
 
     this.logger.info('.tpmignore:', tpmignore);
     //
-    const tpmIgnoreRecords = [];
     tpmignore.forEach(i => {
       const fp = path.join(this.home, i);
       if (fs.existsSync(fp)) {
@@ -73,8 +76,10 @@ class App {
       }
     });
     //
+    */
     const allIgnores = ignore.concat(tpmIgnoreRecords);
     this.logger.info('ignores:', allIgnores);
+    // console.timeEnd('tpmignore');
     //
     try {
       this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
