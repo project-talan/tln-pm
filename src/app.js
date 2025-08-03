@@ -323,6 +323,38 @@ class App {
     }
   }
 
+
+  async audit() {
+    const report = {
+      'release': {
+        'current': '',
+        'durationTo': '',
+        'scheduled': 0,
+        'delivered': 0
+      },
+      'stat': {
+        'activeMembers': 0,
+        'totalMembers': 0,
+        'backlog': 0,
+        'dev': 0,
+        'blocked': 0,
+        'done': 0
+      },
+      'issue': {
+        'noAssignee': 0,
+        'noEstimate': 0,
+        'noDeadline': 0,
+        'deficit': 0
+      }
+    };
+    const members = {};
+    //
+    const component = await this.getCurrentComponent();
+    await component.audit(report, members);
+    console.log(members);
+    return report;
+  }
+
   //
   async sync() {
   }

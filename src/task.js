@@ -43,7 +43,6 @@ class Task {
     this.tags = [];
     this.links = [];
     this.tasks = [];
-    this.audit = {};
   }
 
   // output tasks in yaml format
@@ -245,6 +244,34 @@ class Task {
   async getCountByDeadlime(deadline) {
     const st = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline)));
     return this.deadline === deadline ? 1 : 0 + st.reduce((acc, c) => acc + c, 0);
+  }
+
+  async audit(report, members) {
+    if (this.parent) {
+      if (this.tasks.length) {
+        await Promise.all(this.tasks.map(async t => await t.audit(report)));
+      } else {
+      }
+    } else {
+      // root tasks, check assignees and estimates
+      if (!this.estimate) {
+        report.issue.noEstimate++;
+      }
+      if (!this.deadline) {
+        report.issue.noDeadline++;
+      }
+      if (this.assignees.length) {
+        this.assignees.forEach( a => {
+          if (!members[a]) {
+            members[a] = 0;
+          }
+          members[a]++;
+        });
+      } else {
+        report.issue.noAssignee++;
+      }
+
+    }
   }
 
 }

@@ -75,6 +75,15 @@ class Team {
     return this.members.map(v => ({ ...v }));
   }
 
+  async audit(report, members) {
+    report.stat.totalMembers += this.members.length;
+    this.members.forEach( m => {
+      if (!members[m.id]) {
+        members[m.id] = 0;
+      }
+    });
+  }
+
 }
 
 module.exports.create = (logger, source) => {

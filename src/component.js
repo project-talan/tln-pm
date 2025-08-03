@@ -468,6 +468,13 @@ class Component {
     );
   }
 
+  async audit(report, members) {
+    //console.log(this.id, this.tasks);
+    await Promise.all(this.team.map(async t => await t.audit(report, members)));
+    await Promise.all(this.timeline.map(async t => await t.audit(report)));
+    await Promise.all(this.tasks.map(async t => await t.audit(report, members)));
+    await Promise.all(this.components.map(async c => await c.audit(report, members)));
+  }
 }
 
 module.exports.create = (logger, home, id) => {

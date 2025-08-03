@@ -15,6 +15,7 @@ const chalk = require('chalk');
 
 const loggerFactory = require('./src/logger');
 const appFactory = require('./src/app');
+const { title } = require('process');
 
 
 const getApp = async (argv, load, fn) => {
@@ -316,55 +317,79 @@ yargs(hideBin(process.argv))
     return yargs;
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
-
-const data = [
-  ['SpheraX audit report', '', ''],
-  ['Area', 'Feature', 'Details'],
-  ['Timeline', 'Current release', chalk.white.bgBlue('spherax-25.7.3')],
-  ['', 'Scheduled releases', '4'],
-  ['', 'Delivered releases', '4'],
-  ['Team', 'Active members', '5'],
-  ['', 'Total members', '10'],
-  ['Tasks', 'Without assignee', '0'],
-  ['', 'Without estimate', '1'],
-  ['', 'Without deadline', '5'],
-  ['', 'Release deficit', '5'],
-
-
-
-  /*
-  ['Subtotal', '', '150'],
-  ['Team', 'User', '24'],
-  ['', 'Payment', '30'],
-  ['Taks', '', '54'],
-  ['Total', '', '204'],
-  */
-];
-
-const config = {
-  columns: [
-    { alignment: 'left', width: 12 },
-    { alignment: 'left', width: 32 },
-    { alignment: 'right', width: 44 },
-  ],
-  spanningCells: [
-    { col: 0, row: 0, colSpan: 3 },
-    { col: 0, row: 2, rowSpan: 3, verticalAlignment: 'top'},
-    { col: 0, row: 5, rowSpan: 2, verticalAlignment: 'top'},
-    { col: 0, row: 7, rowSpan: 4, verticalAlignment: 'top'},
-    /*
-    { col: 0, row: 4, colSpan: 3, alignment: 'right'},
-    { col: 0, row: 5, rowSpan: 2, verticalAlignment: 'middle'},
-    { col: 0, row: 7, colSpan: 2, alignment: 'right' },
-    { col: 0, row: 8, colSpan: 2, alignment: 'right' }
-     */
-  ],
-  border: getBorderCharacters('norc'),
-
-};
-
-console.log(table(data, config));
-
+      const areaWidth = 10;
+      const featureWidth = 30;
+      const detailsWidth = 80 - areaWidth - featureWidth;
+      //
+      const formatDetails = (v) => {
+        return v.toString().padStart(detailsWidth, ' ');
+      }
+      const validators = {
+        noCheck: (v) => formatDetails(v),
+        notAZero: (v) => v > 0 ? v : chalk.white.bgRed(formatDetails(v)),
+        shouldBeZero: (v) => v === 0 ? chalk.black.bgGreen(formatDetails(v)) : chalk.white.bgRed(formatDetails(v)),
+        aboveOrBelowZero: (v) => v < 0 ? chalk.black.bgGreen(formatDetails(v)) : v > 0 ? chalk.white.bgRed(formatDetails(v)) : formatDetails(v),
+      };
+      const mappings = {
+        'release': { title: 'Release' },
+        'release.current':    { title: 'Current', validator: validators.noCheck },
+        'release.durationTo': { title: 'Duration to', validator: validators.noCheck },
+        'release.scheduled':  { title: 'Scheduled', validator: validators.noCheck },
+        'release.delivered':  { title: 'Delivered', validator: validators.noCheck },
+        'stat': { title: 'Stats' },
+        'stat.activeMembers': { title: 'Active members', validator: validators.notAZero },
+        'stat.totalMembers':  { title: 'Total members', validator: validators.noCheck },
+        'stat.backlog':       { title: 'Tasks in backlog', validator: validators.noCheck },
+        'stat.dev':           { title: 'Tasks in development', validator: validators.noCheck },
+        'stat.blocked':       { title: 'Tasks in blocked state', validator: validators.shouldBeZero },
+        'stat.done':          { title: 'Tasks were completed', validator: validators.noCheck },
+        'issue': { title: 'Issues' },
+        'issue.noAssignee':   { title: 'Tasks with no assignee', validator: validators.shouldBeZero },
+        'issue.noEstimate':   { title: 'Tasks with no estimate', validator: validators.shouldBeZero },
+        'issue.noDeadline':   { title: 'Tasks with no deadline', validator: validators.shouldBeZero },
+        'issue.deficit':      { title: 'Current release deficit (h)', validator: validators.aboveOrBelowZero }
+      };
+      //
+      const report = await a.audit();
+      //
+      let shift = 2;
+      const spanning = Object.keys(report).map((k, i) => {
+        const l = Object.keys(report[k]).length;
+        shift += l;
+        return{
+          col: 0,
+          row: shift - l,
+          rowSpan: l,
+          verticalAlignment: 'top',
+        };
+      });
+      const config = {
+        columns: [
+          { alignment: 'left', width: areaWidth },
+          { alignment: 'left', width: featureWidth },
+          { alignment: 'right', width: detailsWidth },
+        ],
+        spanningCells: [
+          { col: 0, row: 0, colSpan: 3 }
+        ].concat(spanning),
+        border: getBorderCharacters('norc'),
+      };
+      const ddata = (Object.keys(report).map((k, i) => {
+        return Object.keys(report[k]).map((kk, ii) => {
+          const key = [k, kk].join('.');
+          return [
+            !ii ? mappings[k].title : '',
+            mappings[key].title,
+            mappings[key].validator(report[k][kk]),
+          ]
+        })
+      })).flat();
+      //
+      const data = [
+        ['SpheraX audit report', '', ''],
+        ['Area', 'Feature', 'Details']
+      ].concat(ddata);
+      console.log(table(data, config));
     });
   })
 
