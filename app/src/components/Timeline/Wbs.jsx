@@ -54,6 +54,9 @@ function Wbs() {
   const statuses = use(Context).context.statuses;
   const priorities = use(Context).context.priorities;
   //console.log('!Wbs', team, components, selectedMembers, timeline, deadline, interval, statuses, priorities);
+  // console.log('!Deadline', deadline);
+  // console.log('!Timeline', timeline);
+  // console.log('!Priorities', priorities);
   //
   // Components
   const handleComponentsChange = (newComponents) => {

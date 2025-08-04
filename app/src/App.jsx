@@ -13,7 +13,7 @@ import Projects from './components/Projects';
 import Timeline from './components/Timeline';
 import Team from './components/Team';
 import Docs from './components/Docs';
-import Assessment from './components/Assessment';
+// import Assessment from './components/Assessment';
 import Assistant from './components/Assistant';
 
 import { API_BASE_URL } from './shared/Consts';

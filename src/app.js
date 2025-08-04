@@ -46,10 +46,19 @@ class App {
   }
 
   async load(include, ignore) {
-    const tpmignore = await fg(['**/.tpmignore'], { cwd: this.home, dot: true });
+    // console.time('tpmignore');
+    let tpmignore = [];
+    const tpmIgnoreRecords = [];
+    /*
+    // DISABLE .tpmignore support for now, since it is down performance significantly
+    try {
+      tpmignore = await fg(['**\/.tpmignore'], { cwd: this.home, dot: true });
+    } catch (e) {
+      this.logger.error('Error while searching for .tpmignore files, please check permissions:', e.path);
+    }
+
     this.logger.info('.tpmignore:', tpmignore);
     //
-    const tpmIgnoreRecords = [];
     tpmignore.forEach(i => {
       const fp = path.join(this.home, i);
       if (fs.existsSync(fp)) {
@@ -67,10 +76,16 @@ class App {
       }
     });
     //
+    */
     const allIgnores = ignore.concat(tpmIgnoreRecords);
-    this.logger.info('ignore:', allIgnores);
+    this.logger.info('ignores:', allIgnores);
+    // console.timeEnd('tpmignore');
     //
-    this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
+    try {
+      this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
+    } catch (e) {
+      this.logger.error('Error while searching for .tpm.conf files, please check permissions:', e.path);
+    }
     this.logger.info('entries count:', this.entries.length);
     this.logger.info('entries to scan:', this.entries);
     await this.reload();
@@ -91,7 +106,7 @@ class App {
     let component = this.rootComponent;
     let components = [];
     const h = this.home;
-    const c = id && id !== '.' ? path.join(this.cwd, id) : this.cwd;
+    const c = !!id && (id !== '.') ? path.join(this.cwd, id) : this.cwd;
     if (h !== c) {
       components = path.relative(h, c).split(path.sep);
     }
@@ -203,10 +218,10 @@ class App {
   }
 
   async update(options) {
-    const {component, ids, status, git} = options;
+    const {component, ids, status, recursively} = options;
     const c = await this.getCurrentComponent(component);
     if (c) {
-      return await c.update({ids, status, git});
+      return await c.update({ids, status, recursively});
     }
   }
 
@@ -306,6 +321,44 @@ class App {
     } else {
       this.logger.warn(`${fp} file already exists, use --force option to override`);
     }
+  }
+
+
+  async audit() {
+    const report = {
+      'release': {
+        'current': '',
+        'durationTo': '',
+        'scheduled': 0,
+        'delivered': 0
+      },
+      'stat': {
+        // 'activeMembers': 0,
+        'totalMembers': 0,
+        'todo': 0,
+        'dev': 0,
+        'blocked': 0,
+        'done': 0
+      },
+      'issue': {
+        'noAssignee': 0,
+        'noEstimate': 0,
+        'noDeadline': 0,
+        // 'deficit': 0
+      }
+    };
+    const members = {};
+    const summary = {todo: 0, dev: 0, blocked: 0, done: 0};
+    //
+    const component = await this.getCurrentComponent();
+    await component.audit(report, members, summary);
+    report.stat.todo = summary.todo;
+    report.stat.dev = summary.dev;
+    report.stat.blocked = summary.blocked;
+    report.stat.done = summary.done;
+    // console.log(members);
+    // console.log(summary);
+    return report;
   }
 
   //

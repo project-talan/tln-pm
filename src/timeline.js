@@ -63,6 +63,14 @@ class Timeline {
   async getSummary() {
     return this.versions.map(v => ({ ...v }));
   }
+
+  async audit(report) {
+    report.release.current = (this.versions.find(v => v.current && v.active) || {uid: 'n/a'}).uid;
+    report.release.durationTo = (this.versions.find(v => v.current && v.active) || {durationToReleaseHR: 'n/a'}).durationToReleaseHR;
+    report.release.scheduled = this.versions.filter(v => v.active).length;
+    report.release.delivered = this.versions.filter(v => !v.active).length;
+  }
+
  
 }
 

@@ -10,10 +10,12 @@ const findUp = require('find-up')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers');
 const yaml = require('js-yaml');
-const { Table } = require("console-table-printer");
+const { table, getBorderCharacters } = require('table');
+const chalk = require('chalk');
 
 const loggerFactory = require('./src/logger');
 const appFactory = require('./src/app');
+const { title } = require('process');
 
 
 const getApp = async (argv, load, fn) => {
@@ -55,6 +57,7 @@ yargs(hideBin(process.argv))
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
   .option('d', { describe: 'Deadline', alias: 'deadline', default: [], type: 'array' })
   .option('a', { describe: 'Show for all team members', alias: 'all', default: false, type: 'boolean' })
+  .option('r', { describe: 'Execute command recursively', alias: 'recursively', default: false, type: 'boolean' })
 
   .option('file', { describe: 'File name', default: '.tpm.conf', type: 'string' })
 
@@ -73,14 +76,13 @@ yargs(hideBin(process.argv))
 
   .option('deadlines', { describe: 'Deadline for tasks spill over <from>:<to>', default: null, type: 'string' })
   .option('save', { describe: 'Save modifications', default: false, type: 'boolean' })
-  .option('git', { describe: 'Execute git commands in addition', default: false, type: 'boolean' })
   .option('force', { describe: 'Force command execution', default: false, type: 'boolean' })
   .option('json', { describe: 'Output in json format', default: false, type: 'boolean' })
   .option('yaml', { describe: 'Output in yaml format', default: false, type: 'boolean' })
   .option('hierarchy', { describe: 'Output nested components as hierarchy', default: false, type: 'boolean' })
   // 
   // ls command aims to work exclusively with tasks
-  .command('ls [component] [-g assignee] [-t tag]', 'Show list of tasks', (yargs) => {
+  .command('ls [component]', 'Show list of tasks', (yargs) => {
     return yargs
     .positional('component', {
       describe: 'Nested component to show',
@@ -93,8 +95,8 @@ yargs(hideBin(process.argv))
     await getApp(argv, true, async (a) => {
       // console.time('app callback');
       // console.log(argv);
+      a.logger.info('component:', argv.component);
       const defaultStatus = !(argv.backlog || argv.todo || argv.dev || argv.blocked || argv.done);
-      // console.time('component ls');
       const component = await a.ls({
         component: argv.component,
         depth: argv.depth,
@@ -124,53 +126,41 @@ yargs(hideBin(process.argv))
             a.logger.con(yaml.dump(component, {lineWidth: -1}));
           }
         } else {
-          const dump = (c, indent, last) => {
-            // title
-            let ti = `  `;
-            let percentage = '';
-            if (c.tasks.length) {
-              percentage = Math.round(c.tasks.reduce((acc, t) => acc + t.percentage, 0) / c.tasks.length);
-              if (percentage > 0) {
-                percentage = `(${percentage}%)`;
+          const dumpComponent = (c, indent, last) => {
+            if (c.tasks.length || ( c.components.length && hierarchy)) {
+              if (hierarchy) {
+                a.logger.con(`${indent}${last?'└':'├'} ${c.id}`);
               } else {
-                percentage = '';
+                a.logger.con(``);
+                a.logger.con(`~ ${c.relativePath}`);
+              }
+              //
+              const dumpTask = (t, indent) => {
+                if (t.title) {
+                  const g = t.assignees.length ? ` @(${t.assignees.join(',')})` : '';
+                  const tg = t.tags.length ? ` #(${t.tags.join(',')})` : '';
+                  const dl = t.deadline ? ` (${t.deadline})` : '';
+                  const id = t.id ? ` ${t.id}:` : '';
+                  a.logger.con(`${indent}${t.status}${id} ${t.title}${g}${tg}${dl}`);
+                  // sub tasks
+                  for (const st of t.tasks) {
+                    dumpTask(st, `${indent}  `);
+                  }
+                }
+              }
+              const ti = hierarchy ? `${indent}${last?' ':'|'} * ` : '  ';
+              for (const t of c.tasks) {
+                dumpTask(t, ti);
               }
             }
-            if (hierarchy) {
-              ti = `${indent}` + ((last && c.components.length === 0) ? ' ' : '│')
-              const title = (c.id) ? `${indent}${last?'└':'├'} ${c.id}` : '';
-              a.logger.con(`${title} ${percentage}`);
-            } else {
-              if (c.tasks.length) {
-                a.logger.con(`${prefix}`);
-                a.logger.con(`${prefix}~ ${c.relativePath} ${percentage}`);
-              }
-            }
-            // tasks
-            const out = (task, indent) => {
-              if (task.title) {
-                const g = task.assignees.length ? ` @(${task.assignees.join(',')})` : '';
-                const tg = task.tags.length ? ` #(${task.tags.join(',')})` : '';
-                const dl = task.deadline ? ` (${task.deadline})` : '';
-                const id = task.id ? ` ${task.id}:` : '';
-                a.logger.con(`${prefix}${indent}${task.status}${id} ${task.title}${g}${tg}${dl}`);
-              }
-              // console.log(task);
-              for (const t of task.tasks) {
-                out(t, `${indent}  `);
-              }
-            }
-            for (const t of c.tasks) {
-              out(t, ti);
-            }
-            // components
-            const lng = c.components.length;
-            for (let i = 0; i < lng; i++) {
-              const lc = (i === lng - 1);
-              dump(c.components[i], indent + (last? '  ' : '│ '), lc);
+            //
+            // nested components
+            c.components.sort((a, b) => a.relativePath < b.relativePath ? -1 : 1);
+            for (let i = 0; i < c.components.length; i++) {
+              dumpComponent(c.components[i], `${indent}${last?' ':'|'} `, i === c.components.length - 1);
             }
           }
-          dump(component, '', true);
+          dumpComponent(component, '', true);
         }
       }
       // console.timeEnd('print');
@@ -235,18 +225,18 @@ yargs(hideBin(process.argv))
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
       // console.log(argv);
-      const cmds = await a.update({
+      const ids = argv.id ? argv.id.split(':') : [];
+      const sources = await a.update({
         component: argv.component,
-        ids: argv.id.split(':'),
+        ids,
         status: { todo: argv.todo, dev: argv.dev, blocked: argv.blocked, done: argv.done },
-        git: argv.git,
+        recursively: argv.recursively,
       });
       //
-      if (cmds) {
-        for (const cmd of cmds) {
-          a.logger.con(cmd);
-        }
-      }
+      [...new Set(sources)].forEach(async (s) => {
+        await s.save();
+        a.logger.info(`Updated: ${s.file}`);
+      });
     });
   })
   //
@@ -269,9 +259,12 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       await getApp(argv, true, async (a) => {
+        try {
         // console.log(argv);
-        if (argv.deadlines) {
           const [from, to] = argv.deadlines.split(':');
+          if (!from || !to) {
+            throw new Error('Invalid deadlines format');
+          }
           await a.spillOver({
             component: argv.component,
             id: argv.id,
@@ -279,8 +272,8 @@ yargs(hideBin(process.argv))
             to,
             save: argv.save
           });
-        } else {
-          a.logger.error('Please provide "--deadlines from:to" for spill over');
+        } catch (e) {
+          a.logger.error('Provide option in format "--deadlines from:to" for spill over');
         }
       });
     }
@@ -320,30 +313,83 @@ yargs(hideBin(process.argv))
       });
     });
   })
-  .command('audit', 'Audit project PM status', (yargs) => {
+  .command('audit', 'Audit project', (yargs) => {
     return yargs;
   }, async (argv) => {
     await getApp(argv, true, async (a) => {
-      //Create a table
-      const p = new Table();
-
-      //add rows with color
-      p.addRow(
-        { "LineNr.": 1, text: "red wine please", value: 10.212 },
-        { color: "red" }
-      );
-      p.addRow(
-        { "LineNr.": 2, text: "green gemuse please", value: 20.0 },
-        { color: "green" }
-      );
-      p.addRows([
-        //adding multiple rows are possible
-        { "LineNr.": 3, text: "gelb bananen bitte", value: 100 },
-        { "LineNr.": 4, text: "update is working", value: 300 },
-      ]);
-
-      //print
-      p.printTable();
+      const areaWidth = 10;
+      const featureWidth = 30;
+      const detailsWidth = 80 - areaWidth - featureWidth;
+      //
+      const formatDetails = (v) => {
+        return v.toString().padStart(detailsWidth, ' ');
+      }
+      const validators = {
+        noCheck: (v) => formatDetails(v),
+        notAZero: (v) => v > 0 ? v : chalk.white.bgRed(formatDetails(v)),
+        shouldBeZero: (v) => v === 0 ? chalk.black.bgGreen(formatDetails(v)) : chalk.white.bgRed(formatDetails(v)),
+        aboveOrBelowZero: (v) => v < 0 ? chalk.black.bgGreen(formatDetails(v)) : v > 0 ? chalk.white.bgRed(formatDetails(v)) : formatDetails(v),
+      };
+      const mappings = {
+        'release': { title: 'Release' },
+        'release.current':    { title: 'Current', validator: validators.noCheck },
+        'release.durationTo': { title: 'Duration to', validator: validators.noCheck },
+        'release.scheduled':  { title: 'Scheduled', validator: validators.noCheck },
+        'release.delivered':  { title: 'Delivered', validator: validators.noCheck },
+        'stat': { title: 'Stats' },
+        'stat.activeMembers': { title: 'Active members', validator: validators.notAZero },
+        'stat.totalMembers':  { title: 'Total members', validator: validators.noCheck },
+        'stat.todo':          { title: 'Tasks in doto', validator: validators.noCheck },
+        'stat.dev':           { title: 'Tasks in development', validator: validators.noCheck },
+        'stat.blocked':       { title: 'Tasks in blocked state', validator: validators.shouldBeZero },
+        'stat.done':          { title: 'Tasks were completed', validator: validators.noCheck },
+        'issue': { title: 'Issues' },
+        'issue.noAssignee':   { title: 'Tasks with no assignee', validator: validators.shouldBeZero },
+        'issue.noEstimate':   { title: 'Tasks with no estimate', validator: validators.shouldBeZero },
+        'issue.noDeadline':   { title: 'Tasks with no deadline', validator: validators.shouldBeZero },
+        'issue.deficit':      { title: 'Current release deficit (h)', validator: validators.aboveOrBelowZero }
+      };
+      //
+      const report = await a.audit();
+      //
+      let shift = 2;
+      const spanning = Object.keys(report).map((k, i) => {
+        const l = Object.keys(report[k]).length;
+        shift += l;
+        return{
+          col: 0,
+          row: shift - l,
+          rowSpan: l,
+          verticalAlignment: 'top',
+        };
+      });
+      const config = {
+        columns: [
+          { alignment: 'left', width: areaWidth },
+          { alignment: 'left', width: featureWidth },
+          { alignment: 'right', width: detailsWidth },
+        ],
+        spanningCells: [
+          { col: 0, row: 0, colSpan: 3 }
+        ].concat(spanning),
+        border: getBorderCharacters('norc'),
+      };
+      const ddata = (Object.keys(report).map((k, i) => {
+        return Object.keys(report[k]).map((kk, ii) => {
+          const key = [k, kk].join('.');
+          return [
+            !ii ? mappings[k].title : '',
+            mappings[key].title,
+            mappings[key].validator(report[k][kk]),
+          ]
+        })
+      })).flat();
+      //
+      const data = [
+        ['SpheraX audit report', '', ''],
+        ['Area', 'Feature', 'Details']
+      ].concat(ddata);
+      console.log(table(data, config));
     });
   })
 

@@ -1,6 +1,6 @@
 {
   "name": "tln-pm",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Project Management as Code",
   "main": "cli.js",
   "scripts": {
@@ -36,9 +36,9 @@
   "homepage": "https://github.com/project-talan/tln-pm#readme",
   "dependencies": {
     "assign-deep": "^1.0.1",
+    "chalk": "^4.1.2",
     "chokidar": "^4.0.3",
     "compare-versions": "^6.1.1",
-    "console-table-printer": "^2.12.1",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "enhanced-ms": "^3.1.0",
@@ -47,6 +47,7 @@
     "find-up": "^4.1.0",
     "js-yaml": "^4.1.0",
     "log4js": "^6.9.1",
+    "table": "^6.9.0",
     "yaml": "^2.5.1",
     "yargs": "^17.7.2"
   },

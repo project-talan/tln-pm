@@ -36,7 +36,8 @@ class Team {
 
   async load(data, project) {
     if (data) {
-      this.members = Object.keys(data).map( k => {
+      const keys = Object.keys(data);
+      this.members = keys.map( k => {
         return ({
           id: k,
           name: data[k].name,
@@ -72,6 +73,15 @@ class Team {
 
   async getSummary() {
     return this.members.map(v => ({ ...v }));
+  }
+
+  async audit(report, members) {
+    report.stat.totalMembers += this.members.length;
+    this.members.forEach( m => {
+      if (!members[m.id]) {
+        members[m.id] = 0;
+      }
+    });
   }
 
 }

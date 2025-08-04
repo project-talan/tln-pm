@@ -437,12 +437,12 @@ class Component {
   }
 
   async update(options) {
-    const {ids, status, git} = options;
+    const {ids, status, recursively, git} = options;
     let tasks = [];
     for(let id of ids) {
       tasks = tasks.concat((await Promise.all(this.tasks.map(async t => t.findByIds(id.split('/'))))).filter(v => !!v));
     }
-    return (await Promise.all(tasks.map(async t => t.update({status, git})))).flat();
+    return (await Promise.all(tasks.map(async t => t.update({status, recursively, git})))).flat();
   }
 
   async modify(options, taskCallback, componentCallback) {
@@ -468,6 +468,13 @@ class Component {
     );
   }
 
+  async audit(report, members, summary) {
+    //console.log(this.id, this.tasks);
+    await Promise.all(this.team.map(async t => await t.audit(report, members)));
+    await Promise.all(this.timeline.map(async t => await t.audit(report)));
+    await Promise.all(this.tasks.map(async t => await t.audit(report, members, summary)));
+    await Promise.all(this.components.map(async c => await c.audit(report, members, summary)));
+  }
 }
 
 module.exports.create = (logger, home, id) => {

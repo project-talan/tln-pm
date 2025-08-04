@@ -43,7 +43,6 @@ class Task {
     this.tags = [];
     this.links = [];
     this.tasks = [];
-    this.audit = {};
   }
 
   // output tasks in yaml format
@@ -90,26 +89,19 @@ class Task {
   }
 
   async update(options) {
-    const {relativePath, status, git} = options;
+    const {relativePath, status, recursively} = options;
     let commitMsg = '';
     const cmds = [];
     if (status.todo) {
       this.status = '-';
     } else if (status.dev) {
       this.status = '>';
-      const checkoutBranch = (relativePath ? `${relativePath}/` : ``) + this.id;
-      cmds.push(`git checkout -b ${checkoutBranch}`);
-      //
-      commitMsg = 'feat' + (relativePath ? `(${relativePath})` : ``) + `: ${this.id} - ${this.title.substring(0, 20)}"`;
     } else if (status.blocked) {
       this.status = '!';
     } else if (status.done) {
       this.status = '+';
     }
-    await this.source.save();
-    cmds.push(`git add -A`);
-    cmds.push(`git commit -m"${commitMsg}"`);
-    return git ? cmds : [];
+    return [this.source].concat( recursively ? (await Promise.all(this.tasks.map(async t => t.update(options)))).flat() : []);
   }
 
   getNormaliseStatus(statuses) {
@@ -236,22 +228,56 @@ class Task {
     }
   }
 
+  async getTaskSummary(summary) {
+    switch (this.status) {
+      case '-': summary.todo++; break;
+      case '>': summary.dev++; break;
+      case '!': summary.blocked++; break;
+      case '+': summary.done++; break;
+    }
+  }
+
   async getSummary(summary) {
     if (this.tasks.length) {
       await Promise.all(this.tasks.map(async t => t.getSummary(summary)));
     } else {
-      switch (this.status) {
-        case '-': summary.todo++; break;
-        case '>': summary.dev++; break;
-        case '!': summary.blocked++; break;
-        case '+': summary.done++; break;
-      }
+      await this.getTaskSummary(summary);
     }
   }
   
   async getCountByDeadlime(deadline) {
     const st = await Promise.all(this.tasks.map(async t => t.getCountByDeadlime(deadline)));
     return this.deadline === deadline ? 1 : 0 + st.reduce((acc, c) => acc + c, 0);
+  }
+
+  async audit(report, members, summary) {
+    if (this.parent) {
+      if (this.tasks.length) {
+      } else {
+        // leaf task
+        await this.getTaskSummary(summary);
+      }
+    } else {
+      // root tasks, check assignees, estimates, deadines and summary
+      if (!this.estimate) {
+        report.issue.noEstimate++;
+      }
+      if (!this.deadline) {
+        report.issue.noDeadline++;
+      }
+      if (this.assignees.length) {
+        this.assignees.forEach( a => {
+          if (!members[a]) {
+            members[a] = {tasks: 0};
+          }
+          members[a].tasks++;
+        });
+      } else {
+        report.issue.noAssignee++;
+      }
+      await this.getSummary(summary);
+    }
+    await Promise.all(this.tasks.map(async t => await t.audit(report, members, summary)));
   }
 
 }
