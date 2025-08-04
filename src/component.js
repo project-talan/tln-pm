@@ -468,12 +468,12 @@ class Component {
     );
   }
 
-  async audit(report, members) {
+  async audit(report, members, summary) {
     //console.log(this.id, this.tasks);
     await Promise.all(this.team.map(async t => await t.audit(report, members)));
     await Promise.all(this.timeline.map(async t => await t.audit(report)));
-    await Promise.all(this.tasks.map(async t => await t.audit(report, members)));
-    await Promise.all(this.components.map(async c => await c.audit(report, members)));
+    await Promise.all(this.tasks.map(async t => await t.audit(report, members, summary)));
+    await Promise.all(this.components.map(async c => await c.audit(report, members, summary)));
   }
 }
 

@@ -228,16 +228,20 @@ class Task {
     }
   }
 
+  async getTaskSummary(summary) {
+    switch (this.status) {
+      case '-': summary.todo++; break;
+      case '>': summary.dev++; break;
+      case '!': summary.blocked++; break;
+      case '+': summary.done++; break;
+    }
+  }
+
   async getSummary(summary) {
     if (this.tasks.length) {
       await Promise.all(this.tasks.map(async t => t.getSummary(summary)));
     } else {
-      switch (this.status) {
-        case '-': summary.todo++; break;
-        case '>': summary.dev++; break;
-        case '!': summary.blocked++; break;
-        case '+': summary.done++; break;
-      }
+      await this.getTaskSummary(summary);
     }
   }
   
@@ -246,14 +250,15 @@ class Task {
     return this.deadline === deadline ? 1 : 0 + st.reduce((acc, c) => acc + c, 0);
   }
 
-  async audit(report, members) {
+  async audit(report, members, summary) {
     if (this.parent) {
       if (this.tasks.length) {
-        await Promise.all(this.tasks.map(async t => await t.audit(report)));
       } else {
+        // leaf task
+        await this.getTaskSummary(summary);
       }
     } else {
-      // root tasks, check assignees and estimates
+      // root tasks, check assignees, estimates, deadines and summary
       if (!this.estimate) {
         report.issue.noEstimate++;
       }
@@ -263,15 +268,16 @@ class Task {
       if (this.assignees.length) {
         this.assignees.forEach( a => {
           if (!members[a]) {
-            members[a] = 0;
+            members[a] = {tasks: 0};
           }
-          members[a]++;
+          members[a].tasks++;
         });
       } else {
         report.issue.noAssignee++;
       }
-
+      await this.getSummary(summary);
     }
+    await Promise.all(this.tasks.map(async t => await t.audit(report, members, summary)));
   }
 
 }

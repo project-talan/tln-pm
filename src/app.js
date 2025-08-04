@@ -333,9 +333,9 @@ class App {
         'delivered': 0
       },
       'stat': {
-        'activeMembers': 0,
+        // 'activeMembers': 0,
         'totalMembers': 0,
-        'backlog': 0,
+        'todo': 0,
         'dev': 0,
         'blocked': 0,
         'done': 0
@@ -344,14 +344,20 @@ class App {
         'noAssignee': 0,
         'noEstimate': 0,
         'noDeadline': 0,
-        'deficit': 0
+        // 'deficit': 0
       }
     };
     const members = {};
+    const summary = {todo: 0, dev: 0, blocked: 0, done: 0};
     //
     const component = await this.getCurrentComponent();
-    await component.audit(report, members);
-    console.log(members);
+    await component.audit(report, members, summary);
+    report.stat.todo = summary.todo;
+    report.stat.dev = summary.dev;
+    report.stat.blocked = summary.blocked;
+    report.stat.done = summary.done;
+    // console.log(members);
+    // console.log(summary);
     return report;
   }
 
