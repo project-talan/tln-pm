@@ -339,7 +339,7 @@ yargs(hideBin(process.argv))
         'stat': { title: 'Stats' },
         'stat.activeMembers': { title: 'Active members', validator: validators.notAZero },
         'stat.totalMembers':  { title: 'Total members', validator: validators.noCheck },
-        'stat.todo':          { title: 'Tasks in doto', validator: validators.noCheck },
+        'stat.todo':          { title: 'Tasks in todo', validator: validators.noCheck },
         'stat.dev':           { title: 'Tasks in development', validator: validators.noCheck },
         'stat.blocked':       { title: 'Tasks in blocked state', validator: validators.shouldBeZero },
         'stat.done':          { title: 'Tasks were completed', validator: validators.noCheck },
@@ -386,7 +386,7 @@ yargs(hideBin(process.argv))
       })).flat();
       //
       const data = [
-        ['SpheraX audit report', '', ''],
+        ['??? audit report', '', ''],
         ['Area', 'Feature', 'Details']
       ].concat(ddata);
       console.log(table(data, config));

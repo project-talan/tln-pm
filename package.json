@@ -16,7 +16,8 @@
     ]
   },
   "bin": {
-    "tpm": "cli.js"
+    "tpm": "cli.js",
+    "tpmw": "cli.js"
   },
   "repository": {
     "type": "git",
