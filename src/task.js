@@ -259,7 +259,7 @@ class Task {
       }
     } else {
       // root tasks, check assignees, estimates, deadines and summary
-      if (!this.estimate) {
+      if (!this.estimate && this.status !== '+') {
         report.issue.noEstimate++;
       }
       if (!this.deadline) {
