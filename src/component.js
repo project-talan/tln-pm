@@ -11,6 +11,7 @@ const { mergeTwoTeams, getDurationToDate } = require('./utils');
 const projectFactory = require('./project');
 const teamFactory = require('./team');
 const timelineFactory = require('./timeline');
+const refsFactory = require('./refs');
 const taskFactory = require('./task');
 const docsFactory = require('./docs');
 const { features } = require('process');
@@ -27,6 +28,7 @@ class Component {
     this.project = [];
     this.team = [];
     this.timeline = [];
+    this.refs = [];
     this.tasks = [];
     this.docs = [];
     this.components = [];
@@ -108,6 +110,12 @@ class Component {
       this.timeline.push(timeline);
       result |= true;
     }
+    if (data.refs) {
+      const refs = refsFactory.create(this.logger, source);
+      await refs.load(data.refs, this.project[0].id);
+      this.refs.push(refs);
+      result |= true;
+    }
     if (data.tasks) {
       const task = taskFactory.create(this.logger, source);
       await task.parse(data.tasks.split('\n').filter(t => t.trim().length), 0);
@@ -161,6 +169,16 @@ class Component {
         }
       } 
     }
+    // refs
+    if (this.refs.length) {
+      for (const r of this.refs) {
+        const refs = await r.reconstruct(source);
+        if (refs) {
+          data.refs = refs;
+          break;
+        }
+      } 
+    }
     // tasks
     const tasks = (await Promise.all(this.tasks.map(async t => t.reconstruct(source)))).filter(v => !!v).flat();
     if (tasks.length) {
@@ -196,6 +214,17 @@ class Component {
       return await this.parent.getAssignees(aees);
     }
     return aees;
+  }
+
+  async getRefs() {
+    const refs = [];
+    for (const r of this.refs) {
+      const ref = await r.getRefs();
+      if (ref) {
+        refs.push(ref);
+      }
+    }
+    return refs;
   }
 
   async ls(options) {

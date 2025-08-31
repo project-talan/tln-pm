@@ -1,6 +1,6 @@
 {
   "name": "tln-pm",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Project Management as Code",
   "main": "cli.js",
   "scripts": {
@@ -16,14 +16,16 @@
     ]
   },
   "bin": {
-    "tpm": "cli.js"
+    "tpm": "cli.js",
+    "tpmw": "cli.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/project-talan/tln-pm.git"
   },
   "keywords": [
-    "prohect",
+    "project management as code",
+    "project",
     "management",
     "software",
     "development"
