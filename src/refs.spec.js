@@ -18,7 +18,7 @@ class SourceMock {
 describe('Refs entity', function () {
 
   it('can be created', function () {
-    expect(teamFactory.create(logger)).not.to.be.null;
+    expect(refsFactory.create(logger)).not.to.be.null;
   });
 
   it('can be loaded', async function () {
@@ -26,7 +26,7 @@ describe('Refs entity', function () {
     const refs = refsFactory.create(logger, source);
     await refs.load(['src', 'app']); 
     expect(refs.refs.length).to.equal(2);
-    expect(refs.refs[0].id).to.equal('ref1');
-    expect(refs.refs[1].id).to.equal('ref2');
+    expect(refs.refs[0]).to.equal('src');
+    expect(refs.refs[1]).to.equal('app');
   });
 });
