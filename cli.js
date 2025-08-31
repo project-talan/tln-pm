@@ -195,11 +195,11 @@ yargs(hideBin(process.argv))
   .command('describe [component] [id]', 'Describe component or task', (yargs) => {
     return yargs
     .positional('component', {
-      describe: 'Nested component to show',
+      describe: 'Nested component',
       default: null
     })
     .positional('id', {
-      describe: 'Optional entity id',
+      describe: 'Optional task id',
       default: null
     });
   }, async (argv) => {
@@ -218,6 +218,36 @@ yargs(hideBin(process.argv))
         }
       } else {
         a.logger.con(r);
+      }
+    });
+  })
+  //
+  .command('inspect [component] [id]', 'Inspect component or task', (yargs) => {
+    return yargs
+    .positional('component', {
+      describe: 'Component',
+      default: null
+    })
+    .positional('id', {
+      describe: 'Optional task id',
+      default: null
+    });
+  }, async (argv) => {
+    await getApp(argv, true, async (a) => {
+      // console.log(argv);
+      const r = await a.inspect({
+        component: argv.component,
+        id: argv.id,
+        what: { component: true },
+      });
+      if (argv.json || argv.yaml) {
+        if (argv.json) {
+          a.logger.con(JSON.stringify(r));
+        } else {
+          a.logger.con(yaml.dump(r, {lineWidth: -1}));
+        }
+      } else {
+        a.logger.con(yaml.dump(r, {lineWidth: -1}));
       }
     });
   })

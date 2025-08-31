@@ -262,6 +262,13 @@ class Component {
     }
   }
 
+  async inspect(taskId) {
+    return ({
+      id: this.id,
+      home: this.getHome()
+    });
+  }
+
   async describeComponent() {
     // TODO: remove hardcoded array and use real data
     const keys = [
