@@ -22,6 +22,7 @@ class App {
     this.sources = [];
     this.entries = [];
     this.rootComponent = null;
+    this.skipScan = false;
     //
     if (!logger) {
       throw new Error('Logger is required');
@@ -29,7 +30,9 @@ class App {
   }
 
   //
-  async init(include, ignore) {
+  async init(options) {
+    this.skipScan = options.skipScan || false;
+    //
     // find git top level directory
     this.cwd = process.cwd();
     this.home = this.cwd;
@@ -50,7 +53,7 @@ class App {
     let tpmignore = [];
     const tpmIgnoreRecords = [];
     /*
-    // DISABLE .tpmignore support for now, since it is down performance significantly
+    // DISABLE .tpmignore support for now, since it downs performance significantly
     try {
       tpmignore = await fg(['**\/.tpmignore'], { cwd: this.home, dot: true });
     } catch (e) {
@@ -82,23 +85,33 @@ class App {
     // console.timeEnd('tpmignore');
     //
     try {
-      this.entries = await fg(include, { cwd: this.home, dot: true, ignore: allIgnores });
+      this.entries = await fg(this.skipScan ? '.tpm.conf' : include, { cwd: this.home, dot: true, ignore: allIgnores });
     } catch (e) {
       this.logger.error('Error while searching for .tpm.conf files, please check permissions:', e.path);
     }
-    this.logger.info('entries count:', this.entries.length);
-    this.logger.info('entries to scan:', this.entries);
+    this.logger.info('Entries count:', this.entries.length);
+    this.logger.info('Entries to scan:', this.entries);
     await this.reload();
   }
 
   async reload() {
     this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
-    for (const e of this.entries) {
-      const ids = e.split(path.sep); ids.pop();
+    const entries = this.entries.map(e => e);
+    while (entries.length) {
+      const e = entries.pop();
+      const ids = e.split(path.sep); ids.pop(); // remove file name
       const c = await this.rootComponent.find(ids, true);
       const source = sourceFactory.create(this.logger, path.join(this.home, e), c);
       this.sources.push(source);
       await c.process(source);
+      //
+      if (this.skipScan) {
+        const refs = (await c.getRefs()).flat();
+        for (const r of refs) {
+          const ne = path.relative(this.home, path.join(c.getHome(), r, '.tpm.conf'));
+          entries.push(ne);
+        }
+      }
     }
   }
 

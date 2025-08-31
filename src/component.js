@@ -216,6 +216,17 @@ class Component {
     return aees;
   }
 
+  async getRefs() {
+    const refs = [];
+    for (const r of this.refs) {
+      const ref = await r.getRefs();
+      if (ref) {
+        refs.push(ref);
+      }
+    }
+    return refs;
+  }
+
   async ls(options) {
     const {depth, who, filter} = options;
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};

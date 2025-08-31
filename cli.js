@@ -22,6 +22,7 @@ const getApp = async (argv, load, fn) => {
   const verbose = argv.verbose;
   const include = argv.include.split(';');
   const ignore = argv.ignore.split(';');
+  const skipScan = argv.skipScan;
   //
   // console.time('get app');
   // console.time('create logger');
@@ -32,7 +33,7 @@ const getApp = async (argv, load, fn) => {
   // console.timeEnd('create app');
   //a.logger.con(argv);
   // console.time('init app');
-  await a.init();
+  await a.init({skipScan});
   // console.timeEnd('init app');
   // console.time('load app');
   if (load) {
@@ -52,6 +53,7 @@ yargs(hideBin(process.argv))
   .option('include', { default: '**/.tpm.conf', type: 'string' })
   .option('ignore', { default: '**/node_modules', type: 'string' })
   .option('depth', { describe: 'Scan depth', default: 5, type: 'number' })
+  .option('skip-scan', { describe: 'Skip scanning for files, user predefined refs inside files instead', default: false, type: 'boolean' })
   .option('g', { describe: 'Assignee(s), if not defined git user email will be used', alias: 'assignee', default: [], type: 'array' })
   .option('t', { describe: 'Filter output using tag value', alias: 'tag', default: [], type: 'array' })
   .option('s', { describe: 'String to search', alias: 'search', default: [], type: 'array' })
