@@ -240,12 +240,8 @@ yargs(hideBin(process.argv))
         id: argv.id,
         what: { component: true },
       });
-      if (argv.json || argv.yaml) {
-        if (argv.json) {
-          a.logger.con(JSON.stringify(r));
-        } else {
-          a.logger.con(yaml.dump(r, {lineWidth: -1}));
-        }
+      if (argv.json) {
+        a.logger.con(JSON.stringify(r));
       } else {
         a.logger.con(yaml.dump(r, {lineWidth: -1}));
       }
