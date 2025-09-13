@@ -280,6 +280,20 @@ class Task {
     await Promise.all(this.tasks.map(async t => await t.audit(report, members, summary)));
   }
 
+  async inspect() {
+    const title = this.title;
+    const assignees = this.assignees.join(', ');
+    const r = { title };
+    if (assignees) {
+      r.assignees = assignees;
+    }
+    const tasks = await Promise.all(this.tasks.map(t => t.inspect()));
+    if (tasks.length) {
+      r.tasks = tasks;
+    }
+    return r;
+  }
+
 }
 
 module.exports.create = (logger, source) => {
