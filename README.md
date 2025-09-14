@@ -84,12 +84,12 @@
     | [-] Simple task with description only | This format is useful for subtasks |
   
   * First symbol in square brackets describes status of the task
-    | Symbol | Meaning         |
-    | ---    | ---             |
-    | \-     | todo            |
-    | >      | in development  |
-    | !      | blocked         |
-    | \+     | done            |
+    | Symbol | Meaning         | CLI option |
+    | ---    | ---             | ---        |
+    | \-     | todo            | --todo     |
+    | >      | in development  | --dev      |
+    | !      | blocked         | --blocked  |
+    | \+     | done            | --done     |
 
 ## Mentionings, Tags, Links
 A lightweight DSL may be included in the task title to enrich it with additional context and details
@@ -101,14 +101,15 @@ A lightweight DSL may be included in the task title to enrich it with additional
 ```
 
 ## Command line options
-General format
+
+| **Note** : `Use tln --help for more details` |
+| ----------------------------------|
 ```
-tpm [ls | inspect | update | config] [component] [id] [optios]
+tpm [ls | config | inspect | update | normalise | spillover | serve | audit] [component] [id] [optios]
 ```
 | Command (parameters & options)  | Default | Description |
 | ------------- | ------------- | ------------- |
 | tpm ls | | Display list of tasks for current git user |
-| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
 | tpm ls --todo | false | Display list of tasks for current git user in development |
 | tpm ls --dev | true | Display list of tasks for current git user in development |
@@ -117,6 +118,20 @@ tpm [ls | inspect | update | config] [component] [id] [optios]
 | tpm ls -a | false | Display tasks are in development for all users |
 | tpm ls -t backend | | Display tasks with 'backend' tag |
 | tpm ls -s cognito | | Display tasks with 'cognito' string in title |
+| | |
+| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
+| | |
+| tpm inspect | | Show details about component |
+| tpm inspect . 013 | | Show details about task woth id - 013 for current component |
+| | |
+| tpm update backend 017 --done | | Mark task with id - 017 inside backend component as done |
+| | |
+| tpm normalise platform/premise 001 | | Ensure task statuses are synchronized recursively and consistently |
+| tpm spillover web/libs --deadlines 25.9.2:25.9.3 --save | | Spill over all tasks under web/libs component from 25.9.2 release to 25.9.3 and update configs |
+| | |
+| tpm serve | | Launch a local web server to explore project details through the browser |
+| | |
+| tpm audit | | Perform a comprehensive project audit covering multiple dimensions — including unassigned tasks, blocked work, and other critical metrics |
 
 ## DSL
 
