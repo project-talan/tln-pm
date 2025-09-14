@@ -45,7 +45,8 @@ const getApp = async (argv, load, fn) => {
 }
 
 const configPath = findUp.sync(['.tpmrc']);
-yargs(hideBin(process.argv))
+const y = yargs(hideBin(process.argv));
+const cli = y
   .help('help').alias('help', 'h')
   .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
@@ -341,6 +342,7 @@ yargs(hideBin(process.argv))
       });
     });
   })
+  //
   .command('audit', 'Audit project', (yargs) => {
     return yargs;
   }, async (argv) => {
@@ -420,8 +422,6 @@ yargs(hideBin(process.argv))
       console.log(table(data, config));
     });
   })
-
-
   //
   .command(
     'about', 'Dislay project information',
@@ -449,8 +449,6 @@ yargs(hideBin(process.argv))
       console.log(String.raw`   github : https://github.com/project-talan/tln-pm.git      `);
       console.log();
     }
-  )
-  .parse();
-
-
-      
+  );
+//
+cli.parse();
