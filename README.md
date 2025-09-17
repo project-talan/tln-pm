@@ -23,7 +23,7 @@
 ## Demo project
 * Run next docker command to see tpm in action using test project
   ```
-  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.21.0
+  docker run -it -p 5445:5445 --rm vladyslavkurmaz/sh.tln.pm:0.22.0
   ```
 * Open next link in browser
   ```
@@ -31,11 +31,13 @@
   ```
 
 ## Quick start
+| **Note** : `Windows has its own **tpm** utility. To prevent conflicts, the Talan CLI is available as **tpmw* on Windows` |
+| ----------------------------------|
 
 * Install `Nodejs 20.x` or higher (https://nodejs.org)
 * Install tpm
   ```
-  npm i -g tln-pm@0.20.0
+  npm i -g tln-pm@0.22.0
   ```
 * Navigate to your project's Git repository root folder and set up the initial configuration
   ```
@@ -53,13 +55,13 @@
       email: alice.c@gmail.com
       name: Alice Clarke
   timeline:
-    25.2.0:
-      deadline: '2025-02-28T18:00:00.000Z'
+    25.9.0:
+      deadline: '2025-09-28T18:00:00.000Z'
   tasks: |
-    [>:002:25.2.0] Integrate auth library @alice.c
+    [>:002:25.9.0] Integrate auth library @alice.c
       [!] Add /iam/auth endpoint #16h
       [>] Configure auth callbacks #4h
-    [-:001:25.2.0] Create project structure #16h @alice.c
+    [-:001:25.9.0] Create project structure #16h @alice.c
   ```
 * Now you can start managing your project using cli and git
 
@@ -77,32 +79,37 @@
   * Task can be described in multiple forms depends on requirements
     | Example  | Description |
     | ------------- | ------------- |
-    | [-] Simple task with description only | This format is useful for subtasks |
+    | [-:010:25.2.0] Task with release version | This format should be used for top level task with specific deadline |
     | [-:001] Task with Id | Top level task but without delivery version |
-    | [-:010:25.2.0] Task with delivery version | This format should be used for top level task with specific deadline |
+    | [-] Simple task with description only | This format is useful for subtasks |
   
   * First symbol in square brackets describes status of the task
-    | Symbol | Meaning         |
-    | ---    | ---             |
-    | \-     | todo            |
-    | >      | in development  |
-    | !      | blocked         |
-    | \+     | done            |
+    | Symbol | Meaning         | CLI option |
+    | ---    | ---             | ---        |
+    | \-     | todo            | --todo     |
+    | >      | in development  | --dev      |
+    | !      | blocked         | --blocked  |
+    | \+     | done            | --done     |
 
 ## Mentionings, Tags, Links
-  * @alex.m - will bind Alex with specfic task
-  * #backend - will add `backend` tag to the task
-  * #16h - will define estimate for the task
+A lightweight DSL may be included in the task title to enrich it with additional context and details
+  * @alex.m - assigns the task to Alex
+  * #backend - adds the backend tag to the task
+  * #16h - sets the time estimate for the task to 16 hours
+```
+[-:021:25.9.2] Add Sonarcloud into CI/CD #4h @vlad.k #devops
+```
 
 ## Command line options
-General format
+
+| **Note** : `Use tln --help for more details` |
+| ----------------------------------|
 ```
-tpm [ls | config] [component] [id] [optios]
+tpm [ls | config | inspect | update | normalise | spillover | serve | audit] [component] [id] [optios]
 ```
 | Command (parameters & options)  | Default | Description |
 | ------------- | ------------- | ------------- |
 | tpm ls | | Display list of tasks for current git user |
-| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
 | tpm ls --backlog | false | Display list of tasks for current git user are waiting for completion |
 | tpm ls --todo | false | Display list of tasks for current git user in development |
 | tpm ls --dev | true | Display list of tasks for current git user in development |
@@ -111,6 +118,20 @@ tpm [ls | config] [component] [id] [optios]
 | tpm ls -a | false | Display tasks are in development for all users |
 | tpm ls -t backend | | Display tasks with 'backend' tag |
 | tpm ls -s cognito | | Display tasks with 'cognito' string in title |
+| | |
+| tpm config --project --team --timeline --tasks --doc --components | | Generate example .tpm.conf |
+| | |
+| tpm inspect | | Show details about component |
+| tpm inspect . 013 | | Show details about task woth id - 013 for current component |
+| | |
+| tpm update backend 017 --done | | Mark task with id - 017 inside backend component as done |
+| | |
+| tpm normalise platform/premise 001 | | Ensure task statuses are synchronized recursively and consistently |
+| tpm spillover web/libs --deadlines 25.9.2:25.9.3 --save | | Spill over all tasks under web/libs component from 25.9.2 release to 25.9.3 and update configs |
+| | |
+| tpm serve | | Launch a local web server to explore project details through the browser |
+| | |
+| tpm audit | | Perform a comprehensive project audit covering multiple dimensions — including unassigned tasks, blocked work, and other critical metrics |
 
 ## DSL
 

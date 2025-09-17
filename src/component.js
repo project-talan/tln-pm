@@ -227,6 +227,17 @@ class Component {
     return refs;
   }
 
+  async filterTasks(options) {
+    const tasks = [];
+    for (const task of this.tasks) {
+      const t = await task.filter(options);
+      if (t) {
+        tasks.push(t);
+      }
+    }
+    return tasks;
+  }
+
   async ls(options) {
     const {depth, who, filter} = options;
     const who2 = { ...who, assignees: await this.getAssignees(who.assignees)};
@@ -235,15 +246,8 @@ class Component {
       id: this.id,
       relativePath: this.getRelativePath(),
       name: this.project.length ? this.project[0].name : this.id,
-      tasks: [],
+      tasks: await this.filterTasks({who: who2, filter}),
       components: []
-    };
-    // tasks
-    for (const task of this.tasks) {
-      const t = await task.filter({who: who2, filter});
-      if (t) {
-        ts.tasks.push(t);
-      }
     };
     //
     // nested components
@@ -260,6 +264,31 @@ class Component {
     if (ts.tasks.length || ts.components.length) {
       return ts;
     }
+  }
+
+  async getSummary(summary) {
+    for (const task of this.tasks) {
+      await task.getSummary(summary);
+    };
+    for (const component of this.components) {
+      await component.getSummary(summary);
+    }
+  }
+
+  async inspect(taskId) {
+    if (taskId){
+      const tasks = (await Promise.all(this.tasks.map(async t => t.findByIds(taskId.split('/'))))).filter(v => !!v);
+      return (await Promise.all(tasks.map(async t => t.inspect())));
+    }
+    //
+    const summary = { todo: 0, dev: 0, blocked: 0, done: 0 };
+    await this.getSummary(summary);
+    return {
+      id: this.id,
+      relativePath: this.getRelativePath(),
+      home: this.home,
+      summary
+    };
   }
 
   async describeComponent() {
@@ -435,6 +464,8 @@ class Component {
     }
   }
 
+  // TODO: check if this function is used
+  /*
   async getSummary(summary) {
     for (const dl of this.timeline) {
       summary.timeline.push(await dl.getSummary({features: 0}));
@@ -453,6 +484,7 @@ class Component {
     }
     return summary;
   }
+  */
 
   getTeam(team, up, down) {
     if (up && this.parent) {

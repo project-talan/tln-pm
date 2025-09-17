@@ -148,6 +148,14 @@ class App {
     } 
   }
 
+  async inspect(options) {
+    const {component, id} = options;
+    const c = await this.getCurrentComponent(component);
+    if (c) {
+      return await c.inspect(id);
+    }
+  }
+
   async describe(options) {
     const {component, id, what} = options;
     const result = {};

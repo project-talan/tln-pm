@@ -45,7 +45,8 @@ const getApp = async (argv, load, fn) => {
 }
 
 const configPath = findUp.sync(['.tpmrc']);
-yargs(hideBin(process.argv))
+const y = yargs(hideBin(process.argv));
+const cli = y
   .help('help').alias('help', 'h')
   .config(configPath ? JSON.parse(fs.readFileSync(configPath)) : {})
   .usage('Project management as Code\nUsage:\n $0 <command> [options]')
@@ -195,11 +196,11 @@ yargs(hideBin(process.argv))
   .command('describe [component] [id]', 'Describe component or task', (yargs) => {
     return yargs
     .positional('component', {
-      describe: 'Nested component to show',
+      describe: 'Nested component',
       default: null
     })
     .positional('id', {
-      describe: 'Optional entity id',
+      describe: 'Optional task id',
       default: null
     });
   }, async (argv) => {
@@ -218,6 +219,32 @@ yargs(hideBin(process.argv))
         }
       } else {
         a.logger.con(r);
+      }
+    });
+  })
+  //
+  .command('inspect [component] [id]', 'Inspect component or task', (yargs) => {
+    return yargs
+    .positional('component', {
+      describe: 'Component',
+      default: null
+    })
+    .positional('id', {
+      describe: 'Optional task id',
+      default: null
+    });
+  }, async (argv) => {
+    await getApp(argv, true, async (a) => {
+      // console.log(argv);
+      const r = await a.inspect({
+        component: argv.component,
+        id: argv.id,
+        what: { component: true },
+      });
+      if (argv.json) {
+        a.logger.con(JSON.stringify(r));
+      } else {
+        a.logger.con(yaml.dump(r, {lineWidth: -1}));
       }
     });
   })
@@ -315,6 +342,7 @@ yargs(hideBin(process.argv))
       });
     });
   })
+  //
   .command('audit', 'Audit project', (yargs) => {
     return yargs;
   }, async (argv) => {
@@ -394,8 +422,6 @@ yargs(hideBin(process.argv))
       console.log(table(data, config));
     });
   })
-
-
   //
   .command(
     'about', 'Dislay project information',
@@ -423,8 +449,6 @@ yargs(hideBin(process.argv))
       console.log(String.raw`   github : https://github.com/project-talan/tln-pm.git      `);
       console.log();
     }
-  )
-  .parse();
-
-
-      
+  );
+//
+cli.parse();
