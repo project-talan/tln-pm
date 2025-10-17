@@ -39,9 +39,11 @@ class App {
     // find home: cwd or git home
     try {
       this.home = exec('git rev-parse --show-toplevel', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
+      this.home = this.home.replaceAll('/', path.sep);
       this.scmUser = exec('git config --local --get user.email', { stdio: ['pipe', 'pipe', 'ignore'] }).toString().trim();
     } catch (e) {
-      this.logger.info('tpm is executed outside of git repository, please define assigee explicitly using -q <user> or --all option');
+      console.log(e);
+      this.logger.info('tpm is executed outside of git repository or git user is undefined, please define assigee explicitly using -q <user> or --all option');
     }
     //
     this.logger.info('home:', this.home);
@@ -98,7 +100,7 @@ class App {
     this.rootComponent = componentFactory.create(this.logger, this.home, path.basename(this.home));
     const entries = this.entries.map(e => e);
     while (entries.length) {
-      const e = entries.pop();
+      const e = entries.pop().replaceAll('/', path.sep);
       const ids = e.split(path.sep); ids.pop(); // remove file name
       const c = await this.rootComponent.find(ids, true);
       const source = sourceFactory.create(this.logger, path.join(this.home, e), c);
