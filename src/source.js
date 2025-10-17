@@ -37,11 +37,12 @@ class Source {
   async load() {
     if (!this.data) {
       try {
+//        this.data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
         console.log(this.file);
         const content = fs.readFileSync(this.file, {encoding: 'utf8'})
         console.log(content);
         this.data = yaml.load(content, 'utf8');
-        console.log(data);
+        console.log(this.data);
       } catch (e) {
         this.logger.error('Yaml file has incorrect format:', this.file, e);
       }
