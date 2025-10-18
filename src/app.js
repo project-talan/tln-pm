@@ -48,6 +48,7 @@ class App {
     //
     this.logger.info('home:', this.home);
     this.logger.info('cwd:', this.cwd);
+    this.logger.info('scmUser:', this.scmUser);
   }
 
   async load(include, ignore) {
