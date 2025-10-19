@@ -13,7 +13,7 @@ import Projects from './components/Projects';
 import Timeline from './components/Timeline';
 import Team from './components/Team';
 import Docs from './components/Docs';
-// import Assessment from './components/Assessment';
+import Assessment from './components/Assessment';
 import Assistant from './components/Assistant';
 
 import { API_BASE_URL } from './shared/Consts';
@@ -41,7 +41,7 @@ const pages = [
   { id: 'timeline', title: 'Timeline', href: '/timeline' },
   { id: 'team', title: 'Team', href: '/team' },
   { id: 'docs', title: 'Docs', href: '/docs' },
-  // { id: 'assessment', title: 'Assessment', href: '/assessment' },
+  { id: 'assessment', title: 'Assessment', href: '/assessment' },
   { id: 'assistant', title: 'Assistant', href: '/assistant' },
 ];
 
@@ -83,7 +83,7 @@ function App() {
             <Route path="timeline" element={<Timeline/>} />
             <Route path="team" element={<Team />} />
             <Route path="docs" element={<Docs />} />
-            {/*<Route path="assessment" element={<Assessment />} />*/}
+            <Route path="assessment" element={<Assessment />} />
             <Route path="assistant" element={<Assistant />} />
           </Routes>
         </BrowserRouter>

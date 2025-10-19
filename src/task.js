@@ -237,6 +237,15 @@ class Task {
     }
   }
 
+  async getHRStatus() {
+    switch (this.status) {
+      case '-': return 'todo';
+      case '>': return 'dev';
+      case '!': return 'blocked';
+      case '+': return 'done';
+    }
+  }
+
   async getSummary(summary) {
     if (this.tasks.length) {
       await Promise.all(this.tasks.map(async t => t.getSummary(summary)));
@@ -281,9 +290,17 @@ class Task {
   }
 
   async inspect() {
+    const id = this.id;
     const title = this.title;
     const assignees = this.assignees.join(', ');
-    const r = { title };
+    const r = {
+      title,
+      status: await this.getHRStatus()
+    };
+    //
+    if (id) {
+      r.id = id;
+    }
     if (assignees) {
       r.assignees = assignees;
     }
