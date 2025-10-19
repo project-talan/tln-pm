@@ -38,6 +38,7 @@ class Source {
     if (!this.data) {
       try {
         this.data = yaml.load(fs.readFileSync(this.file, {encoding: 'utf8'}), 'utf8');
+        // console.log(this.data);
       } catch (e) {
         this.logger.error('Yaml file has incorrect format:', this.file, e);
       }
